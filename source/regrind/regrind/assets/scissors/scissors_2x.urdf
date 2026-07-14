@@ -1,0 +1,229 @@
+<?xml version="1.0" ?>
+<!-- A custom urdf with copilot generated -->
+<robot name="scissors">
+   <material name="obj_color">
+      <color rgba="1.0 0.423529411765 0.0392156862745 1.0"/>
+   </material>
+   <material name="obj_bottom_color">
+      <color rgba="0.4 0.8 1.0 1.0"/>
+   </material>
+   <material name="obj_top_color">
+      <color rgba="1.0 0.6 1.0 1.0"/>
+   </material>
+   <link name="top">
+      <inertial>
+         <origin rpy="0 0 0" xyz="-0.078084 0.032155 0.006335"/>
+         <mass value="0.338340"/>
+         <inertia ixx="0.0002697" ixy="0.0003930" ixz="0.0000951" iyy="0.0013638" iyz="-0.0000356" izz="0.0015968"/>
+      </inertial>
+      <visual>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="top.obj" scale="0.002 0.002 0.002"/>
+         </geometry>
+         <material name="obj_color"/>
+      </visual>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="top_simplified/top_simplified_part_000.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="top_simplified/top_simplified_part_001.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="top_simplified/top_simplified_part_002.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="top_simplified/top_simplified_part_003.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="top_simplified/top_simplified_part_004.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="top_simplified/top_simplified_part_005.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="top_simplified/top_simplified_part_006.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="top_simplified/top_simplified_part_007.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="top_simplified/top_simplified_part_008.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="top_simplified/top_simplified_part_009.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="top_simplified/top_simplified_part_010.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="top_simplified/top_simplified_part_011.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="top_simplified/top_simplified_part_012.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="top_simplified/top_simplified_part_013.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="top_simplified/top_simplified_part_014.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="top_simplified/top_simplified_part_015.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="top_simplified/top_simplified_part_016.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+   </link>
+   <link name="bottom">
+      <inertial>
+         <origin rpy="0 0 0" xyz="-0.089221 -0.018566 0.005044"/>
+         <mass value="0.363147"/>
+         <inertia ixx="0.0002026" ixy="-0.0001598" ixz="-0.0000612" iyy="0.0018403" iyz="-0.0000217" izz="0.0020097"/>
+      </inertial>
+      <visual>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="bottom.obj" scale="0.002 0.002 0.002"/>
+         </geometry>
+         <material name="obj_color"/>
+      </visual>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="bottom_simplified/bottom_simplified_part_000.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="bottom_simplified/bottom_simplified_part_001.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="bottom_simplified/bottom_simplified_part_002.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="bottom_simplified/bottom_simplified_part_003.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="bottom_simplified/bottom_simplified_part_004.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="bottom_simplified/bottom_simplified_part_005.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="bottom_simplified/bottom_simplified_part_006.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="bottom_simplified/bottom_simplified_part_007.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="bottom_simplified/bottom_simplified_part_008.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="bottom_simplified/bottom_simplified_part_009.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="bottom_simplified/bottom_simplified_part_010.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="bottom_simplified/bottom_simplified_part_011.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+      <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="bottom_simplified/bottom_simplified_part_012.obj" scale="2 2 2"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint name="scissors_joint" type="revolute">
+      <origin xyz="0 0 0"/>
+      <axis xyz="0 0 -1"/>
+      <parent link="bottom"/>
+      <child link="top"/>
+      <dynamics damping="0.0" friction="0.000"/>
+      <limit effort="1000" velocity="200" lower="0" upper="0.5"/>
+   </joint>
+</robot>
