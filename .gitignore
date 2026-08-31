@@ -1,77 +1,124 @@
-# C++
-**/cmake-build*/
-**/build*/
-**/*.so
-**/*.log*
-
-# Omniverse
-**/*.dmp
-**/.thumbs
-
-# No USD files allowed in the repo
-# **/*.usd
-# **/*.usda
-# **/*.usdc
-# **/*.usdz
-
-# Python
+# -----------------------------------------------------------------------------
+# Local editor, OS, and agent state
+# -----------------------------------------------------------------------------
 .DS_Store
-**/*.egg-info/
-**/__pycache__/
-**/.pytest_cache/
-**/*.pyc
-**/*.pb
-
-# Docker/Singularity
-**/*.sif
-docker/cluster/exports/
-docker/.container.cfg
-
-# IDE
-**/.idea/
+Thumbs.db
+*~
+*.swp
+*.swo
 **/.vscode/
-# Don't ignore the top-level .vscode directory as it is
-# used to configure VS Code settings
-!.vscode
+**/.idea/
 *.code-workspace
+**/browse.vc.db*
+/.agents/
+/.codex/
 
-# Outputs
-**/output/*
-**/outputs/*
-**/videos/*
-**/wandb/*
-**/.neptune/*
-docker/artifacts/
+# -----------------------------------------------------------------------------
+# Python environments and caches
+# -----------------------------------------------------------------------------
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/.coverage
+**/htmlcov/
+**/.venv/
+**/venv/
+**/env/
+.python-version
+
+# Local environment variables and credentials. Keep examples/templates.
+.env
+.env.*
+!.env.example
+!.env.template
+*.pem
+*.key
+
+# -----------------------------------------------------------------------------
+# Native/build/package caches
+# -----------------------------------------------------------------------------
+**/build/
+**/dist/
+**/cmake-build*/
+**/CMakeFiles/
+**/.cache/
+*.so
+*.o
+*.a
 *.tmp
+*.temp
+*.dmp
 
-# Doc Outputs
-**/docs/_build/*
-**/generated/*
+# Isaac Sim / Omniverse generated state
+**/.thumbs/
+**/_build/
+**/_repo/
+**/_isaac_sim*/
+**/.lastformat
 
-# Isaac-Sim packman
-_isaac_sim*
-_repo
-_build
-.lastformat
+# -----------------------------------------------------------------------------
+# Generated experiments, logs, checkpoints, and recordings
+# -----------------------------------------------------------------------------
+**/logs/
+**/runs/
+**/wandb/
+**/.neptune/
+**/recordings/
+**/videos/
+**/checkpoints/
+**/tensorboard/
+**/slurm_out/
+*.log
+*.log.*
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.sdf
 
-# RL-Games
-**/runs/*
-**/logs/*
-**/recordings/*
+# Root-level generated patch/export bundles
+/patches/
 
-# Pre-Trained Checkpoints
-/.pretrained_checkpoints/
+# -----------------------------------------------------------------------------
+# Raw datasets and generated REGRIND/IK results
+# -----------------------------------------------------------------------------
+# Raw datasets and all derived outputs are local artifacts. They are large and
+# reproducible from the source data plus the scripts in this repository.
+/dataset/
+/outputs/
+/revo2_dexycb_interactive_57frames.html
 
-# Teleop Recorded Dataset
-datasets
+# Any outputs generated inside the nested upstream REGRIND checkout.
+/regrind/outputs/
+/regrind/output/
+/regrind/recordings/
 
-# Tests
-tests/
+# -----------------------------------------------------------------------------
+# Large/redundant YCB derivatives
+# -----------------------------------------------------------------------------
+# Retain textured_simple.obj + textured_simple.usd + texture_map.png because
+# the GUI replay uses them. These heavier alternatives are not needed.
+/007_tuna_fish_can/textured.obj
+/007_tuna_fish_can/textured.usd
+/007_tuna_fish_can/textured_simple.sdf
+/007_tuna_fish_can/textured_simple_low_res.sdf
+/007_tuna_fish_can/textured_simple_low_res.pth
 
-# Docker history
-.regrind-docker-history
+# Common local archives and media exports
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.webm
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
 
-slurm_out/
-scripts/slurm/
-
-CLAUDE.md
+# Preserve source textures and small documentation images despite the media
+# exclusions above (PNG/JPG are intentionally not ignored globally).

@@ -1,0 +1,384 @@
+"""Convert a REGRIND Revo2 wrist trajectory into an RB3+Revo2 reference."""
+
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+
+import h5py
+import numpy as np
+from scipy.spatial.transform import Rotation
+
+try:
+    from .rb3_kinematics import RB3730Kinematics
+    from .reference_trajectory import DEFAULT_REVO2_JOINT_NAMES
+except ImportError:  # Support direct execution.
+    from rb3_kinematics import RB3730Kinematics
+    from reference_trajectory import DEFAULT_REVO2_JOINT_NAMES
+
+
+def _load(path: str) -> dict[str, np.ndarray]:
+    if path.lower().endswith(".npz"):
+        with np.load(path) as archive:
+            return {name: archive[name] for name in archive.files}
+    with h5py.File(path, "r") as h5_file:
+        return {name: h5_file[name][()] for name in h5_file}
+
+
+def _first(data: dict, names: tuple[str, ...], description: str):
+    for name in names:
+        if name in data:
+            return np.asarray(data[name])
+    raise KeyError(f"input has no {description}; tried {names}")
+
+
+def _decode_scalar(value, default: str) -> str:
+    if value is None:
+        return default
+    value = np.asarray(value).item()
+    return value.decode() if isinstance(value, bytes) else str(value)
+
+
+def _to_xyzw(quaternion: np.ndarray, convention: str) -> np.ndarray:
+    quaternion = np.asarray(quaternion, dtype=float)
+    if convention == "xyzw":
+        return quaternion
+    if convention == "wxyz":
+        return quaternion[..., [1, 2, 3, 0]]
+    raise ValueError(f"unsupported quaternion convention: {convention}")
+
+
+def _write(path: str, data: dict):
+    output = Path(path).expanduser().resolve()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    if output.suffix.lower() == ".npz":
+        np.savez_compressed(output, **{key: np.asarray(value) for key, value in data.items()})
+    elif output.suffix.lower() in (".h5", ".hdf5"):
+        with h5py.File(output, "w") as h5_file:
+            for key, value in data.items():
+                array = np.asarray(value)
+                if array.dtype.kind in ("U", "O"):
+                    h5_file.create_dataset(
+                        key,
+                        data=array.astype(object),
+                        dtype=h5py.string_dtype("utf-8"),
+                    )
+                else:
+                    h5_file.create_dataset(key, data=array)
+    else:
+        raise ValueError("output must end in .h5, .hdf5, or .npz")
+    print(f"Saved RB3+Revo2 reference trajectory to {output}")
+
+
+def _default_output(input_path: str) -> str:
+    path = Path(input_path).expanduser().resolve()
+    return str(path.with_name(path.stem + "_rb3_revo2_reference.h5"))
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("input", help="REGRIND retargeting .h5/.hdf5/.npz")
+    parser.add_argument("--out", help="Output .h5/.hdf5/.npz")
+    parser.add_argument(
+        "--input-quat-convention",
+        choices=("auto", "xyzw", "wxyz"),
+        default="auto",
+    )
+    parser.add_argument(
+        "--initial-q", nargs=6, type=float, default=np.zeros(6), metavar="RAD",
+        help="Neutral/current RB3 configuration used for frame 0.",
+    )
+    parser.add_argument(
+        "--base-position", nargs=3, type=float, default=(0.0, 0.0, 0.0), metavar="M",
+        help="RB3 root position in the REGRIND world frame.",
+    )
+    parser.add_argument(
+        "--base-quat-xyzw", nargs=4, type=float, default=(0.0, 0.0, 0.0, 1.0),
+        help="RB3 root orientation in the REGRIND world frame.",
+    )
+    parser.add_argument(
+        "--target-wrist-local-rpy-deg",
+        nargs=3,
+        type=float,
+        default=(0.0, 0.0, 0.0),
+        metavar=("ROLL", "PITCH", "YAW"),
+        help=(
+            "Fixed intrinsic local XYZ frame correction right-composed with "
+            "every target wrist orientation before IK. Use '0 0 180' when "
+            "the mounted Revo2 palm frame is upside down relative to REGRIND."
+        ),
+    )
+    parser.add_argument("--position-tolerance", type=float, default=1.0e-4)
+    parser.add_argument("--orientation-tolerance", type=float, default=1.0e-3)
+    parser.add_argument("--position-weight", type=float, default=10.0)
+    parser.add_argument("--max-nfev", type=int, default=800)
+    parser.add_argument(
+        "--verbose-frames", action="store_true",
+        help="Print target and FK wrist poses for every frame.",
+    )
+    args = parser.parse_args()
+    if args.position_tolerance <= 0 or args.orientation_tolerance <= 0:
+        raise ValueError("IK tolerances must be > 0")
+
+    source = _load(args.input)
+    wrist_pos = _first(
+        source, ("wrist_pos_world", "wrist_pos", "robot_pos"), "wrist position"
+    )
+    wrist_quat = _first(
+        source,
+        ("wrist_quat_world", "wrist_quat", "robot_quat"),
+        "wrist quaternion",
+    )
+    revo2_joints = _first(
+        source, ("revo2_joints", "robot_joints"), "Revo2 joint trajectory"
+    )
+    object_pos = _first(
+        source, ("object_pos_world", "object_pos", "obj_pos"), "object position"
+    )
+    object_quat = _first(
+        source,
+        ("object_quat_world", "object_quat", "obj_quat"),
+        "object quaternion",
+    )
+    convention = args.input_quat_convention
+    if convention == "auto":
+        convention = _decode_scalar(
+            source.get("quat_convention", source.get("quaternion_order")), "xyzw"
+        )
+    wrist_quat = _to_xyzw(wrist_quat, convention)
+    object_quat = _to_xyzw(object_quat, convention)
+    wrist_frame_correction_rpy_deg = np.asarray(
+        args.target_wrist_local_rpy_deg, dtype=float
+    )
+    if (
+        wrist_frame_correction_rpy_deg.shape != (3,)
+        or not np.isfinite(wrist_frame_correction_rpy_deg).all()
+    ):
+        raise ValueError("--target-wrist-local-rpy-deg must contain three finite values")
+    wrist_frame_correction = Rotation.from_euler(
+        "XYZ", wrist_frame_correction_rpy_deg, degrees=True
+    )
+    wrist_quat = (
+        Rotation.from_quat(wrist_quat) * wrist_frame_correction
+    ).as_quat()
+
+    T = len(wrist_pos)
+    if T == 0:
+        raise ValueError("input trajectory has no frames")
+    expected = {
+        "wrist_pos": (T, 3),
+        "wrist_quat": (T, 4),
+        "revo2_joints": (T, 6),
+        "object_pos": (T, 3),
+        "object_quat": (T, 4),
+    }
+    actual = {
+        "wrist_pos": wrist_pos.shape,
+        "wrist_quat": wrist_quat.shape,
+        "revo2_joints": revo2_joints.shape,
+        "object_pos": object_pos.shape,
+        "object_quat": object_quat.shape,
+    }
+    bad = {name: (actual[name], shape) for name, shape in expected.items() if actual[name] != shape}
+    if bad:
+        raise ValueError(f"invalid input trajectory shapes (actual, expected): {bad}")
+    if not all(
+        np.isfinite(value).all()
+        for value in (
+            wrist_pos,
+            wrist_quat,
+            revo2_joints,
+            object_pos,
+            object_quat,
+        )
+    ):
+        raise ValueError("input wrist/Revo2/object trajectory contains NaN/Inf")
+
+    kinematics = RB3730Kinematics(
+        base_position=args.base_position,
+        base_quaternion_xyzw=args.base_quat_xyzw,
+    )
+    initial_q = np.asarray(args.initial_q, dtype=float)
+    lower, upper = kinematics.get_joint_limits()
+    if initial_q.shape != (6,) or not np.isfinite(initial_q).all():
+        raise ValueError("--initial-q must contain six finite values")
+    if np.any(initial_q < lower) or np.any(initial_q > upper):
+        raise ValueError("--initial-q is outside RB3 joint limits")
+
+    rb3_joints = np.full((T, 6), np.nan)
+    ik_success = np.zeros(T, dtype=bool)
+    optimizer_success = np.zeros(T, dtype=bool)
+    position_error = np.full(T, np.nan)
+    orientation_error = np.full(T, np.nan)
+    fk_wrist_pos = np.full((T, 3), np.nan)
+    fk_wrist_quat = np.full((T, 4), np.nan)
+    joint_limit_violation = np.ones(T, dtype=bool)
+    max_joint_limit_violation = np.full(T, np.nan)
+    finite_solution = np.zeros(T, dtype=bool)
+    solver_cost = np.full(T, np.nan)
+    solver_nfev = np.zeros(T, dtype=int)
+    solver_message = []
+    warm_start_frame = np.full(T, -1, dtype=int)
+
+    warm_q = initial_q.copy()
+    last_finite_frame = -1
+    for frame in range(T):
+        warm_start_frame[frame] = last_finite_frame
+        try:
+            result = kinematics.inverse(
+                wrist_pos[frame],
+                wrist_quat[frame],
+                initial_q=warm_q,
+                neutral_q=initial_q,
+                position_tolerance_m=args.position_tolerance,
+                orientation_tolerance_rad=args.orientation_tolerance,
+                position_weight=args.position_weight,
+                max_nfev=args.max_nfev,
+            )
+            rb3_joints[frame] = result.q
+            ik_success[frame] = result.success
+            optimizer_success[frame] = result.optimizer_success
+            position_error[frame] = result.position_error_m
+            orientation_error[frame] = result.orientation_error_rad
+            fk_wrist_pos[frame] = result.fk_position
+            fk_wrist_quat[frame] = result.fk_quaternion_xyzw
+            joint_limit_violation[frame] = result.joint_limit_violation
+            max_joint_limit_violation[frame] = result.max_joint_limit_violation_rad
+            finite_solution[frame] = result.finite
+            solver_cost[frame] = result.cost
+            solver_nfev[frame] = result.nfev
+            solver_message.append(result.message)
+            if result.finite:
+                warm_q = result.q.copy()
+                last_finite_frame = frame
+        except Exception as error:
+            solver_message.append(f"{type(error).__name__}: {error}")
+
+        status = "OK" if ik_success[frame] else "FAIL"
+        print(
+            f"frame {frame:04d} {status} "
+            f"pos_err={position_error[frame]:.6g} m "
+            f"ori_err={orientation_error[frame]:.6g} rad "
+            f"limit={joint_limit_violation[frame]} finite={finite_solution[frame]}"
+        )
+        if args.verbose_frames:
+            print(f"  target pos:  {wrist_pos[frame]}")
+            print(f"  target quat: {wrist_quat[frame]} (xyzw)")
+            print(f"  FK pos:      {fk_wrist_pos[frame]}")
+            print(f"  FK quat:     {fk_wrist_quat[frame]} (xyzw)")
+
+    reference_joints = np.concatenate((rb3_joints, revo2_joints), axis=1)
+    rb3_joint_step_norm = np.concatenate(
+        ([0.0], np.linalg.norm(np.diff(rb3_joints, axis=0), axis=1))
+    )
+    failed_indices = np.flatnonzero(~ik_success)
+    finite_error = np.isfinite(position_error) & np.isfinite(orientation_error)
+    print("\n[RB3 IK sequence summary]")
+    print(f"  frames:                     {T}")
+    print(f"  IK success rate:            {100.0 * ik_success.mean():.2f}%")
+    print(f"  failed frame indices:       {failed_indices.tolist()}")
+    if finite_error.any():
+        print(
+            "  mean / max position error:  "
+            f"{position_error[finite_error].mean():.9g} / "
+            f"{position_error[finite_error].max():.9g} m"
+        )
+        print(
+            "  mean / max orientation err: "
+            f"{orientation_error[finite_error].mean():.9g} / "
+            f"{orientation_error[finite_error].max():.9g} rad"
+        )
+    print("  RB3 joint ranges [rad]:")
+    finite_q = np.isfinite(rb3_joints).all(axis=1)
+    for index, name in enumerate(kinematics.joint_names):
+        if finite_q.any():
+            print(
+                f"    {name:<12} {rb3_joints[finite_q, index].min(): .6f} .. "
+                f"{rb3_joints[finite_q, index].max(): .6f}"
+            )
+        else:
+            print(f"    {name:<12} n/a")
+    print(f"  max RB3 joint step norm:   {np.nanmax(rb3_joint_step_norm):.9g} rad")
+
+    output_data = {
+        "quat_convention": "xyzw",
+        "fps": np.asarray(source.get("fps", 30.0)).item(),
+        "frame_index": np.asarray(source.get("frame_index", np.arange(T))),
+        "rb3_joint_names": np.asarray(kinematics.joint_names),
+        "revo2_joint_names": np.asarray(
+            source.get(
+                "actuated_joint_names",
+                DEFAULT_REVO2_JOINT_NAMES,
+            )
+        ).astype(str),
+        "reference_joint_order": "rb3_first_then_revo2",
+        "rb3_joints": rb3_joints,
+        "revo2_joints": revo2_joints,
+        "reference_joints": reference_joints,
+        "rb3_joint_step_norm_rad": rb3_joint_step_norm,
+        "wrist_pos": wrist_pos,
+        "wrist_quat": wrist_quat,
+        "object_pos": object_pos,
+        "object_quat": object_quat,
+        "target_wrist_pos": wrist_pos,
+        "target_wrist_quat": wrist_quat,
+        "fk_wrist_pos": fk_wrist_pos,
+        "fk_wrist_quat": fk_wrist_quat,
+        "ik_success": ik_success,
+        "optimizer_success": optimizer_success,
+        "failed_frame_indices": failed_indices,
+        "position_error_m": position_error,
+        "orientation_error_rad": orientation_error,
+        "joint_limit_violation": joint_limit_violation,
+        "max_joint_limit_violation_rad": max_joint_limit_violation,
+        "finite_solution": finite_solution,
+        "solver_cost": solver_cost,
+        "solver_nfev": solver_nfev,
+        "solver_message": np.asarray(solver_message),
+        "warm_start_frame": warm_start_frame,
+        "rb3_joint_lower_rad": lower,
+        "rb3_joint_upper_rad": upper,
+        "rb3_base_position": np.asarray(args.base_position),
+        "rb3_base_quat_xyzw": np.asarray(args.base_quat_xyzw),
+        "ik_position_tolerance_m": args.position_tolerance,
+        "ik_orientation_tolerance_rad": args.orientation_tolerance,
+        "source_retargeting_file": str(Path(args.input).expanduser().resolve()),
+        "source_robot_usd": str(kinematics.source_usd_path),
+        "mounted_wrist_frame": kinematics.mounted_wrist_frame,
+        "link6_to_wrist_xyz_m": kinematics.link6_to_wrist_position,
+        "target_wrist_local_rpy_correction_deg": wrist_frame_correction_rpy_deg,
+        "target_wrist_local_quat_xyzw_correction": wrist_frame_correction.as_quat(),
+    }
+    mano_joint_world = next(
+        (
+            np.asarray(source[name])
+            for name in (
+                "mano_joint_world_mano21",
+                "mano_joint_world",
+                "mano_joint_coords_world",
+                "mano_joint_coords",
+                "human_hand_keypoints",
+            )
+            if name in source
+        ),
+        None,
+    )
+    if mano_joint_world is not None:
+        if mano_joint_world.shape != (T, 21, 3):
+            raise ValueError(
+                "MANO skeleton must have shape "
+                f"{(T, 21, 3)}, got {mano_joint_world.shape}"
+            )
+        if not np.isfinite(mano_joint_world).all():
+            raise ValueError("MANO skeleton contains NaN/Inf")
+        output_data["mano_joint_world"] = mano_joint_world
+        output_data["mano_joint_order"] = "mano21_sequential_thumb_index_middle_ring_little"
+    # Keep the configured mount quaternion verbatim; FK stores its rotation matrix.
+    output_data["link6_to_wrist_quat_xyzw"] = np.asarray(
+        kinematics.config["link6_to_mounted_wrist_quat_xyzw"], dtype=float
+    )
+    _write(args.out or _default_output(args.input), output_data)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,121 +1,72 @@
-# REGRIND
+# REGRIND-Revo2: DexYCB Retargeting and Isaac Sim Replay
 
-[![Python](https://img.shields.io/badge/python-3.11-blue.svg)](https://docs.python.org/3/whatsnew/3.11.html)
-[![IsaacSim](https://img.shields.io/badge/IsaacSim-5.1.0-silver.svg)](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/index.html)
-[![IsaacLab](https://img.shields.io/badge/IsaacLab-2.3.0-silver.svg)](https://isaac-sim.github.io/IsaacLab/main/index.html)
+DexYCB의 사람 손-물체 동작을 6-DoF Revo2 손으로 리타게팅하고, RB3-730의
+strict IK를 거쳐 12-DoF 궤적을 Isaac Sim에서 재생하는 프로젝트입니다.
 
-Implementation of ["A Minimalist Retargeting-Guided Reinforcement Learning Recipe for Dexterous Manipulation"](https://www.yunhaifeng.com/REGRIND/).
+현재 파이프라인은 다음 범위를 다룹니다.
 
-![Method overview](data/figures/method_overview.png)
-
-## Installation
-
-First follow the [IsaacLab official instructions](https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/binaries_installation.html) to install IsaacSim 5.1.0 and IsaacLab 2.3.0. 
-
-Then set up the `regrind` conda environment with the following commands:
-
-```bash
-cd /path/to/IsaacLab
-./isaaclab.sh --conda regrind
-
-cd /path/to/regrind
-conda activate regrind
-isaaclab -i rsl_rl
-python -m pip install -e source/regrind
-source scripts/set_path.sh
+```text
+DexYCB second camera
+  -> 오른손 MANO21 전처리
+  -> REGRIND interaction-mesh retargeting
+  -> Revo2 6-DoF + semantic keypoints 21개
+  -> Isaac/RB3 world 좌표 변환
+  -> RB3-730 strict IK
+  -> RB3 6축 + Revo2 6축 replay
 ```
 
-## Retargeting
+## 빠른 시작
 
-Note: The retargeted trajectories are also provided in this repository. You can directly 
-[start training](#rl-training) without running retargeting.
-
-### Dependencies
-
-The retargeter relies on [Drake](https://drake.mit.edu/) (`pydrake`), which is **not** part of the
-core install (so `import regrind` works without it). Install it into the `regrind` env:
+프로젝트 루트에서 실행합니다.
 
 ```bash
-conda activate regrind
-python -m pip install -e "source/regrind[retargeting]"   # installs the `drake` extra
-# or simply: python -m pip install drake
+# 전체 데이터 전처리, 리타게팅, world 변환, strict IK
+./scripts/run_pipeline.sh
+
+# 준비된 sequence 확인
+./scripts/run_isaac_replay.sh --list-sequences
+
+# 순수 kinematic replay
+./scripts/run_isaac_replay.sh --sequence 20200709_143626_right
+
+# 캔을 중력과 접촉으로만 움직이는 실험 모드
+./scripts/run_isaac_replay.sh --sequence 20200709_143747_left --physics-object
+
+# 회귀 테스트
+./scripts/run_tests.sh
 ```
 
-### License (Mosek)
+기본 Python 경로는 `/home/wanjunkim/IsaacLab/.venv/bin/python`입니다. 다른 환경은
+`ISAAC_SIM_PYTHON=/path/to/python`으로 지정할 수 있습니다.
 
-The optimizer defaults to the [Mosek](https://www.mosek.com/) QP solver, which requires a license:
+## 디렉터리
 
-```bash
-python -m pip install mosek
-```
+| 경로 | 역할 | Git 관리 |
+|---|---|---|
+| `dataset/` | 원본 DexYCB 데이터, 읽기 전용 | 제외 |
+| `regrind/` | 기반 REGRIND 코드 | 별도 nested repository |
+| `tools/dexycb_batch/` | 전체 파이프라인 orchestration | 포함 |
+| `tools/dexycb_world_transform/` | camera-to-world 변환 | 포함 |
+| `tools/revo2_kinematics/` | Revo2 FK와 semantic keypoint | 포함 |
+| `tools/rb3_revo2_ik/` | RB3 IK, 진단, Isaac replay | 포함 |
+| `scripts/` | 사람이 사용하는 대표 실행 명령 | 포함 |
+| `tests/` | 모든 회귀 테스트 | 포함 |
+| `docs/` | 구조, 데이터, 실행 설명 | 포함 |
+| `USD/` | RB3/Revo2 USD와 Stage | 포함 |
+| `007_tuna_fish_can/` | YCB tuna can asset | 필요한 경량 asset만 포함 |
+| `outputs/` | 전처리·리타게팅·IK·시각화 결과 | 제외 |
 
-Mosek offers free [personal academic licenses](https://www.mosek.com/products/academic-licenses/)
-and trial licenses. Download the license file and point Drake at it explicitly:
+자세한 파일 관계는 [프로젝트 구조](docs/PROJECT_STRUCTURE.md), 좌표계와 데이터
+형식은 [데이터 파이프라인](docs/DATA_PIPELINE.md), Isaac 실행은
+[Isaac Sim 리플레이](docs/ISAAC_SIM_REPLAY.md)를 참고하세요.
 
-```bash
-export MOSEKLM_LICENSE_FILE=/path/to/mosek.lic
-```
+## 현재 검증 범위
 
-(Drake also ships the license-free Clarabel solver; the retargeter exposes a `solver=` argument if
-you prefer to use it instead of Mosek.)
+- Revo2 FK: 입력 `(6,)`, 출력 semantic keypoints `(21, 3)`
+- RB3 strict IK: joint limits와 이전 프레임 warm start 적용
+- 준비된 5개 sequence: strict IK 344/344 frames 성공
+- Isaac replay: RB3/Revo2 관절, 원본 MANO21, tuna can mesh 표시
+- `--physics-object`: 캔 pose를 매 프레임 덮어쓰지 않고 중력/contact 사용
 
-### Running retargeting
-
-Make sure the path environment variables are set (`source scripts/set_path.sh`) so demos, keypoints,
-and assets resolve, then run:
-
-```bash
-python scripts/retarget_hand_object.py --robot {leaphand,wujihand}  --object {scissors,screwdriver}
-```
-
-The output `.h5` follows the schema expected by `load_retargeted_traj` (keys `robot_pos`,
-`robot_quat`, `robot_joints`, `object_pos`, `object_quat`, `object_joint`, `robot_keypoints`,
-`mano_joint_coords`). Visualize / sanity-check it against an environment by overriding the
-trajectory path:
-
-```bash
-python scripts/replay_retargeted_traj.py --task Regrind-LeapHand-Scissors-Play-v0 \
-    --headless --video --num_envs 1 --retargeted_traj_path /path/to/out.h5
-```
-
-## RL training
-
-### Exploring the environments
-
-To list available tasks/environments:
-
-```bash
-python scripts/list_envs.py 
-```
-
-You can add `--suite [suite]` to only show tasks from a specified suite (robot), where `[suite]` 
-can be either `LeapHand` or `WujiHand`.
-
-(From now on, we will use `[task]` to denote the task name. Each task is named as 
-`Regrind-[suite]-[object]-v0`, e.g., `Regrind-LeapHand-Scissors-v0`, 
-`Regrind-WujiHand-Screwdriver-v0`, etc. The environments used for play / evaluation are named 
-as `Regrind-[suite]-[object]-Play-v0`.)
-
-To run a zero-action / random agent and visualize:
-
-```bash
-python scripts/zero_agent.py --task [task] --num_envs 16
-python scripts/random_agent.py --task [task] --num_envs 16
-```
-
-### Training
-
-```bash
-python scripts/rsl_rl/train.py --task [task] --headless --num_envs 4096
-```
-To enable wandb logging, add `--logger wandb --log_project_name regrind`.  
-
-### Evaluation
-
-```bash
-python scripts/rsl_rl/play.py --task [task] --headless --video
-```
-
-Note that we should use the play environments (with the suffix `-Play-v0`). 
-Use `--checkpoint` to specify the checkpoint to evaluated. The latest checkpoint will be used if not specified.
-When evaluating an intermediate checkpoint, use `--auto_gravity_from_ckpt` to infer the corresponding gravity since we perform gravity curriculum.
+물리 grasp 성공 자체는 아직 보장하지 않습니다. controller tuning, contact 안정화,
+Residual RL, domain randomization은 현재 범위 밖입니다.

@@ -1,0 +1,35 @@
+{
+  "model_name": "rb3_730es_u_with_revo2_right",
+  "source_usd": "../../USD/rb3_revo2.usd",
+  "source_usd_sha256": "9f5d5f8e97ef7164b6a6319fa7bb766d4970d59d74fb3b35220017ec60542fb1",
+  "robot_root_prim": "/World/rb3_730es_u",
+  "arm_articulation_prim": "/World/rb3_730es_u/Geometry",
+  "hand_articulation_prim": "/World/revo2_right/Geometry/world",
+  "joint_names": ["base", "shoulder", "elbow", "wrist1", "wrist2", "wrist3"],
+  "joint_prim_paths": [
+    "/World/rb3_730es_u/Physics/base",
+    "/World/rb3_730es_u/Physics/shoulder",
+    "/World/rb3_730es_u/Physics/elbow",
+    "/World/rb3_730es_u/Physics/wrist1",
+    "/World/rb3_730es_u/Physics/wrist2",
+    "/World/rb3_730es_u/Physics/wrist3"
+  ],
+  "joint_axes": ["Z", "Y", "Y", "Z", "Y", "Z"],
+  "joint_offsets_xyz_m": [
+    [0.0, 0.0, 0.1453],
+    [0.0, 0.0, 0.0],
+    [0.0, -0.00645, 0.286],
+    [0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.344],
+    [0.0, 0.0, 0.0]
+  ],
+  "joint_lower_deg": [-360.0, -360.0, -150.0, -360.0, -360.0, -360.0],
+  "joint_upper_deg": [360.0, 360.0, 150.0, 360.0, 360.0, 360.0],
+  "link6_prim": "/World/rb3_730es_u/Geometry/link0/link1/link2/link3/link4/link5/link6",
+  "rb3_tcp_prim": "/World/rb3_730es_u/Geometry/link0/link1/link2/link3/link4/link5/link6/tcp",
+  "mounted_wrist_frame": "/World/revo2_right/Geometry/world/right_hand_base_link",
+  "mount_frame_prim": "/World/rb3_730es_u/Geometry/link0/link1/link2/link3/link4/link5/link6/revo2_mount",
+  "link6_to_mounted_wrist_xyz_m": [0.03, 0.0, 0.14],
+  "link6_to_mounted_wrist_quat_xyzw": [0.0, -0.7071067811865475, 0.0, 0.7071067811865476],
+  "note": "Snapshot read from the composed rb3_revo2.usd stage. The actual right_hand_base_link is offset [0.03, 0, 0.14] m from link6 and rotated -90 degrees about link6 Y."
+}
