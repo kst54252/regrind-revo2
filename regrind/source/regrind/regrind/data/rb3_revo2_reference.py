@@ -23,6 +23,10 @@ REVO2_JOINT_NAMES = (
     "right_pinky_proximal_joint",
 )
 REFERENCE_JOINT_NAMES = RB3_JOINT_NAMES + REVO2_JOINT_NAMES
+MANO21_SEQUENTIAL_TO_REVO_SEMANTIC = np.asarray(
+    (0, 5, 6, 7, 9, 10, 11, 17, 18, 19, 13, 14, 15, 1, 2, 3, 4, 8, 12, 16, 20),
+    dtype=np.int64,
+)
 
 
 def _decode_scalar(value, default: str) -> str:
@@ -73,6 +77,7 @@ class RB3Revo2Reference:
     object_quat_xyzw: np.ndarray
     wrist_pos: np.ndarray
     wrist_quat_xyzw: np.ndarray
+    mano_joint_world_semantic: np.ndarray | None
     fps: float
     joint_names: tuple[str, ...]
 
@@ -130,6 +135,25 @@ def load_rb3_revo2_reference(
     }
     if len(frame_counts) != 1 or next(iter(frame_counts)) < 2:
         raise ValueError(f"reference arrays must share T>=2, got frame counts {sorted(frame_counts)}")
+    frames = next(iter(frame_counts))
+
+    mano_joint_world = None
+    mano_key = next(
+        (key for key in ("mano_joint_world", "mano_joint_world_mano21") if key in data),
+        None,
+    )
+    if mano_key is not None:
+        mano_joint_world = _require_shape(mano_key, data[mano_key], (21, 3))
+        if mano_joint_world.shape[0] != frames:
+            raise ValueError(
+                f"{mano_key} must share reference frame count {frames}, got {mano_joint_world.shape[0]}"
+            )
+        mano_order = _decode_scalar(
+            data.get("mano_joint_order"),
+            "mano21_sequential_thumb_index_middle_ring_little",
+        ).lower()
+        if "sequential" in mano_order:
+            mano_joint_world = mano_joint_world[:, MANO21_SEQUENTIAL_TO_REVO_SEMANTIC]
 
     quat_order = _decode_scalar(data.get("quat_convention"), "wxyz").lower()
     if quat_order == "wxyz":
@@ -177,6 +201,7 @@ def load_rb3_revo2_reference(
         object_quat_xyzw=object_quat,
         wrist_pos=wrist_pos,
         wrist_quat_xyzw=wrist_quat,
+        mano_joint_world_semantic=mano_joint_world,
         fps=fps,
         joint_names=joint_names,
     )

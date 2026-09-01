@@ -58,3 +58,21 @@ class RB3Revo2RLReferenceTest(unittest.TestCase):
             self._write(output.name, failed=True)
             with self.assertRaisesRegex(ValueError, "failed IK"):
                 load_rb3_revo2_reference(output.name)
+
+    def test_loads_and_reorders_optional_mano21(self):
+        with tempfile.NamedTemporaryFile(suffix=".h5") as output:
+            self._write(output.name)
+            sequential = np.arange(3 * 21 * 3, dtype=float).reshape(3, 21, 3)
+            with h5py.File(output.name, "a") as h5_file:
+                h5_file["mano_joint_world"] = sequential
+                h5_file["mano_joint_order"] = "mano21_sequential_thumb_index_middle_ring_little"
+            reference = load_rb3_revo2_reference(output.name)
+        self.assertEqual(reference.mano_joint_world_semantic.shape, (3, 21, 3))
+        np.testing.assert_array_equal(
+            reference.mano_joint_world_semantic[:, 0],
+            sequential[:, 0],
+        )
+        np.testing.assert_array_equal(
+            reference.mano_joint_world_semantic[:, 1],
+            sequential[:, 5],
+        )

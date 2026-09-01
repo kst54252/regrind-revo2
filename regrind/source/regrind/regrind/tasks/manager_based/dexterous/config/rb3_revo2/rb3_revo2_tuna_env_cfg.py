@@ -41,7 +41,7 @@ DEFAULT_REFERENCE_PATH = (
     / "outputs"
     / "isaac"
     / "dexycb"
-    / "20200709_143626_right"
+    / "20200709_143747_left"
     / "rb3_revo2_reference.h5"
 )
 DEFAULT_OBJECT_KEYPOINTS_PATH = (

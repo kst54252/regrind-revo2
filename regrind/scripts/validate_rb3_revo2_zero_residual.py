@@ -1,17 +1,22 @@
-"""Launch the RB3+Revo2+tuna task and replay it with zero residual actions."""
+"""Validate RB3+Revo2 reference tracking with zero residual actions.
+
+The optional MANO marker mode replaces the former skeleton-specific validator,
+so environment setup, metrics, and finite-value checks stay in one place.
+"""
 
 from __future__ import annotations
 
 import argparse
+import time
 import traceback
 
 from isaaclab.app import AppLauncher
 
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument("--task", default="Regrind-RB3-Revo2-Tuna-Play-v0")
+parser.add_argument("--task", default="Regrind-RB3-Revo2-TunaCan-Play-v0")
 parser.add_argument("--reference", required=True, help="Final RB3+Revo2 HDF5/NPZ reference.")
-parser.add_argument("--num_envs", type=int, default=1)
+parser.add_argument("--num_envs", type=int, default=1, help="Compatibility option; must be 1.")
 parser.add_argument(
     "--max_steps",
     type=int,
@@ -19,6 +24,9 @@ parser.add_argument(
     help="Exit after N steps; 0 keeps the viewer open until it is closed.",
 )
 parser.add_argument("--disable_fabric", action="store_true")
+parser.add_argument("--real_time", action="store_true", help="Throttle replay to the reference FPS.")
+parser.add_argument("--show_skeleton", action="store_true", help="Draw source MANO21 joints and bones.")
+parser.add_argument("--skeleton_scale", type=float, default=0.65)
 AppLauncher.add_app_launcher_args(parser)
 args_cli = parser.parse_args()
 
@@ -32,6 +40,7 @@ import isaaclab_tasks  # noqa: F401
 from isaaclab_tasks.utils import parse_env_cfg
 
 import regrind.tasks  # noqa: F401
+from regrind.utils.markers import ManoMarker
 
 
 def _object_reference_errors(command):
@@ -64,6 +73,10 @@ def _object_reference_errors(command):
 
 
 def main():
+    if args_cli.num_envs != 1:
+        raise ValueError("zero-residual validation supports exactly --num_envs 1")
+    if args_cli.skeleton_scale <= 0.0:
+        raise ValueError("--skeleton_scale must be positive")
     print("[zero-residual] parsing environment configuration", flush=True)
     env_cfg = parse_env_cfg(
         args_cli.task,
@@ -90,6 +103,27 @@ def main():
     base_env = env.unwrapped
     command = base_env.command_manager.get_term("reference")
     action_term = base_env.action_manager.get_term("joint_pos")
+    marker = None
+    skeleton = None
+    if args_cli.show_skeleton:
+        if command.reference.mano_joint_world_semantic is None:
+            raise KeyError("reference has no finite MANO21 world skeleton")
+        skeleton = torch.as_tensor(
+            command.reference.mano_joint_world_semantic,
+            dtype=torch.float32,
+            device=base_env.device,
+        )
+        marker = ManoMarker(
+            prim_path="/World/Visuals/DemoMANO21",
+            device=base_env.device,
+            scale=args_cli.skeleton_scale,
+        )
+
+    def visualize_skeleton() -> None:
+        if marker is None or skeleton is None:
+            return
+        frame_points = skeleton[command.time_steps]
+        marker.visualize(frame_points + base_env.scene.env_origins.unsqueeze(1))
 
     if env.action_space.shape != (1, 12):
         raise RuntimeError(f"expected action space (1,12), got {env.action_space.shape}")
@@ -101,8 +135,11 @@ def main():
     print(f"  hand scale:        {env_cfg.residual_scale.hand:g} rad")
     print("  mode:              q_target = q_ref + scale * 0")
     print("  loop object reset: reference frame 0 pose + velocity")
+    print(f"  real-time throttle: {args_cli.real_time}")
+    print(f"  MANO21 skeleton:    {args_cli.show_skeleton}")
 
     env.reset()
+    visualize_skeleton()
     initial_object_errors = _object_reference_errors(command)
     print(
         "[zero-residual] initial object reset errors: "
@@ -119,10 +156,14 @@ def main():
     first_nonfinite_step = None
     last_finite_actual = None
     first_out_of_range_step = None
+    finite = True
+    actual = None
     while simulation_app.is_running():
+        step_started = time.perf_counter()
         with torch.inference_mode():
             target_before_step = command.target_joint_pos.clone()
             env.step(actions)
+            visualize_skeleton()
             formula_error = torch.max(
                 torch.abs(action_term.last_joint_target - target_before_step)
             ).item()
@@ -165,12 +206,16 @@ def main():
                 previous_wrap_count = wrap_count
             if args_cli.max_steps > 0 and step_count >= args_cli.max_steps:
                 break
+        if args_cli.real_time:
+            remaining = base_env.step_dt - (time.perf_counter() - step_started)
+            if remaining > 0.0:
+                time.sleep(remaining)
 
     print("[zero-residual] validation summary")
     print(f"  steps:                    {step_count}")
     print(f"  max q_target formula err: {max_formula_error:.9g} rad")
     print(f"  max physics tracking err: {max_tracking_error:.9g} rad")
-    finite = bool(torch.isfinite(actual).all())
+    finite = actual is not None and bool(torch.isfinite(actual).all())
     print(f"  finite:                   {finite}")
     print(f"  first non-finite step:    {first_nonfinite_step}")
     print(f"  first >10 rad step:       {first_out_of_range_step}")

@@ -3,9 +3,9 @@
 이 문서는 “어디에서 무엇을 수정해야 하는가”를 빠르게 찾기 위한 지도입니다.
 
 ```text
-regrind-revo2/
+regrind-upload/
 ├── README.md
-├── scripts/                    # 사용자용 실행 진입점
+├── scripts/                    # 사용자용 실행 진입점(rl.sh 포함)
 ├── tests/                      # 기능별 회귀 테스트
 ├── docs/                       # 프로젝트 수준 문서
 ├── tools/
@@ -36,6 +36,10 @@ regrind-revo2/
 
 `scripts/`는 안정적인 공개 진입점이며, 실제 구현은 `tools/`에 둡니다. 이렇게 하면
 내부 파일을 기능별로 유지하면서 사용자는 긴 경로를 외울 필요가 없습니다.
+
+RL 관련 실행은 `scripts/rl.sh {train,play,zero,debug}`로 통합되어 있습니다.
+예전 이름의 shell script는 인자와 동작을 그대로 전달하는 호환 wrapper입니다.
+전체 명령 목록은 [`scripts/README.md`](../scripts/README.md)에 있습니다.
 
 ## 변경 원칙
 

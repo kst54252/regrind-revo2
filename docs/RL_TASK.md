@@ -90,11 +90,15 @@ Gravity는 0에서 시작해 20,000 common step 이후 단계적으로 증가하
 
 ## 실행
 
+모든 RL 명령은 `scripts/rl.sh`를 사용합니다. 기본 sequence는
+`20200709_143747_left`이며 `--sequence` 또는 `--reference`로 변경할 수 있습니다.
+
 16-env, 2-iteration smoke test:
 
 ```bash
 cd /home/wanjunkim/ARSL/regrind-upload
-./scripts/train_rb3_revo2_ppo.sh \
+./scripts/rl.sh train \
+  --sequence 20200709_143747_left \
   --num_envs 16 \
   --max_iterations 2 \
   --headless \
@@ -105,8 +109,9 @@ cd /home/wanjunkim/ARSL/regrind-upload
 Viewer를 보려면 `--headless`를 빼면 됩니다. Full 4096-env 학습:
 
 ```bash
-./scripts/train_rb3_revo2_ppo.sh \
-  --task Regrind-RB3-Revo2-TunaCan-v0 \
+./scripts/rl.sh train \
+  --sequence 20200709_143747_left \
+  --full \
   --num_envs 4096 \
   --headless \
   --logger tensorboard \
@@ -116,8 +121,9 @@ Viewer를 보려면 `--headless`를 빼면 됩니다. Full 4096-env 학습:
 W&B를 사용할 때:
 
 ```bash
-./scripts/train_rb3_revo2_ppo.sh \
-  --task Regrind-RB3-Revo2-TunaCan-v0 \
+./scripts/rl.sh train \
+  --sequence 20200709_143747_left \
+  --full \
   --num_envs 4096 \
   --headless \
   --logger wandb \
@@ -127,7 +133,8 @@ W&B를 사용할 때:
 학습된 checkpoint를 randomization 없는 Play task에서 재생:
 
 ```bash
-./scripts/play_rb3_revo2_ppo.sh \
+./scripts/rl.sh play \
+  --sequence 20200709_143747_left \
   --load_run <run-folder> \
   --checkpoint model_500.pt
 ```
@@ -135,8 +142,18 @@ W&B를 사용할 때:
 Zero-residual deterministic 검증:
 
 ```bash
-./scripts/run_rl_zero_replay.sh --visualizer kit
+./scripts/rl.sh zero \
+  --sequence 20200709_143747_left \
+  --gui \
+  --skeleton \
+  --real_time
 ```
+
+`1000 iterations × 24 rollout steps`는 curriculum common step 약 24,000에
+해당하므로 현재 schedule에서는 중력이 약 `0~-1 m/s²`인 초기 단계입니다. 학습
+checkpoint와 같은 조건으로 재생하려면 play 명령에
+`--auto_gravity_from_ckpt`를 추가합니다. Full gravity와 random-push 단계까지
+학습하려면 curriculum threshold에 맞는 iteration 수가 필요합니다.
 
 ## 로그 확인
 
@@ -164,4 +181,3 @@ TensorBoard event와 `model_*.pt` 생성입니다.
 
 아직 tactile sensor, symmetry-aware reward, 실제 로봇 deployment, 새 network/RL
 알고리즘은 포함하지 않습니다.
-

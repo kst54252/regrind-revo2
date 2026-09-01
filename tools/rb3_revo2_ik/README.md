@@ -86,7 +86,7 @@ Script Editor에 코드를 붙여 넣지 않고 프로젝트 루트의 터미널
 
 ```bash
 ./tools/rb3_revo2_ik/run_replay_gui.sh --list-sequences
-./tools/rb3_revo2_ik/run_replay_gui.sh --sequence 20200709_143626_right
+./tools/rb3_revo2_ik/run_replay_gui.sh --sequence 20200709_143747_left
 ```
 
 Isaac Sim GUI와 작은 control window가 열리며 Play/Pause/Reset, 한 프레임 전후 이동,

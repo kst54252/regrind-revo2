@@ -1,4 +1,4 @@
-# REGRIND-Revo2: DexYCB Retargeting and Isaac Sim Replay
+# REGRIND RB3-Revo2: DexYCB Retargeting, Replay, and Residual RL
 
 DexYCB의 사람 손-물체 동작을 6-DoF Revo2 손으로 리타게팅하고, RB3-730의
 strict IK를 거쳐 12-DoF 궤적을 Isaac Sim에서 재생하는 프로젝트입니다.
@@ -27,7 +27,7 @@ DexYCB second camera
 ./scripts/run_isaac_replay.sh --list-sequences
 
 # 순수 kinematic replay
-./scripts/run_isaac_replay.sh --sequence 20200709_143626_right
+./scripts/run_isaac_replay.sh --sequence 20200709_143747_left
 
 # 캔을 중력과 접촉으로만 움직이는 실험 모드
 ./scripts/run_isaac_replay.sh --sequence 20200709_143747_left --physics-object
@@ -78,8 +78,19 @@ actor/critic observation, object-centric reward, RSI, RSL-RL PPO, domain
 randomization과 gravity/push curriculum을 연결했습니다.
 
 ```bash
-./scripts/run_rl_mdp_debug.sh --visualizer kit
-./scripts/train_rb3_revo2_ppo.sh --num_envs 16 --max_iterations 2 --headless
+# MDP smoke validation
+./scripts/rl.sh debug --sequence 20200709_143747_left --max_steps 68
+
+# Zero-residual GUI with the original MANO21 skeleton
+./scripts/rl.sh zero --sequence 20200709_143747_left --gui --skeleton --real_time
+
+# PPO smoke/full training
+./scripts/rl.sh train --sequence 20200709_143747_left --num_envs 16 --max_iterations 2 --headless
+./scripts/rl.sh train --sequence 20200709_143747_left --full --num_envs 4096 --headless
 ```
+
+`train_rb3_revo2_ppo.sh`, `play_rb3_revo2_ppo.sh`, `run_rl_zero_replay*.sh`는
+기존 사용자를 위한 얇은 호환 wrapper이며 실제 launcher 로직은 `scripts/rl.sh`와
+`scripts/_common.sh`에 한 번만 정의됩니다.
 
 자세한 범위와 검증 기준은 [RL task 문서](docs/RL_TASK.md)를 참고하세요.

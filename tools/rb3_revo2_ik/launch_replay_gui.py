@@ -19,7 +19,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_STAGE = PROJECT_ROOT / "USD" / "rb3_revo2.usd"
 ISAAC_REFERENCE_ROOT = PROJECT_ROOT / "outputs" / "isaac" / "dexycb"
-DEFAULT_SEQUENCE = "20200709_143626_right"
+DEFAULT_SEQUENCE = "20200709_143747_left"
 DEFAULT_OBJECT_MESH = PROJECT_ROOT / "007_tuna_fish_can" / "textured_simple.obj"
 REPLAY_SCRIPT = Path(__file__).with_name("replay_reference_isaac_sim.py")
 

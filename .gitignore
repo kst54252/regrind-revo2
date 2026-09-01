@@ -91,6 +91,7 @@ Thumbs.db
 /dataset/
 /outputs/
 /revo2_dexycb_interactive_57frames.html
+/revo2_dexycb_*.html
 
 # Any outputs generated inside the nested upstream REGRIND checkout.
 /regrind/outputs/

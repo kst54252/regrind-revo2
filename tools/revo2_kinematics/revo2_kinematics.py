@@ -128,6 +128,20 @@ class Revo2Kinematics:
         "right_pinky_proximal_joint",
     )
 
+    # These five joints are not optimizer inputs.  Their positions are derived
+    # from the active proximal joints by the mimic constraints in the Revo2
+    # model.  Keeping the relation here makes the FK and visualizers share one
+    # source of truth.
+    mimic_joint_names = (
+        "right_thumb_distal_joint",
+        "right_index_distal_joint",
+        "right_middle_distal_joint",
+        "right_ring_distal_joint",
+        "right_pinky_distal_joint",
+    )
+    mimic_leader_indices = (1, 2, 3, 4, 5)
+    mimic_multipliers = (1.0, 1.155, 1.155, 1.155, 1.155)
+
     def __init__(
         self,
         keypoints_path: str | Path = DEFAULT_KEYPOINTS_PATH,
@@ -166,6 +180,30 @@ class Revo2Kinematics:
         """Return independent-joint lower and upper limits in radians."""
         return self._joint_lower.copy(), self._joint_upper.copy()
 
+    def get_mimic_joint_positions(self, q: Any) -> Any:
+        """Return the five dependent distal-joint positions.
+
+        The result order is given by :attr:`mimic_joint_names`.  NumPy/list
+        inputs return a NumPy array; a floating-point torch tensor preserves
+        dtype, device, and autograd.
+        """
+        is_torch = torch is not None and isinstance(q, torch.Tensor)
+        if is_torch:
+            if q.shape != (6,):
+                raise ValueError(f"q must have shape (6,), got {tuple(q.shape)}")
+            if not q.is_floating_point():
+                raise TypeError("a torch q must have a floating-point dtype")
+            leaders = q[list(self.mimic_leader_indices)]
+            multipliers = q.new_tensor(self.mimic_multipliers)
+            return leaders * multipliers
+
+        q_array = np.asarray(q, dtype=np.float64)
+        if q_array.shape != (6,):
+            raise ValueError(f"q must have shape (6,), got {q_array.shape}")
+        return q_array[list(self.mimic_leader_indices)] * np.asarray(
+            self.mimic_multipliers, dtype=np.float64
+        )
+
     def get_keypoints(self, q: Any) -> Any:
         """Return keypoints with shape (21, 3), expressed in the base frame.
 
@@ -199,6 +237,7 @@ class Revo2Kinematics:
     def _forward_links(self, q: Any) -> dict[str, tuple[Any, Any]]:
         base = self._constant(self._base_transform, q)
         links = {"right_hand_base_link": (base[:3, :3], base[:3, 3])}
+        mimic_q = self.get_mimic_joint_positions(q)
 
         # The thumb metacarpal joint's child anchor is rotated 180 deg about X,
         # so its USD Z joint axis is -Z in the zero-pose child coordinates.
@@ -213,7 +252,7 @@ class Revo2Kinematics:
             links["right_thumb_metacarpal_link"], thumb_prox_rel
         )
         thumb_dist_rel = self._moving_pose(
-            "right_thumb_distal_link", "X", q[1], q
+            "right_thumb_distal_link", "X", mimic_q[0], q
         )
         links["right_thumb_distal_link"] = self._compose(
             links["right_thumb_proximal_link"], thumb_dist_rel
@@ -224,12 +263,12 @@ class Revo2Kinematics:
         )
 
         fingers = (
-            ("index", q[2]),
-            ("middle", q[3]),
-            ("ring", q[4]),
-            ("pinky", q[5]),
+            ("index", q[2], mimic_q[1]),
+            ("middle", q[3], mimic_q[2]),
+            ("ring", q[4], mimic_q[3]),
+            ("pinky", q[5], mimic_q[4]),
         )
-        for finger, proximal_q in fingers:
+        for finger, proximal_q, distal_q in fingers:
             proximal_link = f"right_{finger}_proximal_link"
             distal_link = f"right_{finger}_distal_link"
             touch_link = f"right_{finger}_touch_link"
@@ -239,7 +278,7 @@ class Revo2Kinematics:
             )
             links[distal_link] = self._compose(
                 links[proximal_link],
-                self._moving_pose(distal_link, "Y", 1.155 * proximal_q, q),
+                self._moving_pose(distal_link, "Y", distal_q, q),
             )
             links[touch_link] = self._compose(
                 links[distal_link], self._fixed_pose(touch_link, q)

@@ -46,6 +46,13 @@ class Revo2KinematicsTest(unittest.TestCase):
             1.0e-3,
         )
 
+    def test_mimic_joint_positions_follow_robot_constraints(self):
+        q = np.asarray([0.1, 0.2, 0.3, 0.4, 0.5, 0.6])
+        actual = self.fk.get_mimic_joint_positions(q)
+        expected = np.asarray([0.2, 1.155 * 0.3, 1.155 * 0.4, 1.155 * 0.5, 1.155 * 0.6])
+        np.testing.assert_allclose(actual, expected)
+        self.assertEqual(actual.shape, (5,))
+
 
 if __name__ == "__main__":
     unittest.main()

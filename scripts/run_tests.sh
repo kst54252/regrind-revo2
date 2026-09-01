@@ -12,4 +12,7 @@ fi
 
 cd "${PROJECT_ROOT}"
 export PYTHONPATH="${PROJECT_ROOT}/regrind/source/regrind${PYTHONPATH:+:${PYTHONPATH}}"
+for script in "${PROJECT_ROOT}"/scripts/*.sh "${PROJECT_ROOT}"/tools/*/*.sh; do
+    bash -n "${script}"
+done
 exec "${PYTHON_BIN}" -m unittest discover -s tests -p 'test_*.py' -v

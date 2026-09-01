@@ -9,7 +9,7 @@ from isaaclab.app import AppLauncher
 
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument("--task", default="Regrind-RB3-Revo2-Tuna-Play-v0")
+parser.add_argument("--task", default="Regrind-RB3-Revo2-TunaCan-Play-v0")
 parser.add_argument("--reference", required=True)
 parser.add_argument("--object-keypoints", required=True)
 parser.add_argument("--max_steps", type=int, default=0, help="0 runs until the viewer closes")

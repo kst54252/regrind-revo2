@@ -9,7 +9,7 @@ sequential MANO21 순서를 검증된 Revo2 semantic `kp_00..kp_20` 순서로 �
 재정렬하여 리타게팅 correspondence와 시각화 topology가 섞이지 않게 합니다.
 
 ```bash
-cd /home/wanjunkim/ARSL/regrind-revo2
+cd /home/wanjunkim/ARSL/regrind-upload
 ./scripts/run_pipeline.sh
 ```
 
@@ -37,7 +37,7 @@ Isaac GUI에서 사용할 sequence 확인과 실행:
 
 ```bash
 ./scripts/run_isaac_replay.sh --list-sequences
-./scripts/run_isaac_replay.sh --sequence 20200709_143626_right
+./scripts/run_isaac_replay.sh --sequence 20200709_143747_left
 ```
 
 GUI에서는 RB3 6축과 Revo2 6축, tuna mesh와 원본 MANO21 스켈레톤을 같은 world

@@ -17,6 +17,7 @@ import json
 import os
 import sys
 import time
+from pathlib import Path
 
 import numpy as np
 import omni.kit.app
@@ -37,17 +38,17 @@ def _env_bool(name, default):
 
 # User configuration ---------------------------------------------------------
 PROJECT_ROOT = os.environ.get(
-    "REVO2_PROJECT_ROOT", "/home/wanjunkim/ARSL/regrind-revo2"
+    "REVO2_PROJECT_ROOT", str(Path(__file__).resolve().parents[2])
 )
 TRAJECTORY_PATH = os.environ.get(
     "REVO2_TRAJECTORY_PATH",
     os.path.join(
         PROJECT_ROOT,
         "outputs",
-        "trajectories",
+        "isaac",
         "dexycb",
-        "20200928_144714",
-        "rb3_revo2_reference_world_x040_y000_lift_z_yawm120_strict.h5",
+        "20200709_143747_left",
+        "rb3_revo2_reference.h5",
     ),
 )
 OBJECT_MESH_PATH = os.environ.get(

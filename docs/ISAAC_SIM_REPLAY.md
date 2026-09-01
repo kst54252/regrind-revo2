@@ -4,7 +4,7 @@
 
 ```bash
 ./scripts/run_isaac_replay.sh --list-sequences
-./scripts/run_isaac_replay.sh --sequence 20200709_143626_right
+./scripts/run_isaac_replay.sh --sequence 20200709_143747_left
 ```
 
 GUI에는 RB3-730, Revo2, tuna fish can mesh, retargeting 전 MANO21 skeleton,
@@ -19,7 +19,7 @@ Reset, 이전/다음 프레임, 특정 프레임 이동을 사용할 수 있습�
 따라갑니다. 궤적과 FK 대응을 확인하는 모드이며 접촉 결과를 평가하지 않습니다.
 
 ```bash
-./scripts/run_isaac_replay.sh --sequence 20200709_143626_right
+./scripts/run_isaac_replay.sh --sequence 20200709_143747_left
 ```
 
 ### Dynamic object experiment
