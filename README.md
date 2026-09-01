@@ -68,5 +68,18 @@ DexYCB second camera
 - Isaac replay: RB3/Revo2 관절, 원본 MANO21, tuna can mesh 표시
 - `--physics-object`: 캔 pose를 매 프레임 덮어쓰지 않고 중력/contact 사용
 
-물리 grasp 성공 자체는 아직 보장하지 않습니다. controller tuning, contact 안정화,
-Residual RL, domain randomization은 현재 범위 밖입니다.
+물리 grasp 성공 자체는 아직 보장하지 않습니다. tactile sensor, symmetry-aware
+reward와 실제 로봇 deployment는 현재 범위 밖입니다.
+
+## REGRIND RL MDP 환경
+
+RB3 6축 + Revo2 6축의 12차원 residual action과 rigid tuna can에 공개 REGRIND의
+actor/critic observation, object-centric reward, RSI, RSL-RL PPO, domain
+randomization과 gravity/push curriculum을 연결했습니다.
+
+```bash
+./scripts/run_rl_mdp_debug.sh --visualizer kit
+./scripts/train_rb3_revo2_ppo.sh --num_envs 16 --max_iterations 2 --headless
+```
+
+자세한 범위와 검증 기준은 [RL task 문서](docs/RL_TASK.md)를 참고하세요.

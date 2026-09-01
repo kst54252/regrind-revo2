@@ -11,4 +11,5 @@ if [[ ! -x "${PYTHON_BIN}" ]]; then
 fi
 
 cd "${PROJECT_ROOT}"
+export PYTHONPATH="${PROJECT_ROOT}/regrind/source/regrind${PYTHONPATH:+:${PYTHONPATH}}"
 exec "${PYTHON_BIN}" -m unittest discover -s tests -p 'test_*.py' -v

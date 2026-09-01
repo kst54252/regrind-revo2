@@ -49,7 +49,7 @@ class ClippedRelativeJointPositionAction(joint_actions.RelativeJointPositionActi
         """Finger joint positions used as the base before adding policy deltas."""
         if self.cfg.base_action_source == "motion_target":
             command = self._env.command_manager.get_term(self.cfg.command_name)
-            base_pos = command.target_hand_joint_pos
+            base_pos = getattr(command, self.cfg.command_joint_target_name)
             if base_pos.shape[-1] != self.processed_actions.shape[-1]:
                 raise RuntimeError(
                     f"Motion target_hand_joint_pos last dim {base_pos.shape[-1]} != action dim "
@@ -88,6 +88,9 @@ class ClippedRelativeJointPositionActionCfg(RelativeJointPositionActionCfg):
     base_action_source: Literal["current_obs", "motion_target", "zero"] = "motion_target"
     #: Command term name when ``base_action_source`` is ``motion_target`` (e.g. ``"motion"``).
     command_name: str = "motion"
+    #: Property on the command term that supplies q_ref.  The default preserves
+    #: Leap/Wuji behavior; the RB3+Revo2 task uses ``target_joint_pos``.
+    command_joint_target_name: str = "target_hand_joint_pos"
 
 
 def _quat_positive_real(q: torch.Tensor) -> torch.Tensor:

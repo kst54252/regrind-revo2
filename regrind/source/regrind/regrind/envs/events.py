@@ -328,7 +328,10 @@ def randomize_rigid_object_com(
     else:
         env_ids = env_ids.to(asset.device)
 
-    com = asset.data.body_com_pos_b.torch.clone()  # (N, 1, 3) for a RigidObject
+    # Isaac Lab 3.x ``set_coms_index`` expects the complete CoM transform
+    # (position + quaternion), not only the position.  Preserve the nominal
+    # orientation and randomize the translation exactly as before.
+    com = asset.data.body_com_pose_b.torch.clone()  # (N, 1, 7) for a RigidObject
     ranges = torch.tensor(
         [[*com_range.get("x", (0.0, 0.0))],
          [*com_range.get("y", (0.0, 0.0))],
