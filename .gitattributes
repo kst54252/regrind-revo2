@@ -1,4 +1,0 @@
-# Standalone visualizations are generated artifacts. Keep them downloadable in
-# Git, but exclude their embedded HTML/JavaScript from GitHub language stats.
-*.html linguist-generated=true
-
