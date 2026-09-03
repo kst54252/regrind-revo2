@@ -8,6 +8,7 @@
 """Launch Isaac Sim Simulator first."""
 
 import argparse
+from collections import Counter
 import sys
 
 from isaaclab.app import AppLauncher
@@ -42,6 +43,32 @@ parser.add_argument(
     ),
 )
 parser.add_argument("--real_time", action="store_true", default=False, help="Run in real-time, if possible.")
+parser.add_argument(
+    "--max_steps",
+    type=int,
+    default=0,
+    help="Stop after this many environment steps (0 keeps the interactive loop running).",
+)
+parser.add_argument(
+    "--eval_episodes",
+    type=int,
+    default=0,
+    help="Stop after this many completed episodes and print a deterministic success summary.",
+)
+parser.add_argument(
+    "--rollout-path",
+    "--rollout_path",
+    type=str,
+    default=None,
+    help="Save environment 0 floating-hand rollout as HDF5 (one episode only).",
+)
+parser.add_argument(
+    "--rollout-frames",
+    "--rollout_frames",
+    type=int,
+    default=0,
+    help="Frames to save; 0 uses the loaded reference length.",
+)
 
 # append RSL-RL cli arguments
 cli_args.add_rsl_rl_args(parser)
@@ -67,8 +94,11 @@ sys.argv = [sys.argv[0]] + hydra_args
 """Rest everything follows."""
 
 import gymnasium as gym
+import h5py
 import importlib.metadata as metadata
+import numpy as np
 import os
+from pathlib import Path
 import time
 import torch
 
@@ -92,6 +122,72 @@ from isaaclab_tasks.utils import get_checkpoint_path
 from isaaclab_tasks.utils.hydra import hydra_task_config
 
 import regrind.tasks  # noqa: F401
+
+
+def _tensor_row(value) -> np.ndarray:
+    """Copy environment zero from an Isaac tensor to host NumPy."""
+
+    return value[0].detach().cpu().numpy().copy()
+
+
+def _save_floating_rollout(path: str, samples: list[dict[str, np.ndarray]], command, dt: float) -> None:
+    """Write a policy rollout in the format consumed by the strict-IK bridge."""
+
+    if not samples:
+        raise RuntimeError("cannot save an empty floating-hand rollout")
+    output = Path(path).expanduser().resolve()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    keys = tuple(samples[0])
+    arrays = {key: np.stack([sample[key] for sample in samples]) for key in keys}
+    with h5py.File(output, "w") as h5_file:
+        for key, value in arrays.items():
+            h5_file.create_dataset(key, data=value)
+        h5_file.create_dataset("fps", data=1.0 / dt)
+        h5_file.create_dataset("quat_convention", data="xyzw", dtype=h5py.string_dtype("utf-8"))
+        h5_file.create_dataset(
+            "revo2_joint_names",
+            data=np.asarray(command.controlled_joint_names, dtype=object),
+            dtype=h5py.string_dtype("utf-8"),
+        )
+        h5_file.create_dataset(
+            "source_reference",
+            data=str(command.reference.path),
+            dtype=h5py.string_dtype("utf-8"),
+        )
+        if "mano_joint_world" in arrays:
+            h5_file.create_dataset(
+                "mano_joint_order",
+                data="revo_semantic_kp00_to_kp20",
+                dtype=h5py.string_dtype("utf-8"),
+            )
+        h5_file.create_dataset("rollout_complete", data=len(samples) == command.reference.frames)
+    print(f"[ROLLOUT] saved {len(samples)} floating-hand frames to {output}")
+
+
+def _floating_snapshot(command, action: torch.Tensor) -> dict[str, np.ndarray]:
+    """Capture the physical floating-hand/object state for downstream RB3 IK."""
+
+    sample = {
+        "frame_index": np.asarray(int(command.time_steps[0].item()), dtype=np.int64),
+        "reference_phase": np.asarray(float(command.phi[0].item()), dtype=np.float32),
+        "wrist_pos": _tensor_row(command.current_hand_wrist_pos),
+        "wrist_quat": _tensor_row(command.current_hand_wrist_quat),
+        "revo2_joints": _tensor_row(command.current_hand_joint_pos),
+        "object_pos": _tensor_row(command.current_object_pos),
+        "object_quat": _tensor_row(command.current_object_quat),
+        "floating_action": _tensor_row(action),
+        "target_wrist_pos": _tensor_row(command.target_hand_wrist_pos),
+        "target_wrist_quat": _tensor_row(command.target_hand_wrist_quat),
+        "target_revo2_joints": _tensor_row(command.target_hand_joint_pos),
+        "target_object_pos": _tensor_row(command.target_object_pos),
+        "target_object_quat": _tensor_row(command.target_object_quat),
+    }
+    mano = command.reference.mano_joint_world_semantic
+    if mano is not None:
+        sample["mano_joint_world"] = np.asarray(
+            mano[int(command.time_steps[0].item())], dtype=np.float32
+        ).copy()
+    return sample
 
 
 # PLACEHOLDER: Extension template (do not remove this comment)
@@ -235,6 +331,40 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # reset environment
     obs, _ = env.reset()
     timestep = 0
+    completed_episodes = 0
+    successful_episodes = 0
+    termination_counts: Counter[str] = Counter()
+    reward_sum = 0.0
+    reward_samples = 0
+    rollout_samples: list[dict[str, np.ndarray]] = []
+    rollout_command = None
+    rollout_frame_limit = 0
+    if args_cli.rollout_path is not None:
+        if env.num_envs != 1:
+            raise ValueError("--rollout_path requires --num_envs 1")
+        try:
+            rollout_command = env.unwrapped.command_manager.get_term("reference")
+        except (AttributeError, KeyError) as error:
+            raise RuntimeError("rollout export requires a command term named 'reference'") from error
+        required = (
+            "current_hand_wrist_pos",
+            "current_hand_wrist_quat",
+            "current_hand_joint_pos",
+            "current_object_pos",
+            "current_object_quat",
+        )
+        missing = [name for name in required if not hasattr(rollout_command, name)]
+        if missing:
+            raise RuntimeError(f"reference command cannot export a floating rollout; missing {missing}")
+        rollout_frame_limit = args_cli.rollout_frames or rollout_command.reference.frames
+        if rollout_frame_limit <= 0:
+            raise ValueError("--rollout_frames must be positive")
+        initial_action = torch.zeros((1, env.action_space.shape[-1]), device=env.unwrapped.device)
+        rollout_samples.append(_floating_snapshot(rollout_command, initial_action))
+        print(
+            f"[ROLLOUT] recording environment 0 for at most {rollout_frame_limit} frames; "
+            "recording stops on the first episode termination"
+        )
     # simulate environment
     while simulation_app.is_running():
         start_time = time.time()
@@ -245,16 +375,78 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 actions.zero_()
             obs, rewards, dones, extras = env.step(actions)
 
+        reward_sum += float(rewards.detach().sum().cpu())
+        reward_samples += int(rewards.numel())
+        done_count = int(dones.detach().sum().cpu())
+        if done_count:
+            success_count = 0
+            termination_manager = getattr(env.unwrapped, "termination_manager", None)
+            if termination_manager is not None:
+                for term_name in termination_manager.active_terms:
+                    try:
+                        term = termination_manager.get_term(term_name)
+                    except (AttributeError, KeyError):
+                        continue
+                    termination_counts[term_name] += int((term & dones).detach().sum().cpu())
+            try:
+                success = termination_manager.get_term("success")
+                success_count = int((success & dones).detach().sum().cpu())
+            except (AttributeError, KeyError, TypeError):
+                # Generic Isaac Lab tasks may not define a named success term.
+                pass
+            completed_episodes += done_count
+            successful_episodes += success_count
+            if args_cli.eval_episodes:
+                print(
+                    f"[EVAL] completed={completed_episodes} "
+                    f"successful={successful_episodes} "
+                    f"rate={successful_episodes / completed_episodes:.2%}"
+                )
+
         timestep += 1
+        if rollout_command is not None:
+            if bool(dones[0].item()):
+                print(
+                    f"[ROLLOUT] episode terminated after {len(rollout_samples)} saved frames; "
+                    "the automatic reset state was not appended"
+                )
+                break
+            rollout_samples.append(_floating_snapshot(rollout_command, actions))
+            if len(rollout_samples) >= rollout_frame_limit:
+                break
         if args_cli.video:
             # Exit the play loop after recording one video
             if timestep == args_cli.video_length:
                 break
 
+        if args_cli.max_steps > 0 and timestep >= args_cli.max_steps:
+            break
+        if args_cli.eval_episodes > 0 and completed_episodes >= args_cli.eval_episodes:
+            break
+
         # time delay for real-time evaluation
         sleep_time = dt - (time.time() - start_time)
         if args_cli.real_time and sleep_time > 0:
             time.sleep(sleep_time)
+
+    if args_cli.max_steps > 0 or args_cli.eval_episodes > 0 or args_cli.rollout_path is not None:
+        success_rate = (
+            successful_episodes / completed_episodes if completed_episodes else 0.0
+        )
+        mean_step_reward = reward_sum / max(reward_samples, 1)
+        print("\n[deterministic policy evaluation]")
+        print(f"  steps:              {timestep}")
+        print(f"  completed episodes: {completed_episodes}")
+        print(f"  successful episodes:{successful_episodes}")
+        print(f"  success rate:       {success_rate:.2%}")
+        print(f"  mean step reward:   {mean_step_reward:.8g}")
+        if termination_counts:
+            print("  termination counts:")
+            for term_name, count in sorted(termination_counts.items()):
+                print(f"    {term_name}: {count}")
+
+    if args_cli.rollout_path is not None:
+        _save_floating_rollout(args_cli.rollout_path, rollout_samples, rollout_command, dt)
 
     # close the simulator
     env.close()

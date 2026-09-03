@@ -32,10 +32,11 @@ class RB3Revo2ResidualJointPositionAction(ClippedRelativeJointPositionAction):
         else:
             controlled_ids = [int(index) for index in self._joint_ids]
         controlled_names = tuple(self._asset.joint_names[index] for index in controlled_ids)
-        if controlled_names != REFERENCE_JOINT_NAMES:
+        expected_joint_names = tuple(cfg.expected_joint_names or REFERENCE_JOINT_NAMES)
+        if controlled_names != expected_joint_names:
             raise RuntimeError(
-                "RB3+Revo2 action joint order mismatch: "
-                f"expected={REFERENCE_JOINT_NAMES}, got={controlled_names}"
+                "Revo2 residual action joint order mismatch: "
+                f"expected={expected_joint_names}, got={controlled_names}"
             )
 
         self._leader_columns = {name: index for index, name in enumerate(controlled_names)}
@@ -88,3 +89,6 @@ class RB3Revo2ResidualJointPositionAction(ClippedRelativeJointPositionAction):
 @configclass
 class RB3Revo2ResidualJointPositionActionCfg(ClippedRelativeJointPositionActionCfg):
     class_type: type[ActionTerm] = RB3Revo2ResidualJointPositionAction
+    # Defaults to the legacy assembled 12-DoF order. Floating Revo2 supplies
+    # only the six leader names without changing the action implementation.
+    expected_joint_names: tuple[str, ...] | None = None

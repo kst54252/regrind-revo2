@@ -8,6 +8,7 @@
 """Launch Isaac Sim Simulator first."""
 
 import argparse
+import time
 
 from isaaclab.app import AppLauncher
 
@@ -18,6 +19,9 @@ parser.add_argument(
 )
 parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
+parser.add_argument("--reference", type=str, default=None, help="Override reference trajectory path.")
+parser.add_argument("--max_steps", type=int, default=0, help="Exit after N steps; 0 runs until the window closes.")
+parser.add_argument("--real_time", action="store_true", help="Throttle simulation to environment step_dt.")
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
 # parse the arguments
@@ -44,6 +48,13 @@ def main():
     env_cfg = parse_env_cfg(
         args_cli.task, device=args_cli.device, num_envs=args_cli.num_envs, use_fabric=not args_cli.disable_fabric
     )
+    if args_cli.reference is not None:
+        if not hasattr(env_cfg, "commands") or not hasattr(env_cfg.commands, "reference"):
+            raise ValueError("--reference requires an environment command named 'reference'")
+        env_cfg.commands.reference.trajectory_path = args_cli.reference
+        env_cfg.commands.reference.rsi_enabled = False
+        env_cfg.commands.reference.loop = True
+        env_cfg.commands.reference.enable_reset_perturbation = False
     # create environment
     env = gym.make(args_cli.task, cfg=env_cfg)
 
@@ -53,13 +64,26 @@ def main():
     # reset environment
     env.reset()
     # simulate environment
+    step_count = 0
+    finite = True
     while simulation_app.is_running():
+        step_started = time.perf_counter()
         # run everything in inference mode
         with torch.inference_mode():
             # compute zero actions
             actions = torch.zeros(env.action_space.shape, device=env.unwrapped.device)
             # apply actions
             env.step(actions)
+            finite = bool(torch.isfinite(env.unwrapped.scene["robot"].data.joint_pos.torch).all())
+            step_count += 1
+            if not finite or (args_cli.max_steps > 0 and step_count >= args_cli.max_steps):
+                break
+        if args_cli.real_time:
+            remaining = env.unwrapped.step_dt - (time.perf_counter() - step_started)
+            if remaining > 0.0:
+                time.sleep(remaining)
+
+    print(f"[zero-agent] steps={step_count}, finite={finite}")
 
     # close the simulator
     env.close()

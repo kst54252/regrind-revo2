@@ -13,6 +13,11 @@ cd /home/wanjunkim/ARSL/regrind-upload
 ./scripts/run_pipeline.sh
 ```
 
+기본 학습 sequence인 `20200709_143747_left`는 annotation된 유효 trajectory의
+앞 12프레임을 제거한 뒤 모든 후속 단계를 수행합니다. 원본 `dataset/`은 변경하지
+않습니다. 필요할 때만 `REGRIND_TRIM_LEADING_FRAMES` 환경 변수로 개수를 바꿀 수
+있습니다.
+
 결과:
 
 - `outputs/preprocessed/dexycb/<sequence>/dexycb_right_hand_preprocessed.npz`

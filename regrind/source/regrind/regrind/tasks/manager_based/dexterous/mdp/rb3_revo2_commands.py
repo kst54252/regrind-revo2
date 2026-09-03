@@ -23,8 +23,9 @@ from isaaclab.utils.math import (
     sample_uniform,
 )
 
-from regrind.data.rb3_revo2_reference import load_rb3_revo2_reference
+from regrind.data.rb3_revo2_reference import REVO2_JOINT_NAMES, load_rb3_revo2_reference
 from regrind.robots.rb3_revo2 import REVO2_FOLLOWER_JOINTS
+from regrind.utils.math import euler_xyz_intrinsic_from_quat
 
 
 class RB3Revo2ReferenceCommand(CommandTerm):
@@ -60,10 +61,21 @@ class RB3Revo2ReferenceCommand(CommandTerm):
 
         self.robot: BaseArticulation = env.scene[cfg.robot_asset_name]
         self.object: RigidObject = env.scene[cfg.object_asset_name]
-        missing = [name for name in self.reference.joint_names if name not in self.robot.joint_names]
+        if cfg.joint_reference == "combined":
+            controlled_joint_names = self.reference.joint_names
+            reference_joint_pos = self.reference.reference_joints
+        elif cfg.joint_reference == "revo2":
+            controlled_joint_names = REVO2_JOINT_NAMES
+            reference_joint_pos = self.reference.revo2_joints
+        else:
+            raise ValueError(
+                f"unsupported joint_reference {cfg.joint_reference!r}; expected 'combined' or 'revo2'"
+            )
+        missing = [name for name in controlled_joint_names if name not in self.robot.joint_names]
         if missing:
-            raise RuntimeError(f"assembled articulation is missing controlled joints: {missing}")
-        self.joint_ids = [self.robot.joint_names.index(name) for name in self.reference.joint_names]
+            raise RuntimeError(f"articulation is missing controlled joints: {missing}")
+        self.controlled_joint_names = tuple(controlled_joint_names)
+        self.joint_ids = [self.robot.joint_names.index(name) for name in self.controlled_joint_names]
         self.actuated_dof_indices = self.joint_ids
 
         self.follower_names = tuple(REVO2_FOLLOWER_JOINTS)
@@ -71,7 +83,7 @@ class RB3Revo2ReferenceCommand(CommandTerm):
         if missing_followers:
             raise RuntimeError(f"assembled articulation is missing follower joints: {missing_followers}")
         self.follower_ids = [self.robot.joint_names.index(name) for name in self.follower_names]
-        self.leader_columns = {name: index for index, name in enumerate(self.reference.joint_names)}
+        self.leader_columns = {name: index for index, name in enumerate(self.controlled_joint_names)}
 
         if cfg.wrist_body_name not in self.robot.body_names:
             raise RuntimeError(
@@ -90,13 +102,15 @@ class RB3Revo2ReferenceCommand(CommandTerm):
         def tensor(value):
             return torch.as_tensor(value, dtype=torch.float32, device=self.device)
 
-        self.reference_joint_pos = tensor(self.reference.reference_joints)
+        self.reference_joint_pos = tensor(reference_joint_pos)
         self.reference_object_pos = tensor(self.reference.object_pos)
         self.reference_object_quat = tensor(self.reference.object_quat_xyzw)
         self.reference_wrist_pos = tensor(self.reference.wrist_pos)
         self.reference_wrist_quat = tensor(self.reference.wrist_quat_xyzw)
         self.object_keypoints_local = tensor(object_keypoints)
         self.reference_joint_vel = self._finite_difference_vector(self.reference_joint_pos)
+        self.reference_wrist_lin_vel = self._finite_difference_vector(self.reference_wrist_pos)
+        self.reference_wrist_ang_vel = self._finite_difference_quat(self.reference_wrist_quat)
         self.reference_object_lin_vel = self._finite_difference_vector(self.reference_object_pos)
         self.reference_object_ang_vel = self._finite_difference_quat(self.reference_object_quat)
 
@@ -151,7 +165,9 @@ class RB3Revo2ReferenceCommand(CommandTerm):
 
     @property
     def phi(self) -> torch.Tensor:
-        return self.time_steps.to(torch.float32) / float(max(self.reference.frames - 1, 1))
+        total_frames = self.cfg.phase_total_frames or self.reference.frames
+        phase_steps = self.time_steps.to(torch.float32) + float(self.cfg.phase_frame_offset)
+        return torch.clamp(phase_steps / float(max(total_frames - 1, 1)), min=0.0, max=1.0)
 
     @property
     def timesteps_in_current_demo(self) -> torch.Tensor:
@@ -196,6 +212,20 @@ class RB3Revo2ReferenceCommand(CommandTerm):
     @property
     def target_hand_wrist_quat(self) -> torch.Tensor:
         return self.reference_wrist_quat[self.time_steps]
+
+    @property
+    def target_hand_wrist_rot(self) -> torch.Tensor:
+        """Intrinsic XYZ Euler target required by the public SE(3) action term."""
+
+        return euler_xyz_intrinsic_from_quat(self.target_hand_wrist_quat)
+
+    @property
+    def target_hand_wrist_lin_vel(self) -> torch.Tensor:
+        return self.reference_wrist_lin_vel[self.time_steps]
+
+    @property
+    def target_hand_wrist_ang_vel(self) -> torch.Tensor:
+        return self.reference_wrist_ang_vel[self.time_steps]
 
     @property
     def current_object_pos(self) -> torch.Tensor:
@@ -356,6 +386,28 @@ class RB3Revo2ReferenceCommand(CommandTerm):
             target=follower_pos, joint_ids=self.follower_ids, env_ids=env_ids
         )
 
+        if self.cfg.reset_floating_root:
+            robot_root_pose = torch.cat(
+                (
+                    self.target_hand_wrist_pos[env_ids] + self._env.scene.env_origins[env_ids],
+                    self.target_hand_wrist_quat[env_ids],
+                ),
+                dim=-1,
+            )
+            robot_root_velocity = torch.cat(
+                (
+                    self.target_hand_wrist_lin_vel[env_ids],
+                    self.target_hand_wrist_ang_vel[env_ids],
+                ),
+                dim=-1,
+            )
+            self.robot.write_root_link_pose_to_sim_index(
+                root_pose=robot_root_pose, env_ids=env_ids
+            )
+            self.robot.write_root_link_velocity_to_sim_index(
+                root_velocity=robot_root_velocity, env_ids=env_ids
+            )
+
         root_pose = torch.cat(
             (object_pos + self._env.scene.env_origins[env_ids], object_quat),
             dim=-1,
@@ -424,6 +476,13 @@ class RB3Revo2ReferenceCommandCfg(CommandTermCfg):
         "right_pinky_touch_link",
     )
     start_frame: int = 0
+    joint_reference: str = "combined"
+    reset_floating_root: bool = False
+    # Preserve the policy's original phase convention after leading reference
+    # frames are removed.  For example, trimming 4 frames from a 64-frame
+    # trajectory uses phase_frame_offset=4 and phase_total_frames=64.
+    phase_frame_offset: int = 0
+    phase_total_frames: int | None = None
     loop: bool = False
     # Teleport the dynamic object back to the reference start pose whenever a
     # looping replay wraps. Disabled by default so training behavior is unchanged.

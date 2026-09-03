@@ -9,14 +9,18 @@ usage() {
 Usage: ./scripts/rl.sh COMMAND [options]
 
 Commands:
-  train    Train PPO (16-env smoke task by default; pass --full for full task)
-  play     Replay a trained policy in the deterministic GUI task
-  zero     Replay the reference with zero residual actions
+  train    Train floating Revo2 PPO (16-env smoke task by default; --full uses 4096 env config)
+  play     Replay a floating-hand policy in the deterministic GUI task
+  zero     Replay the floating-hand reference with zero residual actions
   debug    Inspect observation, reward, RSI, and finite-value checks
 
 Common project options:
   --sequence NAME    Use outputs/isaac/dexycb/NAME/rb3_revo2_reference.h5
   --reference PATH   Use an explicit reference file (overrides --sequence)
+  --legacy-arm-rl    Select the former combined RB3+Revo2 RL task
+
+Play options:
+  --rollout-path P   Save one floating-hand policy episode for downstream RB3 IK
 
 Zero options handled here:
   --gui              Open the Kit viewer
@@ -39,6 +43,8 @@ reference=""
 full_training=false
 gui=false
 skeleton=false
+legacy_arm_rl=false
+rollout_path=""
 passthrough=()
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -59,6 +65,15 @@ while [[ $# -gt 0 ]]; do
         --full)
             full_training=true
             shift
+            ;;
+        --legacy-arm-rl)
+            legacy_arm_rl=true
+            shift
+            ;;
+        --rollout-path)
+            [[ $# -ge 2 ]] || die "--rollout-path requires a value"
+            rollout_path="$2"
+            shift 2
             ;;
         --gui)
             gui=true
@@ -85,8 +100,13 @@ setup_regrind_python
 
 case "${command_name}" in
     train)
-        task="Regrind-RB3-Revo2-TunaCan-Smoke-v0"
-        if [[ "${full_training}" == true ]]; then
+        task="Regrind-Floating-Revo2-TunaCan-Smoke-v0"
+        if [[ "${legacy_arm_rl}" == true ]]; then
+            task="Regrind-RB3-Revo2-TunaCan-Smoke-v0"
+        fi
+        if [[ "${full_training}" == true && "${legacy_arm_rl}" == false ]]; then
+            task="Regrind-Floating-Revo2-TunaCan-v0"
+        elif [[ "${full_training}" == true ]]; then
             task="Regrind-RB3-Revo2-TunaCan-v0"
         fi
         exec "${ISAAC_PYTHON}" \
@@ -102,21 +122,41 @@ case "${command_name}" in
             [[ "${argument}" == "--headless" ]] && headless=true
         done
         if [[ "${headless}" == false ]]; then
-            play_args+=(--viz kit --max_visible_envs 1)
+            play_args+=(--visualizer kit --max_visible_envs 1)
+        fi
+        task="Regrind-Floating-Revo2-TunaCan-Play-v0"
+        if [[ "${legacy_arm_rl}" == true ]]; then
+            task="Regrind-RB3-Revo2-TunaCan-Play-v0"
+        fi
+        if [[ -n "${rollout_path}" ]]; then
+            [[ "${legacy_arm_rl}" == false ]] || die "--rollout-path is only valid for floating-hand RL"
+            play_args+=(--rollout-path "${rollout_path}" --num_envs 1)
         fi
         exec "${ISAAC_PYTHON}" \
             "${PROJECT_ROOT}/regrind/scripts/rsl_rl/play.py" \
-            --task Regrind-RB3-Revo2-TunaCan-Play-v0 \
+            --task "${task}" \
             "${play_args[@]}" \
             "${passthrough[@]}" \
             "env.commands.reference.trajectory_path=${reference}"
         ;;
     zero)
-        zero_args=(--reference "${reference}")
-        [[ "${gui}" == true ]] && zero_args+=(--viz kit --max_visible_envs 1)
-        [[ "${skeleton}" == true ]] && zero_args+=(--show_skeleton)
+        if [[ "${legacy_arm_rl}" == true ]]; then
+            zero_args=(--reference "${reference}")
+            [[ "${gui}" == true ]] && zero_args+=(--visualizer kit --max_visible_envs 1)
+            [[ "${skeleton}" == true ]] && zero_args+=(--show_skeleton)
+            exec "${ISAAC_PYTHON}" \
+                "${PROJECT_ROOT}/regrind/scripts/validate_rb3_revo2_zero_residual.py" \
+                "${zero_args[@]}" \
+                "${passthrough[@]}"
+        fi
+        zero_args=(
+            --task Regrind-Floating-Revo2-TunaCan-Play-v0
+            --reference "${reference}"
+            --num_envs 1
+        )
+        [[ "${gui}" == true ]] && zero_args+=(--visualizer kit --max_visible_envs 1)
         exec "${ISAAC_PYTHON}" \
-            "${PROJECT_ROOT}/regrind/scripts/validate_rb3_revo2_zero_residual.py" \
+            "${PROJECT_ROOT}/regrind/scripts/zero_agent.py" \
             "${zero_args[@]}" \
             "${passthrough[@]}"
         ;;

@@ -86,7 +86,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("input", type=Path, help="Input world trajectory HDF5")
     parser.add_argument("--out", required=True, type=Path, help="New trimmed HDF5")
-    parser.add_argument("--drop-first", type=int, default=4)
+    parser.add_argument("--drop-first", type=int, default=12)
     args = parser.parse_args()
 
     summary = trim_h5(

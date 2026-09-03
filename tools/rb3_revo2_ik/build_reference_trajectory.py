@@ -48,6 +48,39 @@ def _to_xyzw(quaternion: np.ndarray, convention: str) -> np.ndarray:
     raise ValueError(f"unsupported quaternion convention: {convention}")
 
 
+def _align_trajectory_to_object_start(
+    wrist_pos: np.ndarray,
+    wrist_quat: np.ndarray,
+    object_pos: np.ndarray,
+    object_quat: np.ndarray,
+    desired_position: np.ndarray,
+    desired_quaternion_xyzw: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, Rotation, np.ndarray]:
+    """Apply one rigid transform so frame-zero object reaches a desired pose."""
+
+    source_rotation = Rotation.from_quat(object_quat[0])
+    desired_rotation = Rotation.from_quat(desired_quaternion_xyzw)
+    world_delta_rotation = desired_rotation * source_rotation.inv()
+    world_delta_translation = desired_position - world_delta_rotation.apply(object_pos[0])
+
+    aligned_wrist_pos = world_delta_rotation.apply(wrist_pos) + world_delta_translation
+    aligned_object_pos = world_delta_rotation.apply(object_pos) + world_delta_translation
+    aligned_wrist_quat = (
+        world_delta_rotation * Rotation.from_quat(wrist_quat)
+    ).as_quat()
+    aligned_object_quat = (
+        world_delta_rotation * Rotation.from_quat(object_quat)
+    ).as_quat()
+    return (
+        aligned_wrist_pos,
+        aligned_wrist_quat,
+        aligned_object_pos,
+        aligned_object_quat,
+        world_delta_rotation,
+        world_delta_translation,
+    )
+
+
 def _write(path: str, data: dict):
     output = Path(path).expanduser().resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -108,6 +141,26 @@ def main():
             "the mounted Revo2 palm frame is upside down relative to REGRIND."
         ),
     )
+    parser.add_argument(
+        "--object-start-position",
+        nargs=3,
+        type=float,
+        metavar=("X", "Y", "Z"),
+        help=(
+            "Rigidly move/rotate the complete floating rollout so its frame-zero "
+            "object origin reaches this RB3-world position."
+        ),
+    )
+    parser.add_argument(
+        "--object-start-quat-xyzw",
+        nargs=4,
+        type=float,
+        metavar=("X", "Y", "Z", "W"),
+        help=(
+            "Desired frame-zero object orientation. If omitted while position is "
+            "specified, the rollout's initial object orientation is preserved."
+        ),
+    )
     parser.add_argument("--position-tolerance", type=float, default=1.0e-4)
     parser.add_argument("--orientation-tolerance", type=float, default=1.0e-3)
     parser.add_argument("--position-weight", type=float, default=10.0)
@@ -147,6 +200,45 @@ def main():
         )
     wrist_quat = _to_xyzw(wrist_quat, convention)
     object_quat = _to_xyzw(object_quat, convention)
+    alignment_rotation = Rotation.identity()
+    alignment_translation = np.zeros(3, dtype=float)
+    alignment_applied = args.object_start_position is not None or args.object_start_quat_xyzw is not None
+    if alignment_applied:
+        desired_object_position = np.asarray(
+            args.object_start_position if args.object_start_position is not None else object_pos[0],
+            dtype=float,
+        )
+        desired_object_quaternion = np.asarray(
+            args.object_start_quat_xyzw if args.object_start_quat_xyzw is not None else object_quat[0],
+            dtype=float,
+        )
+        if not np.isfinite(desired_object_position).all() or desired_object_position.shape != (3,):
+            raise ValueError("--object-start-position must contain three finite values")
+        if not np.isfinite(desired_object_quaternion).all() or desired_object_quaternion.shape != (4,):
+            raise ValueError("--object-start-quat-xyzw must contain four finite values")
+        quaternion_norm = np.linalg.norm(desired_object_quaternion)
+        if quaternion_norm < 1.0e-12:
+            raise ValueError("--object-start-quat-xyzw cannot be a zero quaternion")
+        desired_object_quaternion /= quaternion_norm
+        (
+            wrist_pos,
+            wrist_quat,
+            object_pos,
+            object_quat,
+            alignment_rotation,
+            alignment_translation,
+        ) = _align_trajectory_to_object_start(
+            wrist_pos,
+            wrist_quat,
+            object_pos,
+            object_quat,
+            desired_object_position,
+            desired_object_quaternion,
+        )
+        print("[floating rollout alignment]")
+        print(f"  desired object frame 0 position: {desired_object_position}")
+        print(f"  actual object frame 0 position:  {object_pos[0]}")
+        print(f"  actual object frame 0 quat xyzw: {object_quat[0]}")
     wrist_frame_correction_rpy_deg = np.asarray(
         args.target_wrist_local_rpy_deg, dtype=float
     )
@@ -348,6 +440,9 @@ def main():
         "link6_to_wrist_xyz_m": kinematics.link6_to_wrist_position,
         "target_wrist_local_rpy_correction_deg": wrist_frame_correction_rpy_deg,
         "target_wrist_local_quat_xyzw_correction": wrist_frame_correction.as_quat(),
+        "floating_alignment_applied": alignment_applied,
+        "floating_alignment_rotation": alignment_rotation.as_matrix(),
+        "floating_alignment_translation": alignment_translation,
     }
     mano_joint_world = next(
         (
@@ -371,8 +466,16 @@ def main():
             )
         if not np.isfinite(mano_joint_world).all():
             raise ValueError("MANO skeleton contains NaN/Inf")
+        if alignment_applied:
+            mano_joint_world = (
+                alignment_rotation.apply(mano_joint_world.reshape(-1, 3))
+                + alignment_translation
+            ).reshape(T, 21, 3)
         output_data["mano_joint_world"] = mano_joint_world
-        output_data["mano_joint_order"] = "mano21_sequential_thumb_index_middle_ring_little"
+        output_data["mano_joint_order"] = _decode_scalar(
+            source.get("mano_joint_order"),
+            "mano21_sequential_thumb_index_middle_ring_little",
+        )
     # Keep the configured mount quaternion verbatim; FK stores its rotation matrix.
     output_data["link6_to_wrist_quat_xyzw"] = np.asarray(
         kinematics.config["link6_to_mounted_wrist_quat_xyzw"], dtype=float

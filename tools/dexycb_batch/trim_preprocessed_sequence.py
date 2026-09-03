@@ -92,7 +92,7 @@ def trim_in_place(path: Path, drop_first: int, summary_path: Path | None) -> dic
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("input", type=Path, help="Preprocessed NPZ to overwrite atomically")
-    parser.add_argument("--drop-first", type=int, default=4)
+    parser.add_argument("--drop-first", type=int, default=12)
     parser.add_argument("--summary", type=Path, help="Optional preprocess_summary.json")
     args = parser.parse_args()
     path = args.input.expanduser().resolve()

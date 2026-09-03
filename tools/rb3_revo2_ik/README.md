@@ -44,6 +44,23 @@ python3 tools/rb3_revo2_ik/build_reference_trajectory.py WORLD_TRAJECTORY.h5 \
 적용되며, 출력의 `target_wrist_local_rpy_correction_deg`와
 `target_wrist_local_quat_xyzw_correction`에 기록된다.
 
+### Floating policy rollout을 실제 캔 위치에 배치
+
+Floating-hand RL rollout은 로봇팔과 독립적인 좌표에서 생성된다. 아래 launcher는
+첫 캔 pose를 원하는 RB3 world pose로 옮기는 하나의 rigid transform을 계산하고,
+object/wrist/MANO 전체에 동일하게 적용한 뒤 strict IK를 수행한다.
+
+```bash
+./scripts/floating_to_rb3.sh \
+  --rollout outputs/floating/20200709_143747_left/rollout.h5 \
+  --object-start 0.40 0.00 0.020469 \
+  --out outputs/floating/20200709_143747_left/reference_12dof.h5
+```
+
+초기 캔 orientation을 바꾸려면 `--object-quat X Y Z W`를 추가한다. 생략하면 rollout의
+초기 orientation을 유지한다. 출력에는 적용한 rotation matrix와 translation이
+`floating_alignment_rotation`, `floating_alignment_translation`로 기록된다.
+
 ## 완전 신전 자세에서 천천히 접근
 
 첫 strict-IK 자세로 바로 teleport하지 않고 RB3 완전 신전/손가락 open 상태에서

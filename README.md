@@ -13,6 +13,13 @@ DexYCB second camera
   -> Isaac/RB3 world 좌표 변환
   -> RB3-730 strict IK
   -> RB3 6축 + Revo2 6축 replay
+
+RL/deployment branch
+  -> RB3 없이 floating Revo2 wrist SE(3) + finger 6축 residual PPO
+  -> policy rollout의 wrist/object/Revo2 trajectory 저장
+  -> 실제 캔 시작 pose로 전체 rollout rigid alignment
+  -> RB3 strict IK
+  -> RB3 6축 + Revo2 6축 통합 replay
 ```
 
 ## 빠른 시작
@@ -64,30 +71,46 @@ DexYCB second camera
 
 - Revo2 FK: 입력 `(6,)`, 출력 semantic keypoints `(21, 3)`
 - RB3 strict IK: joint limits와 이전 프레임 warm start 적용
-- 준비된 5개 sequence: strict IK 344/344 frames 성공
+- 준비된 5개 sequence: strict IK 332/332 frames 성공
 - Isaac replay: RB3/Revo2 관절, 원본 MANO21, tuna can mesh 표시
 - `--physics-object`: 캔 pose를 매 프레임 덮어쓰지 않고 중력/contact 사용
 
 물리 grasp 성공 자체는 아직 보장하지 않습니다. tactile sensor, symmetry-aware
 reward와 실제 로봇 deployment는 현재 범위 밖입니다.
 
-## REGRIND RL MDP 환경
+## Floating Revo2 REGRIND RL
 
-RB3 6축 + Revo2 6축의 12차원 residual action과 rigid tuna can에 공개 REGRIND의
-actor/critic observation, object-centric reward, RSI, RSL-RL PPO, domain
-randomization과 gravity/push curriculum을 연결했습니다.
+학습 환경에는 RB3를 넣지 않습니다. 공개 REGRIND와 같은 방식으로 floating wrist의
+SE(3) residual 6차원과 Revo2 leader joint residual 6차원을 합친 12차원 action을
+사용합니다. 학습된 floating trajectory는 실행 위치의 tuna can pose에 rigid alignment한
+후 RB3 strict IK로 12-DoF robot reference로 변환합니다.
 
 ```bash
-# MDP smoke validation
-./scripts/rl.sh debug --sequence 20200709_143747_left --max_steps 68
-
-# Zero-residual GUI with the original MANO21 skeleton
-./scripts/rl.sh zero --sequence 20200709_143747_left --gui --skeleton --real_time
+# Floating-hand zero-residual GUI
+./scripts/rl.sh zero --sequence 20200709_143747_left --gui --real_time
 
 # PPO smoke/full training
 ./scripts/rl.sh train --sequence 20200709_143747_left --num_envs 16 --max_iterations 2 --headless
 ./scripts/rl.sh train --sequence 20200709_143747_left --full --num_envs 4096 --headless
+
+# Floating policy GUI + physical rollout HDF5 export
+./scripts/rl.sh play --sequence 20200709_143747_left \
+  --checkpoint logs/rsl_rl/floating_revo2_tuna/RUN/model_999.pt \
+  --rollout-path outputs/floating/20200709_143747_left/rollout.h5
+
+# Actual can start pose alignment + RB3 strict IK
+./scripts/floating_to_rb3.sh \
+  --rollout outputs/floating/20200709_143747_left/rollout.h5 \
+  --object-start 0.40 0.00 0.020469 \
+  --out outputs/floating/20200709_143747_left/reference_12dof.h5
+
+# Combined RB3+Revo2 GUI
+./tools/rb3_revo2_ik/run_replay_gui.sh \
+  --trajectory outputs/floating/20200709_143747_left/reference_12dof.h5
 ```
+
+이전 RB3+Revo2 동시 residual task는 삭제하지 않았으며 필요한 경우 RL 명령에
+`--legacy-arm-rl`을 붙여 사용할 수 있습니다.
 
 `train_rb3_revo2_ppo.sh`, `play_rb3_revo2_ppo.sh`, `run_rl_zero_replay*.sh`는
 기존 사용자를 위한 얇은 호환 wrapper이며 실제 launcher 로직은 `scripts/rl.sh`와
