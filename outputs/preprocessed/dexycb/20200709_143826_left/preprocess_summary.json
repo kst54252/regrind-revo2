@@ -1,0 +1,18 @@
+{
+  "sequence": "20200709_143826_left",
+  "source_frames": 72,
+  "valid_frames": 69,
+  "dropped_frames": [
+    0,
+    1,
+    2
+  ],
+  "camera": "839512060362",
+  "source_hand_side": "left",
+  "target_hand_side": "right",
+  "source_object_id": 6,
+  "object_name": "007_tuna_fish_can",
+  "max_rotation_det_error": 2.100107654445793e-07,
+  "max_mirror_distance_error_m": 4.440892098500626e-16,
+  "output": "/home/wanjunkim/ARSL/regrind-upload/outputs/preprocessed/dexycb/20200709_143826_left/dexycb_right_hand_preprocessed.npz"
+}

@@ -89,7 +89,6 @@ Thumbs.db
 # Raw datasets and all derived outputs are local artifacts. They are large and
 # reproducible from the source data plus the scripts in this repository.
 /dataset/
-/outputs/
 /revo2_dexycb_interactive_57frames.html
 /revo2_dexycb_*.html
 

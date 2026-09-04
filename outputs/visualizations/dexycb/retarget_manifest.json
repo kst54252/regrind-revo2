@@ -1,0 +1,137 @@
+[
+  {
+    "sequence": "20200709_143626_right",
+    "frames": 69,
+    "success_count": 69,
+    "success_rate": 1.0,
+    "failure_indices": [],
+    "mean_objective": 0.024716359742782752,
+    "max_objective": 0.18017960582068593,
+    "joint_limit_violation": false,
+    "robot_keypoint_shape": [
+      69,
+      21,
+      3
+    ],
+    "mano_shape": [
+      69,
+      21,
+      3
+    ],
+    "robot_joint_shape": [
+      69,
+      6
+    ],
+    "finite_successful_keypoints": true,
+    "result": "/home/wanjunkim/ARSL/regrind-upload/outputs/retargeted/dexycb/20200709_143626_right/revo2_retargeted.h5",
+    "html": "/home/wanjunkim/ARSL/regrind-upload/outputs/visualizations/dexycb/20200709_143626_right/retargeted_interactive.html"
+  },
+  {
+    "sequence": "20200709_143703_right",
+    "frames": 67,
+    "success_count": 67,
+    "success_rate": 1.0,
+    "failure_indices": [],
+    "mean_objective": 0.025368688700928482,
+    "max_objective": 0.1875805147677454,
+    "joint_limit_violation": false,
+    "robot_keypoint_shape": [
+      67,
+      21,
+      3
+    ],
+    "mano_shape": [
+      67,
+      21,
+      3
+    ],
+    "robot_joint_shape": [
+      67,
+      6
+    ],
+    "finite_successful_keypoints": true,
+    "result": "/home/wanjunkim/ARSL/regrind-upload/outputs/retargeted/dexycb/20200709_143703_right/revo2_retargeted.h5",
+    "html": "/home/wanjunkim/ARSL/regrind-upload/outputs/visualizations/dexycb/20200709_143703_right/retargeted_interactive.html"
+  },
+  {
+    "sequence": "20200709_143747_left",
+    "frames": 60,
+    "success_count": 60,
+    "success_rate": 1.0,
+    "failure_indices": [],
+    "mean_objective": 0.023767664852520097,
+    "max_objective": 0.07105323365197724,
+    "joint_limit_violation": false,
+    "robot_keypoint_shape": [
+      60,
+      21,
+      3
+    ],
+    "mano_shape": [
+      60,
+      21,
+      3
+    ],
+    "robot_joint_shape": [
+      60,
+      6
+    ],
+    "finite_successful_keypoints": true,
+    "result": "/home/wanjunkim/ARSL/regrind-upload/outputs/retargeted/dexycb/20200709_143747_left/revo2_retargeted.h5",
+    "html": "/home/wanjunkim/ARSL/regrind-upload/outputs/visualizations/dexycb/20200709_143747_left/retargeted_interactive.html"
+  },
+  {
+    "sequence": "20200709_143826_left",
+    "frames": 69,
+    "success_count": 69,
+    "success_rate": 1.0,
+    "failure_indices": [],
+    "mean_objective": 0.030661188741405842,
+    "max_objective": 0.17052946091560983,
+    "joint_limit_violation": false,
+    "robot_keypoint_shape": [
+      69,
+      21,
+      3
+    ],
+    "mano_shape": [
+      69,
+      21,
+      3
+    ],
+    "robot_joint_shape": [
+      69,
+      6
+    ],
+    "finite_successful_keypoints": true,
+    "result": "/home/wanjunkim/ARSL/regrind-upload/outputs/retargeted/dexycb/20200709_143826_left/revo2_retargeted.h5",
+    "html": "/home/wanjunkim/ARSL/regrind-upload/outputs/visualizations/dexycb/20200709_143826_left/retargeted_interactive.html"
+  },
+  {
+    "sequence": "20200709_143907_right",
+    "frames": 67,
+    "success_count": 67,
+    "success_rate": 1.0,
+    "failure_indices": [],
+    "mean_objective": 0.027405800187210134,
+    "max_objective": 0.16958962005778933,
+    "joint_limit_violation": false,
+    "robot_keypoint_shape": [
+      67,
+      21,
+      3
+    ],
+    "mano_shape": [
+      67,
+      21,
+      3
+    ],
+    "robot_joint_shape": [
+      67,
+      6
+    ],
+    "finite_successful_keypoints": true,
+    "result": "/home/wanjunkim/ARSL/regrind-upload/outputs/retargeted/dexycb/20200709_143907_right/revo2_retargeted.h5",
+    "html": "/home/wanjunkim/ARSL/regrind-upload/outputs/visualizations/dexycb/20200709_143907_right/retargeted_interactive.html"
+  }
+]
