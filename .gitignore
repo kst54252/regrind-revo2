@@ -86,9 +86,11 @@ Thumbs.db
 # -----------------------------------------------------------------------------
 # Raw datasets and generated REGRIND/IK results
 # -----------------------------------------------------------------------------
-# Raw datasets and all derived outputs are local artifacts. They are large and
-# reproducible from the source data plus the scripts in this repository.
+# Raw datasets stay local. Compact generated outputs may be committed, while
+# self-contained Plotly HTML files stay local because each embeds several MB.
 /dataset/
+/outputs/*.html
+/outputs/**/*.html
 /revo2_dexycb_interactive_57frames.html
 /revo2_dexycb_*.html
 
