@@ -24,15 +24,13 @@ class RB3730KinematicsTest(unittest.TestCase):
         self.assertEqual(upper.shape, (6,))
         self.assertTrue(np.all(lower < upper))
         np.testing.assert_allclose(
-            self.robot.link6_to_wrist_position, (0.03, 0.0, 0.14), atol=1.0e-12
+            self.robot.link6_to_wrist_position, (0.0, 0.0, 0.141304972), atol=1.0e-12
         )
 
     def test_zero_configuration_fk(self):
         position, quaternion = self.robot.forward(np.zeros(6))
-        np.testing.assert_allclose(position, (0.03, -0.00645, 0.9153), atol=1.0e-12)
-        np.testing.assert_allclose(
-            quaternion, (0.0, -0.7071067811865475, 0.0, 0.7071067811865476), atol=1.0e-12
-        )
+        np.testing.assert_allclose(position, (0.0, -0.00645, 0.916604972), atol=1.0e-12)
+        np.testing.assert_allclose(quaternion, (0.0, 0.0, 0.0, 1.0), atol=1.0e-12)
 
     def test_ik_recovers_reachable_pose(self):
         expected_q = np.array((0.35, -0.75, 1.05, 0.4, -0.55, 0.2))

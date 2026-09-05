@@ -17,7 +17,7 @@ from pathlib import Path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_STAGE = PROJECT_ROOT / "USD" / "rb3_revo2.usd"
+DEFAULT_STAGE = PROJECT_ROOT / "USD" / "rb3_revo2_vertical.usda"
 ISAAC_REFERENCE_ROOT = PROJECT_ROOT / "outputs" / "isaac" / "dexycb"
 DEFAULT_SEQUENCE = "20200709_143747_left"
 DEFAULT_OBJECT_MESH = PROJECT_ROOT / "007_tuna_fish_can" / "textured_simple.obj"
@@ -46,11 +46,37 @@ def _parser():
             "joint position targets and let gravity/contact move the can."
         ),
     )
+    parser.add_argument(
+        "--robot-control",
+        choices=("kinematic", "arm-kinematic", "position"),
+        default="kinematic",
+        help=(
+            "Robot control used with --physics-object. 'kinematic' applies the "
+            "saved joints exactly while the can remains dynamic; 'position' "
+            "uses articulation drive targets. 'arm-kinematic' pins only the "
+            "arm while the hand follows recorded drive targets dynamically."
+        ),
+    )
     parser.add_argument("--object-mass", type=float, default=0.15, help="Can mass in kg.")
     parser.add_argument(
         "--object-friction", type=float, default=0.8, help="Static/dynamic friction."
     )
     parser.add_argument("--speed", type=float, default=1.0, help="Playback speed multiplier.")
+    parser.add_argument(
+        "--terminal-hold",
+        type=float,
+        default=0.5,
+        help=(
+            "Seconds of simulated time to hold the final joint target before pausing "
+            "physics. This lets the arm decelerate instead of freezing abruptly."
+        ),
+    )
+    parser.add_argument(
+        "--physics-hz",
+        type=float,
+        default=120.0,
+        help="Isaac physics/update frequency used to pace dynamic replay.",
+    )
     parser.add_argument(
         "--dt",
         type=float,
@@ -76,11 +102,13 @@ def _parser():
     )
     parser.add_argument("--width", type=int, default=1600)
     parser.add_argument("--height", type=int, default=900)
+    parser.add_argument("--headless", action="store_true", help="Run validation without a GUI.")
+    parser.add_argument("--exit-after-replay", action="store_true", help="Exit after one replay and its validation summary.")
     parser.add_argument(
-        "--camera-eye", nargs=3, type=float, default=(1.25, 1.15, 0.85), metavar=("X", "Y", "Z")
+        "--camera-eye", nargs=3, type=float, default=(1.55, 1.45, 0.85), metavar=("X", "Y", "Z")
     )
     parser.add_argument(
-        "--camera-target", nargs=3, type=float, default=(0.25, 0.10, 0.28), metavar=("X", "Y", "Z")
+        "--camera-target", nargs=3, type=float, default=(0.40, 0.0, -0.08), metavar=("X", "Y", "Z")
     )
     return parser
 
@@ -113,10 +141,16 @@ def main():
     sys.argv = [sys.argv[0]]
     if args.speed <= 0:
         raise ValueError("--speed must be > 0")
+    if args.exit_after_replay and (args.paused or args.loop):
+        raise ValueError("--exit-after-replay requires autoplay and --no-loop")
     if args.object_mass <= 0 or args.object_friction < 0:
         raise ValueError("--object-mass must be > 0 and --object-friction must be >= 0")
     if args.dt is not None and args.dt <= 0:
         raise ValueError("--dt must be > 0")
+    if args.terminal_hold < 0:
+        raise ValueError("--terminal-hold must be >= 0")
+    if args.physics_hz <= 0:
+        raise ValueError("--physics-hz must be > 0")
     stage_path = _resolved_existing(args.stage, "robot Stage")
     trajectory_candidate = args.trajectory or (
         ISAAC_REFERENCE_ROOT / args.sequence / "rb3_revo2_reference.h5"
@@ -129,11 +163,16 @@ def main():
     os.environ["REVO2_OBJECT_MESH_PATH"] = str(object_mesh_path)
     os.environ["REVO2_REPLAY_SPEED"] = str(args.speed)
     loop = (not args.physics_object) if args.loop is None else args.loop
+    if args.exit_after_replay:
+        loop = False
     os.environ["REVO2_REPLAY_LOOP"] = "1" if loop else "0"
     os.environ["REVO2_REPLAY_AUTO_PLAY"] = "0" if args.paused else "1"
     os.environ["REVO2_REPLAY_START_FRAME"] = str(args.start_frame)
+    os.environ["REVO2_REPLAY_TERMINAL_HOLD"] = str(args.terminal_hold)
+    os.environ["REVO2_REPLAY_PHYSICS_HZ"] = str(args.physics_hz)
     os.environ["REVO2_SHOW_DEMO_SKELETON"] = "1" if args.demo_skeleton else "0"
     os.environ["REVO2_PHYSICS_OBJECT"] = "1" if args.physics_object else "0"
+    os.environ["REVO2_PHYSICS_ROBOT_CONTROL"] = args.robot_control
     os.environ["REVO2_OBJECT_MASS_KG"] = str(args.object_mass)
     os.environ["REVO2_OBJECT_FRICTION"] = str(args.object_friction)
     if args.dt is not None:
@@ -145,7 +184,7 @@ def main():
 
     simulation_app = SimulationApp(
         {
-            "headless": False,
+            "headless": args.headless,
             "width": args.width,
             "height": args.height,
             "enable_cameras": True,
@@ -175,7 +214,11 @@ def main():
 
     # The terminal launcher needs controls that do not depend on Script Editor.
     sequence_label = trajectory_path.parent.name
-    replay_mode = "PHYSICS CAN" if args.physics_object else "KINEMATIC"
+    replay_mode = (
+        f"PHYSICS CAN / {args.robot_control.upper()} ROBOT"
+        if args.physics_object
+        else "KINEMATIC"
+    )
     control_window = ui.Window(
         f"RB3 + Revo2 Replay | {replay_mode} | {sequence_label}", width=540, height=205
     )
@@ -218,6 +261,12 @@ def main():
     try:
         while simulation_app.is_running():
             simulation_app.update()
+            play_task = replay._play_task
+            if play_task is not None and play_task.done():
+                if not play_task.cancelled() and play_task.exception() is not None:
+                    raise play_task.exception()
+                if args.exit_after_replay:
+                    break
             initialize_task = namespace.get("_INITIALIZE_TASK")
             if (
                 initialize_task is not None

@@ -71,6 +71,20 @@ class RB3Revo2ReferenceCommand(CommandTerm):
             raise ValueError(
                 f"unsupported joint_reference {cfg.joint_reference!r}; expected 'combined' or 'revo2'"
             )
+        if cfg.randomize_object_xy and cfg.joint_reference != "revo2":
+            raise ValueError(
+                "per-episode can placement randomization is only valid for the floating "
+                "Revo2 task (joint_reference='revo2'). The assembled RB3 task requires "
+                "a new strict-IK trajectory for each sampled placement."
+            )
+        x_range = tuple(float(value) for value in cfg.object_start_x_range)
+        y_range = tuple(float(value) for value in cfg.object_start_y_range)
+        if len(x_range) != 2 or len(y_range) != 2:
+            raise ValueError("object start XY ranges must each contain lower and upper bounds")
+        if not x_range[0] <= x_range[1] or not y_range[0] <= y_range[1]:
+            raise ValueError("object start XY lower bounds must not exceed upper bounds")
+        self.object_start_x_range = x_range
+        self.object_start_y_range = y_range
         missing = [name for name in controlled_joint_names if name not in self.robot.joint_names]
         if missing:
             raise RuntimeError(f"articulation is missing controlled joints: {missing}")
@@ -115,6 +129,10 @@ class RB3Revo2ReferenceCommand(CommandTerm):
         self.reference_object_ang_vel = self._finite_difference_quat(self.reference_object_quat)
 
         self.time_steps = torch.zeros(self.num_envs, dtype=torch.long, device=self.device)
+        # One rigid table-plane translation is applied to the complete
+        # object+wrist reference for each environment. Revo2 joint angles and
+        # all velocities remain unchanged by a pure translation.
+        self.placement_offset = torch.zeros((self.num_envs, 3), device=self.device)
         self.wrap_count = torch.zeros(self.num_envs, dtype=torch.long, device=self.device)
         self.last_rsi_frame = torch.zeros(self.num_envs, dtype=torch.long, device=self.device)
         for name in (
@@ -130,6 +148,8 @@ class RB3Revo2ReferenceCommand(CommandTerm):
             "error_hand_joint_vel",
             "gravity_z",
             "curriculum_level",
+            "placement_start_x",
+            "placement_start_y",
         ):
             self.metrics[name] = torch.zeros(self.num_envs, device=self.device)
 
@@ -165,7 +185,7 @@ class RB3Revo2ReferenceCommand(CommandTerm):
 
     @property
     def phi(self) -> torch.Tensor:
-        total_frames = self.cfg.phase_total_frames or self.reference.frames
+        total_frames = self.cfg.phase_total_frames or self.reference.phase_total_frames
         phase_steps = self.time_steps.to(torch.float32) + float(self.cfg.phase_frame_offset)
         return torch.clamp(phase_steps / float(max(total_frames - 1, 1)), min=0.0, max=1.0)
 
@@ -191,7 +211,7 @@ class RB3Revo2ReferenceCommand(CommandTerm):
 
     @property
     def target_object_pos(self) -> torch.Tensor:
-        return self.reference_object_pos[self.time_steps]
+        return self.reference_object_pos[self.time_steps] + self.placement_offset
 
     @property
     def target_object_quat(self) -> torch.Tensor:
@@ -207,7 +227,7 @@ class RB3Revo2ReferenceCommand(CommandTerm):
 
     @property
     def target_hand_wrist_pos(self) -> torch.Tensor:
-        return self.reference_wrist_pos[self.time_steps]
+        return self.reference_wrist_pos[self.time_steps] + self.placement_offset
 
     @property
     def target_hand_wrist_quat(self) -> torch.Tensor:
@@ -226,6 +246,21 @@ class RB3Revo2ReferenceCommand(CommandTerm):
     @property
     def target_hand_wrist_ang_vel(self) -> torch.Tensor:
         return self.reference_wrist_ang_vel[self.time_steps]
+
+    @property
+    def observation_translation_offset(self) -> torch.Tensor | None:
+        """Episode translation removed from policy/critic position observations.
+
+        The simulator and exported rollout stay in the requested table/world
+        coordinates. Only observations are mapped back to the canonical
+        reference frame, so a policy sees the same state after a joint
+        object+wrist translation. Returning ``None`` preserves the legacy
+        absolute-coordinate observation convention.
+        """
+
+        if not self.cfg.canonicalize_translation_observations:
+            return None
+        return self.placement_offset
 
     @property
     def current_object_pos(self) -> torch.Tensor:
@@ -320,6 +355,9 @@ class RB3Revo2ReferenceCommand(CommandTerm):
         gravity_z = float(self._env.sim.physics_sim_view.get_gravity()[2])
         self.metrics["gravity_z"].fill_(gravity_z)
         self.metrics["curriculum_level"].fill_(min(abs(gravity_z) / 9.81, 1.0))
+        placement_start = self.reference_object_pos[0, :2] + self.placement_offset[:, :2]
+        self.metrics["placement_start_x"].copy_(placement_start[:, 0])
+        self.metrics["placement_start_y"].copy_(placement_start[:, 1])
 
     def _sample_rsi_frames(self, count: int) -> torch.Tensor:
         if not self.cfg.rsi_enabled:
@@ -333,6 +371,27 @@ class RB3Revo2ReferenceCommand(CommandTerm):
             device=self.device,
         )
 
+    def _sample_placement(self, env_ids: torch.Tensor) -> None:
+        self.placement_offset[env_ids] = 0.0
+        if not self.cfg.randomize_object_xy:
+            return
+        count = env_ids.numel()
+        start_x = sample_uniform(
+            self.object_start_x_range[0],
+            self.object_start_x_range[1],
+            (count,),
+            device=self.device,
+        )
+        start_y = sample_uniform(
+            self.object_start_y_range[0],
+            self.object_start_y_range[1],
+            (count,),
+            device=self.device,
+        )
+        reference_start_xy = self.reference_object_pos[0, :2]
+        self.placement_offset[env_ids, 0] = start_x - reference_start_xy[0]
+        self.placement_offset[env_ids, 1] = start_y - reference_start_xy[1]
+
     def _resample_command(self, env_ids: Sequence[int]):
         env_ids = self._env_ids_tensor(env_ids)
         if env_ids.numel() == 0:
@@ -341,6 +400,7 @@ class RB3Revo2ReferenceCommand(CommandTerm):
         self.time_steps[env_ids] = selected
         self.last_rsi_frame[env_ids] = selected
         self.wrap_count[env_ids] = 0
+        self._sample_placement(env_ids)
 
         joint_pos = self.target_joint_pos[env_ids].clone()
         joint_vel = self.target_hand_joint_vel[env_ids].clone()
@@ -423,6 +483,9 @@ class RB3Revo2ReferenceCommand(CommandTerm):
         )
         if self.cfg.debug_output:
             print(f"[RSI] selected frame(s): {selected.detach().cpu().tolist()}")
+            if self.cfg.randomize_object_xy:
+                starts = self.reference_object_pos[0, :2] + self.placement_offset[env_ids, :2]
+                print(f"[placement] object start XY: {starts.detach().cpu().tolist()}")
 
     def _update_command(self):
         next_steps = self.time_steps + 1
@@ -493,5 +556,17 @@ class RB3Revo2ReferenceCommandCfg(CommandTermCfg):
     joint_reset_noise: float = 0.02
     object_pos_reset_noise: float = 0.002
     object_rot_reset_noise: float = 0.02
+    # Absolute table-frame bounds. The complete wrist/object trajectory is
+    # translated together, preserving the grasp geometry. This rectangle was
+    # checked on a 5x5 grid: 25/25 full strict-IK sequences succeeded with the
+    # vertical Revo2 mount and RB3 installation height Z=-0.02 m.
+    randomize_object_xy: bool = False
+    object_start_x_range: tuple[float, float] = (0.40, 0.50)
+    object_start_y_range: tuple[float, float] = (-0.20, 0.20)
+    # Remove the sampled rigid translation from every translational policy and
+    # critic observation. This keeps observation dimensions and nominal values
+    # checkpoint-compatible while making floating-hand control invariant to
+    # the can's table location.
+    canonicalize_translation_observations: bool = False
     debug_output: bool = False
     dt_tolerance: float = 1.0e-6

@@ -22,6 +22,11 @@ parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--reference", type=str, default=None, help="Override reference trajectory path.")
 parser.add_argument("--max_steps", type=int, default=0, help="Exit after N steps; 0 runs until the window closes.")
 parser.add_argument("--real_time", action="store_true", help="Throttle simulation to environment step_dt.")
+parser.add_argument(
+    "--random-placement",
+    action="store_true",
+    help="Sample can/reference XY from the strict-IK-validated table rectangle on reset.",
+)
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
 # parse the arguments
@@ -55,6 +60,15 @@ def main():
         env_cfg.commands.reference.rsi_enabled = False
         env_cfg.commands.reference.loop = True
         env_cfg.commands.reference.enable_reset_perturbation = False
+    if args_cli.random_placement:
+        if env_cfg.commands.reference.joint_reference != "revo2":
+            raise ValueError(
+                "--random-placement is for floating-hand replay; generate strict IK before "
+                "using a sampled placement with --legacy-arm-rl"
+            )
+        env_cfg.commands.reference.randomize_object_xy = True
+        # Demo-end termination causes an environment reset and a fresh sample.
+        env_cfg.commands.reference.loop = False
     # create environment
     env = gym.make(args_cli.task, cfg=env_cfg)
 

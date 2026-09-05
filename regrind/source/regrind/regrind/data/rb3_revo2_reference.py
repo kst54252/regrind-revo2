@@ -80,6 +80,7 @@ class RB3Revo2Reference:
     mano_joint_world_semantic: np.ndarray | None
     fps: float
     joint_names: tuple[str, ...]
+    phase_total_frames: int
 
     @property
     def frames(self) -> int:
@@ -182,6 +183,11 @@ def load_rb3_revo2_reference(
     fps = float(np.asarray(data.get("fps", 30.0)).item())
     if not np.isfinite(fps) or fps <= 0.0:
         raise ValueError(f"fps must be finite and positive, got {fps}")
+    phase_total_frames = int(np.asarray(data.get("phase_total_frames", frames)).item())
+    if phase_total_frames < frames:
+        raise ValueError(
+            f"phase_total_frames must be >= stored frames ({frames}), got {phase_total_frames}"
+        )
     if require_success:
         if "ik_success" in data and not np.asarray(data["ik_success"], dtype=bool).all():
             failed = np.flatnonzero(~np.asarray(data["ik_success"], dtype=bool)).tolist()
@@ -204,4 +210,5 @@ def load_rb3_revo2_reference(
         mano_joint_world_semantic=mano_joint_world,
         fps=fps,
         joint_names=joint_names,
+        phase_total_frames=phase_total_frames,
     )

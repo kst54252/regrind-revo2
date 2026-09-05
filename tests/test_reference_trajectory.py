@@ -10,6 +10,7 @@ import numpy as np
 
 from tools.rb3_revo2_ik.reference_trajectory import (
     DEFAULT_REVO2_JOINT_NAMES,
+    MANO21_SEQUENTIAL_TO_REVO_SEMANTIC,
     analyze_continuity,
     load_reference_trajectory,
 )
@@ -88,6 +89,45 @@ class ReferenceTrajectoryTest(unittest.TestCase):
                 )
             trajectory = load_reference_trajectory(reference_path)
         np.testing.assert_allclose(trajectory.mano_joint_world, mano)
+
+    def test_revo_semantic_mano_is_restored_to_sequential_order(self):
+        q = np.zeros((2, 12))
+        sequential = np.arange(2 * 21 * 3, dtype=float).reshape(2, 21, 3)
+        semantic = sequential[:, MANO21_SEQUENTIAL_TO_REVO_SEMANTIC]
+        with tempfile.NamedTemporaryFile(suffix=".h5") as output:
+            with h5py.File(output.name, "w") as h5_file:
+                h5_file["reference_joints"] = q
+                h5_file["mano_joint_world"] = semantic
+                h5_file["mano_joint_order"] = "revo_semantic_kp00_to_kp20"
+            trajectory = load_reference_trajectory(output.name)
+        np.testing.assert_allclose(trajectory.mano_joint_world, sequential)
+
+    def test_loads_optional_follower_state_and_policy_drive_target(self):
+        q = np.zeros((3, 12))
+        follower = np.arange(15, dtype=float).reshape(3, 5) * 0.01
+        drive_target = np.arange(18, dtype=float).reshape(3, 6) * 0.02
+        follower_names = (
+            "right_thumb_distal_joint",
+            "right_index_distal_joint",
+            "right_middle_distal_joint",
+            "right_ring_distal_joint",
+            "right_pinky_distal_joint",
+        )
+        with tempfile.NamedTemporaryFile(suffix=".h5") as output:
+            with h5py.File(output.name, "w") as h5_file:
+                h5_file["reference_joints"] = q
+                h5_file["revo2_follower_joints"] = follower
+                h5_file["revo2_joint_drive_target"] = drive_target
+                h5_file.create_dataset(
+                    "revo2_follower_joint_names",
+                    data=np.asarray(follower_names, dtype=object),
+                    dtype=h5py.string_dtype("utf-8"),
+                )
+            trajectory = load_reference_trajectory(output.name)
+        np.testing.assert_allclose(trajectory.revo2_follower_joints, follower)
+        np.testing.assert_allclose(
+            trajectory.revo2_joint_drive_target, drive_target
+        )
 
 
 if __name__ == "__main__":

@@ -146,7 +146,7 @@ class FloatingObservationsCfg:
         command = ObsTerm(func=mdp.generated_commands, params={"command_name": "reference"})
         action_base_wrist_pos_and_rot6d = ObsTerm(
             func=mdp.action_base_wrist_pos_and_rot6d,
-            params={"action_term_name": "root_pose"},
+            params={"action_term_name": "root_pose", "command_name": "reference"},
         )
         action_base_hand_joint_pos = ObsTerm(
             func=mdp.action_base_hand_joint_pos,
@@ -180,7 +180,7 @@ class FloatingObservationsCfg:
         command = ObsTerm(func=mdp.generated_commands, params={"command_name": "reference"})
         action_base_wrist_pos_and_rot6d = ObsTerm(
             func=mdp.action_base_wrist_pos_and_rot6d,
-            params={"action_term_name": "root_pose"},
+            params={"action_term_name": "root_pose", "command_name": "reference"},
         )
         action_base_hand_joint_pos = ObsTerm(
             func=mdp.action_base_hand_joint_pos,
@@ -260,6 +260,17 @@ class FloatingRevo2TunaEnvCfg(ManagerBasedRLEnvCfg):
         self.events.rb3_mass = None
         self.events.rb3_actuator_gains = None
         self.commands.reference.enable_reset_perturbation = True
+        # Do not start the can hovering, penetrating the table, or tilted.
+        # Random placement below translates the entire reference in XY and
+        # therefore preserves exact table contact and grasp geometry.
+        self.commands.reference.object_pos_reset_noise = 0.0
+        self.commands.reference.object_rot_reset_noise = 0.0
+        # Sample only from the table rectangle where downstream RB3 strict IK
+        # passed every frame at all 25 points of a 5x5 validation grid.
+        self.commands.reference.randomize_object_xy = True
+        self.commands.reference.canonicalize_translation_observations = True
+        self.commands.reference.object_start_x_range = (0.40, 0.50)
+        self.commands.reference.object_start_y_range = (-0.20, 0.20)
 
         ranges = self.randomization_ranges
         for term_name, friction in (
@@ -302,6 +313,7 @@ class FloatingRevo2TunaEnvCfg_PLAY(FloatingRevo2TunaEnvCfg):
         self.commands.reference.rsi_enabled = False
         self.commands.reference.debug_output = True
         self.commands.reference.enable_reset_perturbation = False
+        self.commands.reference.randomize_object_xy = False
         for term_name in (
             "object_pos",
             "object_ori",

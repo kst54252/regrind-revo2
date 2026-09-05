@@ -76,3 +76,12 @@ class RB3Revo2RLReferenceTest(unittest.TestCase):
             reference.mano_joint_world_semantic[:, 1],
             sequential[:, 5],
         )
+
+    def test_preserves_original_phase_length_after_tail_trim(self):
+        with tempfile.NamedTemporaryFile(suffix=".h5") as output:
+            self._write(output.name)
+            with h5py.File(output.name, "a") as h5_file:
+                h5_file["phase_total_frames"] = 5
+            reference = load_rb3_revo2_reference(output.name)
+        self.assertEqual(reference.frames, 3)
+        self.assertEqual(reference.phase_total_frames, 5)

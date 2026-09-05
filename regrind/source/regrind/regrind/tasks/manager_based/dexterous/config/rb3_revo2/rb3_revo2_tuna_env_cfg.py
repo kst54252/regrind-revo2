@@ -34,6 +34,7 @@ from regrind.envs.events import (
 )
 from regrind.objects.tuna_can import TUNA_CAN_CFG
 from regrind.robots.rb3_revo2 import RB3_REVO2_CFG
+from regrind.workcell import WORKCELL_LAYOUT
 
 
 DEFAULT_REFERENCE_PATH = (
@@ -42,7 +43,7 @@ DEFAULT_REFERENCE_PATH = (
     / "isaac"
     / "dexycb"
     / "20200709_143747_left"
-    / "rb3_revo2_reference.h5"
+    / "rb3_revo2_reference_stable.h5"
 )
 DEFAULT_OBJECT_KEYPOINTS_PATH = (
     REGRIND_PROJECT_ROOT / "007_tuna_fish_can" / "object_points_50.npy"
@@ -52,6 +53,66 @@ RB3_JOINT_PATTERN = r"^(base|shoulder|elbow|wrist1|wrist2|wrist3)$"
 REVO2_JOINT_PATTERN = r"^right_.*_joint$"
 RB3_BODY_PATTERN = r"^link[0-6]$"
 REVO2_BODY_PATTERN = r"^right_.*"
+
+_BASE = WORKCELL_LAYOUT["robot_base"]
+_TABLE = WORKCELL_LAYOUT["table"]
+_FLOOR_Z = float(WORKCELL_LAYOUT["floor_z"])
+_TABLE_TOP_THICKNESS = float(_TABLE["top_thickness"])
+_TABLE_TOP_CENTER_Z = float(_TABLE["top_z"]) - _TABLE_TOP_THICKNESS / 2.0
+_TABLE_LEG_HEIGHT = _TABLE_TOP_CENTER_Z - _TABLE_TOP_THICKNESS / 2.0 - _FLOOR_Z
+_TABLE_LEG_CENTER_Z = _FLOOR_Z + _TABLE_LEG_HEIGHT / 2.0
+
+
+def _fixed_box_cfg(prim_path: str, size, position, color):
+    """Create a fixed, collidable workcell box."""
+
+    return RigidObjectCfg(
+        prim_path=prim_path,
+        spawn=sim_utils.CuboidCfg(
+            size=tuple(float(value) for value in size),
+            rigid_props=sim_utils.RigidBodyPropertiesCfg(
+                kinematic_enabled=True,
+                disable_gravity=True,
+            ),
+            collision_props=sim_utils.CollisionPropertiesCfg(
+                contact_offset=0.005,
+                rest_offset=0.0,
+            ),
+            physics_material=sim_utils.RigidBodyMaterialCfg(
+                static_friction=0.8,
+                dynamic_friction=0.8,
+                restitution=0.0,
+            ),
+            visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=color),
+        ),
+        init_state=RigidObjectCfg.InitialStateCfg(
+            pos=tuple(float(value) for value in position)
+        ),
+    )
+
+
+def _static_box_cfg(prim_path: str, size, position, color):
+    """Create a static collider without allocating a rigid-object tensor view."""
+
+    return AssetBaseCfg(
+        prim_path=prim_path,
+        spawn=sim_utils.CuboidCfg(
+            size=tuple(float(value) for value in size),
+            collision_props=sim_utils.CollisionPropertiesCfg(
+                contact_offset=0.005,
+                rest_offset=0.0,
+            ),
+            physics_material=sim_utils.RigidBodyMaterialCfg(
+                static_friction=0.8,
+                dynamic_friction=0.8,
+                restitution=0.0,
+            ),
+            visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=color),
+        ),
+        init_state=AssetBaseCfg.InitialStateCfg(
+            pos=tuple(float(value) for value in position)
+        ),
+    )
 
 
 @configclass
@@ -97,26 +158,47 @@ class RandomizationRangesCfg:
 class RB3Revo2TunaSceneCfg(InteractiveSceneCfg):
     robot = RB3_REVO2_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
     object = TUNA_CAN_CFG.replace(prim_path="{ENV_REGEX_NS}/Object")
-    table = RigidObjectCfg(
-        prim_path="{ENV_REGEX_NS}/Table",
-        spawn=sim_utils.CuboidCfg(
-            size=(1.2, 1.2, 0.1),
-            rigid_props=sim_utils.RigidBodyPropertiesCfg(
-                kinematic_enabled=True,
-                disable_gravity=True,
-            ),
-            collision_props=sim_utils.CollisionPropertiesCfg(
-                contact_offset=0.005,
-                rest_offset=0.0,
-            ),
-            physics_material=sim_utils.RigidBodyMaterialCfg(
-                static_friction=0.8,
-                dynamic_friction=0.8,
-                restitution=0.0,
-            ),
-            visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.35, 0.35, 0.38)),
-        ),
-        init_state=RigidObjectCfg.InitialStateCfg(pos=(0.4, 0.0, -0.05)),
+    robot_base = _static_box_cfg(
+        "{ENV_REGEX_NS}/RobotBase",
+        _BASE["size"],
+        _BASE["center"],
+        (0.16, 0.18, 0.22),
+    )
+    table = _fixed_box_cfg(
+        "{ENV_REGEX_NS}/Table",
+        (*_TABLE["size_xy"], _TABLE_TOP_THICKNESS),
+        (*_TABLE["center_xy"], _TABLE_TOP_CENTER_Z),
+        (0.42, 0.31, 0.20),
+    )
+    table_leg_0 = _static_box_cfg(
+        "{ENV_REGEX_NS}/TableLeg0",
+        (*_TABLE["leg_size_xy"], _TABLE_LEG_HEIGHT),
+        (*_TABLE["leg_centers_xy"][0], _TABLE_LEG_CENTER_Z),
+        (0.22, 0.23, 0.25),
+    )
+    table_leg_1 = _static_box_cfg(
+        "{ENV_REGEX_NS}/TableLeg1",
+        (*_TABLE["leg_size_xy"], _TABLE_LEG_HEIGHT),
+        (*_TABLE["leg_centers_xy"][1], _TABLE_LEG_CENTER_Z),
+        (0.22, 0.23, 0.25),
+    )
+    table_leg_2 = _static_box_cfg(
+        "{ENV_REGEX_NS}/TableLeg2",
+        (*_TABLE["leg_size_xy"], _TABLE_LEG_HEIGHT),
+        (*_TABLE["leg_centers_xy"][2], _TABLE_LEG_CENTER_Z),
+        (0.22, 0.23, 0.25),
+    )
+    table_leg_3 = _static_box_cfg(
+        "{ENV_REGEX_NS}/TableLeg3",
+        (*_TABLE["leg_size_xy"], _TABLE_LEG_HEIGHT),
+        (*_TABLE["leg_centers_xy"][3], _TABLE_LEG_CENTER_Z),
+        (0.22, 0.23, 0.25),
+    )
+    floor = _static_box_cfg(
+        "{ENV_REGEX_NS}/Floor",
+        (2.4, 2.4, 0.04),
+        (0.4, 0.0, _FLOOR_Z - 0.02),
+        (0.24, 0.24, 0.26),
     )
     light = AssetBaseCfg(
         prim_path="/World/Light",
@@ -531,7 +613,7 @@ class CurriculumCfg:
 
 @configclass
 class RB3Revo2TunaEnvCfg(ManagerBasedRLEnvCfg):
-    scene: RB3Revo2TunaSceneCfg = RB3Revo2TunaSceneCfg(num_envs=4096, env_spacing=0.75)
+    scene: RB3Revo2TunaSceneCfg = RB3Revo2TunaSceneCfg(num_envs=4096, env_spacing=2.0)
     observations: ObservationsCfg = ObservationsCfg()
     actions: ActionsCfg = ActionsCfg()
     commands: CommandsCfg = CommandsCfg()
@@ -578,6 +660,11 @@ class RB3Revo2TunaEnvCfg(ManagerBasedRLEnvCfg):
             r"^right_(thumb_metacarpal|thumb_proximal|index_proximal|middle_proximal|ring_proximal|pinky_proximal)_joint$": self.residual_scale.hand,
         }
         self.commands.reference.enable_reset_perturbation = True
+        # Keep the rigid tuna can exactly on the reference support plane at
+        # reset.  Joint reset noise remains enabled, while object XY diversity
+        # is supplied by the rigid trajectory placement sampler below.
+        self.commands.reference.object_pos_reset_noise = 0.0
+        self.commands.reference.object_rot_reset_noise = 0.0
 
         def _scale(value, factor):
             if isinstance(value, dict):
@@ -617,8 +704,8 @@ class RB3Revo2TunaEnvCfg(ManagerBasedRLEnvCfg):
             "y": ranges.object_com_xy,
             "z": ranges.object_com_z,
         }
-        self.viewer.eye = (1.25, 1.1, 0.9)
-        self.viewer.lookat = (0.35, 0.0, 0.3)
+        self.viewer.eye = (1.55, 1.45, 0.85)
+        self.viewer.lookat = (0.4, 0.0, -0.08)
 
 
 @configclass
@@ -628,7 +715,7 @@ class RB3Revo2TunaEnvCfg_SMOKE(RB3Revo2TunaEnvCfg):
     def __post_init__(self):
         super().__post_init__()
         self.scene.num_envs = 16
-        self.scene.env_spacing = 1.2
+        self.scene.env_spacing = 2.0
 
 
 @configclass
@@ -636,7 +723,7 @@ class RB3Revo2TunaEnvCfg_PLAY(RB3Revo2TunaEnvCfg):
     def __post_init__(self):
         super().__post_init__()
         self.scene.num_envs = 1
-        self.scene.env_spacing = 1.5
+        self.scene.env_spacing = 2.0
         self.events = DeterministicEventsCfg()
         self.sim.gravity = (0.0, 0.0, -9.81)
         self.commands.reference.rsi_enabled = False

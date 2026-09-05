@@ -37,6 +37,28 @@ def _maybe_apply_delay(env: "ManagerBasedEnv", key: str | None, data: torch.Tens
     return buffers[key].compute(data)
 
 
+def _remove_command_translation(
+    data: torch.Tensor,
+    command: object,
+) -> torch.Tensor:
+    """Express world positions in the command's canonical translated frame.
+
+    Floating-hand placement augmentation moves the complete object+wrist
+    reference by one rigid translation. Subtracting that translation from
+    positional observations makes the policy invariant to the sampled table
+    location while retaining all deviations from the reference motion. Other
+    command types do not expose ``observation_translation_offset`` and are left
+    unchanged.
+    """
+
+    offset = getattr(command, "observation_translation_offset", None)
+    if offset is None:
+        return data
+    while offset.ndim < data.ndim:
+        offset = offset.unsqueeze(-2)
+    return data - offset
+
+
 # -- Object observations --
 
 def object_pos(
@@ -47,6 +69,7 @@ def object_pos(
 ) -> torch.Tensor:
     command: MotionCommand = env.command_manager.get_term(command_name)
     data = command.current_object_pos
+    data = _remove_command_translation(data, command)
     if apply_noise:
         data = data + sample_uniform(-0.002, 0.002, data.shape, device=data.device)
     return _maybe_apply_delay(env, delay_key, data)
@@ -139,6 +162,7 @@ def hand_wrist_pos(
 ) -> torch.Tensor:
     command: MotionCommand = env.command_manager.get_term(command_name)
     data = command.current_hand_wrist_pos
+    data = _remove_command_translation(data, command)
     if relative_to_default:
         raise NotImplementedError("Relative to default is not implemented for hand_wrist_pos")
     if apply_noise:
@@ -146,8 +170,10 @@ def hand_wrist_pos(
         data = data + noise
     if delay_key is not None:
         data = _maybe_apply_delay(env, delay_key, data)
-        # Store delayed wrist pos for use by delta-action controllers.
-        env.delayed_hand_wrist_pos = data
+        # Delta-action controllers need an actual env/world-frame base even
+        # when the policy observation itself is canonicalized.
+        offset = getattr(command, "observation_translation_offset", None)
+        env.delayed_hand_wrist_pos = data if offset is None else data + offset
     return data
 
 
@@ -208,12 +234,19 @@ def hand_joint_vel(env: ManagerBasedEnv, command_name: str) -> torch.Tensor:
 # -- Action base observations (match delta-action controller bases) --
 
 
-def action_base_wrist_pos(env: ManagerBasedEnv, action_term_name: str = "root_pose") -> torch.Tensor:
+def action_base_wrist_pos(
+    env: ManagerBasedEnv,
+    action_term_name: str = "root_pose",
+    command_name: str | None = None,
+) -> torch.Tensor:
     """Env-relative wrist position used as the SE3 action base."""
     term = env.action_manager.get_term(action_term_name)
     if not isinstance(term, SE3ImpedanceActionTerm):
         raise TypeError(f"action term {action_term_name!r} must be SE3ImpedanceActionTerm, got {type(term)}")
     base_pos, _ = term.get_base_pose()
+    if command_name is not None:
+        command = env.command_manager.get_term(command_name)
+        base_pos = _remove_command_translation(base_pos, command)
     return base_pos
 
 
@@ -227,12 +260,19 @@ def action_base_wrist_rot6d(env: ManagerBasedEnv, action_term_name: str = "root_
     return mat[..., :2].reshape(mat.shape[0], -1)
 
 
-def action_base_wrist_pos_and_rot6d(env: ManagerBasedEnv, action_term_name: str = "root_pose") -> torch.Tensor:
+def action_base_wrist_pos_and_rot6d(
+    env: ManagerBasedEnv,
+    action_term_name: str = "root_pose",
+    command_name: str | None = None,
+) -> torch.Tensor:
     """Wrist position and orientation (rot6d) used as the SE3 action base."""
     term = env.action_manager.get_term(action_term_name)
     if not isinstance(term, SE3ImpedanceActionTerm):
         raise TypeError(f"action term {action_term_name!r} must be SE3ImpedanceActionTerm, got {type(term)}")
     base_pos, base_quat = term.get_base_pose()
+    if command_name is not None:
+        command = env.command_manager.get_term(command_name)
+        base_pos = _remove_command_translation(base_pos, command)
     mat = matrix_from_quat(base_quat)
     return torch.cat([base_pos, mat[..., :2].reshape(mat.shape[0], -1)], dim=-1)
 
@@ -249,7 +289,8 @@ def action_base_hand_joint_pos(env: ManagerBasedEnv, action_term_name: str = "jo
 
 def fingertips_pos(env: ManagerBasedEnv, command_name: str) -> torch.Tensor:
     command: MotionCommand = env.command_manager.get_term(command_name)
-    return command.current_fingertips_pos.view(env.num_envs, -1)
+    positions = _remove_command_translation(command.current_fingertips_pos, command)
+    return positions.view(env.num_envs, -1)
 
 
 def contact_sensor_net_forces_w(env: ManagerBasedEnv, sensor_cfg: SceneEntityCfg) -> torch.Tensor:

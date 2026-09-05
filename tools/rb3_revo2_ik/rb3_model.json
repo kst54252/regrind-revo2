@@ -1,8 +1,9 @@
 {
-  "model_name": "rb3_730es_u_with_revo2_right",
-  "source_usd": "../../USD/rb3_revo2.usd",
-  "source_usd_sha256": "9f5d5f8e97ef7164b6a6319fa7bb766d4970d59d74fb3b35220017ec60542fb1",
+  "model_name": "rb3_730es_u_with_vertical_revo2_right",
+  "source_usd": "../../USD/rb3_revo2_vertical.usda",
+  "source_usd_sha256": "21f43ad436638b7684eaffd1e2c25f397401ad8bb15962d6f571850894c2a98f",
   "robot_root_prim": "/World/rb3_730es_u",
+  "hand_root_prim": "/World/revo2_right",
   "arm_articulation_prim": "/World/rb3_730es_u/Geometry",
   "hand_articulation_prim": "/World/revo2_right/Geometry/world",
   "joint_names": ["base", "shoulder", "elbow", "wrist1", "wrist2", "wrist3"],
@@ -29,7 +30,7 @@
   "rb3_tcp_prim": "/World/rb3_730es_u/Geometry/link0/link1/link2/link3/link4/link5/link6/tcp",
   "mounted_wrist_frame": "/World/revo2_right/Geometry/world/right_hand_base_link",
   "mount_frame_prim": "/World/rb3_730es_u/Geometry/link0/link1/link2/link3/link4/link5/link6/revo2_mount",
-  "link6_to_mounted_wrist_xyz_m": [0.03, 0.0, 0.14],
-  "link6_to_mounted_wrist_quat_xyzw": [0.0, -0.7071067811865475, 0.0, 0.7071067811865476],
-  "note": "Snapshot read from the composed rb3_revo2.usd stage. The actual right_hand_base_link is offset [0.03, 0, 0.14] m from link6 and rotated -90 degrees about link6 Y."
+  "link6_to_mounted_wrist_xyz_m": [0.0, 0.0, 0.141304972],
+  "link6_to_mounted_wrist_quat_xyzw": [0.0, 0.0, 0.0, 1.0],
+  "note": "Vertical adapter mount from n_wc_v3_temp.stl. The RB3 flange ends at link6 +Z=100 mm; the 41.304972 mm adapter places right_hand_base_link at +Z=141.304972 mm with identity relative orientation."
 }

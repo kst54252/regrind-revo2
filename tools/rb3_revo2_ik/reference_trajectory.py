@@ -20,7 +20,21 @@ DEFAULT_REVO2_JOINT_NAMES = (
     "right_ring_proximal_joint",
     "right_pinky_proximal_joint",
 )
+DEFAULT_REVO2_FOLLOWER_JOINT_NAMES = (
+    "right_thumb_distal_joint",
+    "right_index_distal_joint",
+    "right_middle_distal_joint",
+    "right_ring_distal_joint",
+    "right_pinky_distal_joint",
+)
 LEGACY_REVO2_JOINT_NAMES = tuple(f"revo2_joint_{index}" for index in range(6))
+MANO21_SEQUENTIAL_TO_REVO_SEMANTIC = np.asarray(
+    (0, 5, 6, 7, 9, 10, 11, 17, 18, 19, 13, 14, 15, 1, 2, 3, 4, 8, 12, 16, 20),
+    dtype=np.int64,
+)
+REVO_SEMANTIC_TO_MANO21_SEQUENTIAL = np.argsort(
+    MANO21_SEQUENTIAL_TO_REVO_SEMANTIC
+)
 
 
 def _decode_scalar(value, default: str) -> str:
@@ -89,9 +103,13 @@ class ReferenceTrajectory:
     source_path: Path
     rb3_joints: np.ndarray
     revo2_joints: np.ndarray
+    revo2_follower_joints: np.ndarray | None
+    revo2_joint_drive_target: np.ndarray | None
+    revo2_fingertip_pos: np.ndarray | None
     reference_joints: np.ndarray
     rb3_joint_names: tuple[str, ...]
     revo2_joint_names: tuple[str, ...]
+    revo2_follower_joint_names: tuple[str, ...]
     wrist_pos: np.ndarray | None
     wrist_quat_xyzw: np.ndarray | None
     object_pos: np.ndarray | None
@@ -152,6 +170,46 @@ def load_reference_trajectory(
     if combined is None:
         combined = expected_combined
 
+    revo2_follower_joints = _first_optional(data, ("revo2_follower_joints",))
+    if revo2_follower_joints is not None:
+        revo2_follower_joints = np.asarray(revo2_follower_joints, dtype=float)
+        if revo2_follower_joints.shape != (len(rb3), 5):
+            raise ValueError(
+                "revo2_follower_joints must have shape "
+                f"{(len(rb3), 5)}, got {revo2_follower_joints.shape}"
+            )
+    revo2_joint_drive_target = _first_optional(
+        data, ("revo2_joint_drive_target",)
+    )
+    if revo2_joint_drive_target is not None:
+        revo2_joint_drive_target = np.asarray(
+            revo2_joint_drive_target, dtype=float
+        )
+        if revo2_joint_drive_target.shape != (len(rb3), 6):
+            raise ValueError(
+                "revo2_joint_drive_target must have shape "
+                f"{(len(rb3), 6)}, got {revo2_joint_drive_target.shape}"
+            )
+    if any(
+        value is not None and not np.isfinite(value).all()
+        for value in (revo2_follower_joints, revo2_joint_drive_target)
+    ):
+        raise ValueError("Revo2 follower state/drive target contains NaN/Inf")
+
+    follower_name_value = data.get("revo2_follower_joint_names")
+    if follower_name_value is None:
+        follower_names = DEFAULT_REVO2_FOLLOWER_JOINT_NAMES
+    else:
+        follower_names = tuple(
+            item.decode() if isinstance(item, bytes) else str(item)
+            for item in np.asarray(follower_name_value).reshape(-1)
+        )
+        if follower_names != DEFAULT_REVO2_FOLLOWER_JOINT_NAMES:
+            raise ValueError(
+                "unexpected Revo2 follower joint order: "
+                f"expected={DEFAULT_REVO2_FOLLOWER_JOINT_NAMES}, got={follower_names}"
+            )
+
     quaternion_order = _decode_scalar(
         data.get("quat_convention", data.get("quaternion_order")), "xyzw"
     ).lower()
@@ -192,6 +250,7 @@ def load_reference_trajectory(
     # New reference files carry the pre-retargeting MANO skeleton directly.
     # Older files remain usable by following their recorded world-trajectory
     # source, avoiding an expensive rerun of RB3 IK just for visualization.
+    mano_source_data = data
     mano_joint_world = _first_optional(
         data,
         (
@@ -219,6 +278,8 @@ def load_reference_trajectory(
                     "human_hand_keypoints",
                 ),
             )
+            if mano_joint_world is not None:
+                mano_source_data = retargeting_data
     if mano_joint_world is not None:
         mano_joint_world = np.asarray(mano_joint_world, dtype=float)
         expected_mano_shape = (len(rb3), 21, 3)
@@ -229,7 +290,22 @@ def load_reference_trajectory(
             )
         if not np.isfinite(mano_joint_world).all():
             raise ValueError("pre-retargeting MANO skeleton contains NaN/Inf")
+        mano_order = _decode_scalar(
+            mano_source_data.get("mano_joint_order"),
+            "mano21_sequential_thumb_index_middle_ring_little",
+        ).lower()
+        if "revo_semantic" in mano_order or "revo2_semantic" in mano_order:
+            mano_joint_world = mano_joint_world[
+                :, REVO_SEMANTIC_TO_MANO21_SEQUENTIAL
+            ]
+        elif "sequential" not in mano_order:
+            raise ValueError(f"unsupported mano_joint_order {mano_order!r}")
 
+    fingertips = _first_optional(data, ("revo2_fingertip_pos",))
+    if fingertips is not None and (
+        fingertips.shape != (len(rb3), 5, 3) or not np.isfinite(fingertips).all()
+    ):
+        raise ValueError("revo2_fingertip_pos must be finite and have shape (T,5,3)")
     fps = float(np.asarray(data.get("fps", 30.0)).item())
     if fps <= 0:
         raise ValueError("stored FPS must be > 0")
@@ -240,11 +316,15 @@ def load_reference_trajectory(
         source_path=source_path,
         rb3_joints=rb3,
         revo2_joints=revo2,
+        revo2_follower_joints=revo2_follower_joints,
+        revo2_joint_drive_target=revo2_joint_drive_target,
+        revo2_fingertip_pos=fingertips,
         reference_joints=combined,
         rb3_joint_names=_decode_names(data.get("rb3_joint_names"), DEFAULT_RB3_JOINT_NAMES),
         revo2_joint_names=_decode_revo2_names(
             data.get("revo2_joint_names", data.get("actuated_joint_names"))
         ),
+        revo2_follower_joint_names=follower_names,
         wrist_pos=wrist_pos,
         wrist_quat_xyzw=wrist_quat,
         object_pos=object_pos,

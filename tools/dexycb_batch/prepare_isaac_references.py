@@ -20,6 +20,7 @@ IK_SCRIPT = PROJECT_ROOT / "tools" / "rb3_revo2_ik" / "build_reference_trajector
 TUNA_MESH = PROJECT_ROOT / "007_tuna_fish_can" / "textured_simple.obj"
 DEFAULT_RETARGETED = PROJECT_ROOT / "outputs" / "retargeted" / "dexycb"
 DEFAULT_OUTPUT = PROJECT_ROOT / "outputs" / "isaac" / "dexycb"
+WORKCELL_CONFIG = PROJECT_ROOT / "config" / "workcell" / "rb3_revo2_table.json"
 
 # Keep gravity tied to the second camera, never to the tuna can's local axes.
 # DexYCB optical camera -Y maps to Isaac world +Z; the per-sequence yaw only
@@ -41,6 +42,9 @@ def _run(command: list[str], environment: dict[str, str]) -> None:
 
 
 def _validate(sequence: str, world_path: Path, reference_path: Path) -> dict:
+    with WORKCELL_CONFIG.open("r", encoding="utf-8") as config_file:
+        workcell = json.load(config_file)
+    expected_base_position = np.asarray(workcell["robot_mount"]["position"], dtype=float)
     with h5py.File(world_path, "r") as world:
         object_pos = np.asarray(world["object_pos_world"][()], dtype=float)
         mesh_bottom_z = float(world["first_mesh_world_min_z"][()])
@@ -60,6 +64,7 @@ def _validate(sequence: str, world_path: Path, reference_path: Path) -> dict:
         orientation_error = np.asarray(reference["orientation_error_rad"][()], dtype=float)
         limit = np.asarray(reference["joint_limit_violation"][()], dtype=bool)
         skeleton = np.asarray(reference["mano_joint_world"][()], dtype=float)
+        base_position = np.asarray(reference["rb3_base_position"][()], dtype=float)
     frames = len(success)
     if not success.all():
         raise RuntimeError(
@@ -84,6 +89,11 @@ def _validate(sequence: str, world_path: Path, reference_path: Path) -> dict:
         raise RuntimeError(f"{sequence}: Isaac reference contains NaN/Inf")
     if limit.any():
         raise RuntimeError(f"{sequence}: joint-limit violation")
+    if not np.allclose(base_position, expected_base_position, atol=1.0e-12, rtol=0.0):
+        raise RuntimeError(
+            f"{sequence}: RB3 base position {base_position.tolist()} does not match "
+            f"workcell mount {expected_base_position.tolist()}"
+        )
     if camera != "839512060362":
         raise RuntimeError(f"{sequence}: expected second camera, got {camera}")
     return {
@@ -106,6 +116,7 @@ def _validate(sequence: str, world_path: Path, reference_path: Path) -> dict:
         "object_delta_z_m": float(object_pos[-1, 2] - object_pos[0, 2]),
         "object_z_range_m": [float(object_pos[:, 2].min()), float(object_pos[:, 2].max())],
         "first_mesh_min_z": mesh_bottom_z,
+        "rb3_base_position": base_position.tolist(),
         "world_trajectory": str(world_path.resolve()),
         "reference_trajectory": str(reference_path.resolve()),
     }
@@ -168,6 +179,11 @@ def main() -> None:
             flush=True,
         )
     manifest = output_root / "manifest.json"
+    if args.sequence and manifest.is_file():
+        previous = json.loads(manifest.read_text(encoding="utf-8"))
+        merged = {item["sequence"]: item for item in previous}
+        merged.update({item["sequence"]: item for item in summaries})
+        summaries = [merged[name] for name in sorted(merged)]
     manifest.write_text(
         json.dumps(summaries, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )

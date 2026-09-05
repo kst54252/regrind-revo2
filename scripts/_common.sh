@@ -31,6 +31,16 @@ reference_for_sequence() {
     echo "${PROJECT_ROOT}/outputs/isaac/dexycb/${sequence}/rb3_revo2_reference.h5"
 }
 
+training_reference_for_sequence() {
+    local sequence="$1"
+    local stable_reference="${PROJECT_ROOT}/outputs/isaac/dexycb/${sequence}/rb3_revo2_reference_stable.h5"
+    if [[ -f "${stable_reference}" ]]; then
+        echo "${stable_reference}"
+    else
+        reference_for_sequence "${sequence}"
+    fi
+}
+
 require_file() {
     local path="$1"
     local label="$2"

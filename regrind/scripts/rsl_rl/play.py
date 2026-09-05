@@ -149,6 +149,12 @@ def _save_floating_rollout(path: str, samples: list[dict[str, np.ndarray]], comm
             data=np.asarray(command.controlled_joint_names, dtype=object),
             dtype=h5py.string_dtype("utf-8"),
         )
+        if "revo2_follower_joints" in arrays:
+            h5_file.create_dataset(
+                "revo2_follower_joint_names",
+                data=np.asarray(command.follower_names, dtype=object),
+                dtype=h5py.string_dtype("utf-8"),
+            )
         h5_file.create_dataset(
             "source_reference",
             data=str(command.reference.path),
@@ -164,7 +170,11 @@ def _save_floating_rollout(path: str, samples: list[dict[str, np.ndarray]], comm
     print(f"[ROLLOUT] saved {len(samples)} floating-hand frames to {output}")
 
 
-def _floating_snapshot(command, action: torch.Tensor) -> dict[str, np.ndarray]:
+def _floating_snapshot(
+    command,
+    action: torch.Tensor,
+    joint_drive_target: torch.Tensor,
+) -> dict[str, np.ndarray]:
     """Capture the physical floating-hand/object state for downstream RB3 IK."""
 
     sample = {
@@ -173,6 +183,13 @@ def _floating_snapshot(command, action: torch.Tensor) -> dict[str, np.ndarray]:
         "wrist_pos": _tensor_row(command.current_hand_wrist_pos),
         "wrist_quat": _tensor_row(command.current_hand_wrist_quat),
         "revo2_joints": _tensor_row(command.current_hand_joint_pos),
+        "revo2_fingertip_pos": _tensor_row(command.current_fingertips_pos),
+        "revo2_follower_joints": _tensor_row(
+            command.robot.data.joint_pos.torch[:, command.follower_ids]
+        ),
+        # Unlike target_revo2_joints (the retargeting reference), this is the
+        # clipped q_ref + policy residual that generated the physical grip.
+        "revo2_joint_drive_target": _tensor_row(joint_drive_target),
         "object_pos": _tensor_row(command.current_object_pos),
         "object_quat": _tensor_row(command.current_object_quat),
         "floating_action": _tensor_row(action),
@@ -184,9 +201,10 @@ def _floating_snapshot(command, action: torch.Tensor) -> dict[str, np.ndarray]:
     }
     mano = command.reference.mano_joint_world_semantic
     if mano is not None:
-        sample["mano_joint_world"] = np.asarray(
-            mano[int(command.time_steps[0].item())], dtype=np.float32
-        ).copy()
+        sample["mano_joint_world"] = (
+            np.asarray(mano[int(command.time_steps[0].item())], dtype=np.float32)
+            + _tensor_row(command.placement_offset).astype(np.float32)
+        )
     return sample
 
 
@@ -338,6 +356,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     reward_samples = 0
     rollout_samples: list[dict[str, np.ndarray]] = []
     rollout_command = None
+    rollout_joint_action = None
     rollout_frame_limit = 0
     if args_cli.rollout_path is not None:
         if env.num_envs != 1:
@@ -356,11 +375,22 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         missing = [name for name in required if not hasattr(rollout_command, name)]
         if missing:
             raise RuntimeError(f"reference command cannot export a floating rollout; missing {missing}")
+        rollout_joint_action = env.unwrapped.action_manager.get_term("joint_pos")
+        if not hasattr(rollout_joint_action, "last_joint_target"):
+            raise RuntimeError(
+                "floating rollout export requires joint_pos.last_joint_target"
+            )
         rollout_frame_limit = args_cli.rollout_frames or rollout_command.reference.frames
         if rollout_frame_limit <= 0:
             raise ValueError("--rollout_frames must be positive")
         initial_action = torch.zeros((1, env.action_space.shape[-1]), device=env.unwrapped.device)
-        rollout_samples.append(_floating_snapshot(rollout_command, initial_action))
+        rollout_samples.append(
+            _floating_snapshot(
+                rollout_command,
+                initial_action,
+                rollout_command.target_hand_joint_pos,
+            )
+        )
         print(
             f"[ROLLOUT] recording environment 0 for at most {rollout_frame_limit} frames; "
             "recording stops on the first episode termination"
@@ -411,7 +441,13 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     "the automatic reset state was not appended"
                 )
                 break
-            rollout_samples.append(_floating_snapshot(rollout_command, actions))
+            rollout_samples.append(
+                _floating_snapshot(
+                    rollout_command,
+                    actions,
+                    rollout_joint_action.last_joint_target,
+                )
+            )
             if len(rollout_samples) >= rollout_frame_limit:
                 break
         if args_cli.video:

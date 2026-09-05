@@ -1,7 +1,7 @@
 {
   "sequence": "20200709_143747_left",
-  "source_frames": 72,
-  "valid_frames": 60,
+  "source_frames": 52,
+  "valid_frames": 40,
   "dropped_frames": [
     0,
     1,
@@ -27,6 +27,7 @@
   "trimmed_initial_valid_frames": 12,
   "kept_source_frame_range": [
     12,
-    71
-  ]
+    51
+  ],
+  "trimmed_final_valid_frames": 20
 }

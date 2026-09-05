@@ -12,9 +12,10 @@ from regrind.data.rb3_revo2_reference import (
     REFERENCE_JOINT_NAMES,
     REVO2_JOINT_NAMES,
 )
+from regrind.workcell import ROBOT_MOUNT_POSITION
 
 
-RB3_REVO2_USD_PATH = REGRIND_PROJECT_ROOT / "USD" / "rb3_revo2.usd"
+RB3_REVO2_USD_PATH = REGRIND_PROJECT_ROOT / "USD" / "rb3_revo2_vertical.usda"
 
 REVO2_FOLLOWER_JOINTS = {
     "right_thumb_distal_joint": ("right_thumb_proximal_joint", 1.0, 0.0),
@@ -78,6 +79,7 @@ RB3_REVO2_CFG = ArticulationCfg(
         ),
     },
     init_state=ArticulationCfg.InitialStateCfg(
+        pos=ROBOT_MOUNT_POSITION,
         joint_pos={name: 0.0 for name in REFERENCE_JOINT_NAMES + tuple(REVO2_FOLLOWER_JOINTS)},
     ),
     soft_joint_pos_limit_factor=1.0,

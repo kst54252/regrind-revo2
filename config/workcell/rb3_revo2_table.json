@@ -1,0 +1,28 @@
+{
+  "coordinate_frame": "tabletop_relative",
+  "units": "m",
+  "forward_axis": "+X",
+  "floor_z": -0.72,
+  "robot_base": {
+    "size": [0.5, 0.5, 0.7],
+    "center": [0.0, 0.0, -0.37],
+    "top_z": -0.02
+  },
+  "robot_mount": {
+    "position": [0.0, 0.0, -0.02],
+    "quaternion_xyzw": [0.0, 0.0, 0.0, 1.0]
+  },
+  "table": {
+    "size_xy": [0.8, 1.6],
+    "center_xy": [0.65, 0.0],
+    "top_z": 0.0,
+    "top_thickness": 0.04,
+    "leg_size_xy": [0.06, 0.06],
+    "leg_centers_xy": [
+      [0.32, -0.74],
+      [0.32, 0.74],
+      [0.98, -0.74],
+      [0.98, 0.74]
+    ]
+  }
+}

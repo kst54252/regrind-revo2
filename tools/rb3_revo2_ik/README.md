@@ -9,11 +9,14 @@ REGRIND가 만든 Revo2 wrist trajectory를 RB3-730의 bounded numerical IK로 �
 - RB3 root: 기본값은 REGRIND world의 원점/identity
 - IK target: 조립 USD의
   `/World/revo2_right/Geometry/world/right_hand_base_link`
-- 실제 mount transform: RB3 `link6` 기준 translation `[0.03, 0, 0.14] m`,
-  orientation `-90 deg` about link6 Y
+- 실제 mount transform: RB3 `link6` 기준 translation `[0, 0, 0.141304972] m`,
+  orientation identity (Revo2를 link6 축과 나란히 수직 장착)
+- adapter asset: `USD/n_wc_v3_temp.stl`을 변환한
+  `USD/revo2_vertical_adapter/revo2_vertical_adapter.usd`; link6 플랜지 끝면
+  `Z=0.100 m`부터 시작하며 높이 41.304972 mm
 - RB3 기본 `tcp`로 actual wrist frame을 근사하지 않는다.
 
-관절 축, offset, limit, mount transform은 `USD/rb3_revo2.usd`의 composed
+관절 축, offset, limit, mount transform은 `USD/rb3_revo2_vertical.usda`의 composed
 stage에서 추출해 `rb3_model.json`에 저장했다. 모듈 로딩 시 원본 USD SHA-256이
 달라졌으면 경고한다.
 
@@ -60,6 +63,16 @@ object/wrist/MANO 전체에 동일하게 적용한 뒤 strict IK를 수행한다
 초기 캔 orientation을 바꾸려면 `--object-quat X Y Z W`를 추가한다. 생략하면 rollout의
 초기 orientation을 유지한다. 출력에는 적용한 rotation matrix와 translation이
 `floating_alignment_rotation`, `floating_alignment_translation`로 기록된다.
+
+Floating task의 `--random-placement`로 이미 캔 위치를 샘플링한 rollout은 다시
+옮길 필요가 없다. 이 경우 `--object-start`를 생략하면 기록된 캔·손목 좌표를 그대로
+strict IK에 사용한다.
+
+```bash
+./scripts/floating_to_rb3.sh \
+  --rollout outputs/floating/random_can_rollout.h5 \
+  --out outputs/floating/random_can_reference_12dof.h5
+```
 
 ## 완전 신전 자세에서 천천히 접근
 
@@ -110,6 +123,21 @@ Isaac Sim GUI와 작은 control window가 열리며 Play/Pause/Reset, 한 프레
 임의 프레임 이동, 검증 summary를 사용할 수 있다. 기본값은 loop 재생이다. 다른 속도나
 일시 정지 상태로 열려면 각각 `--speed 0.5`, `--paused`를 추가한다.
 
+Replay와 RB3+Revo2 RL 환경은
+`config/workcell/rb3_revo2_table.json`의 실제 작업 셀 치수를 공유한다.
+
+- 로봇 받침대: `0.50 x 0.50 x 0.70 m`
+- 책상: `X 0.80 x Y 1.60 m`, 상면 높이 `0.72 m`
+- 로봇은 받침대 상면 정중앙에 고정
+- 책상의 가까운 X 모서리(`X=0.25 m`)와 받침대의 `+X` 모서리가 맞닿음
+- trajectory 좌표는 책상 상면을 `Z=0`으로 유지하므로 공통 바닥은 `Z=-0.72 m`,
+  RB3 설치면은 `Z=-0.02 m`
+
+책상은 40 mm 상판과 네 다리, 받침대와 바닥은 모두 충돌 형상으로 생성된다.
+RB3 설치 높이가 기존보다 20 mm 낮으므로 strict IK 결과의 `rb3_base_position`도
+`[0, 0, -0.02]`이어야 한다. `build_reference_trajectory.py`는 이 값을 작업 셀
+설정에서 자동으로 읽는다.
+
 - 실제 RB3-730 + Revo2: 6 arm joints와 6 hand leader joints를 프레임별로 직접 적용
 - 자홍색 점/선: retargeting 전의 DexYCB MANO21 skeleton
 - tuna fish can mesh: dataset object pose trajectory
@@ -133,8 +161,8 @@ RL은 어느 모드에서도 실행하지 않는다.
 ```
 
 이 모드에서는 RB3+Revo2 관절을 USD position drive로 제어하고 캔에 기본 0.15 kg
-질량, cylinder collider, 마찰 0.8, 중력 9.81 m/s²를 적용한다. world Z=0에는 정적
-table collider를 만든다. 캔 reference line/marker는 기본으로 숨기며, 물체 mesh pose는
+질량, cylinder collider, 마찰 0.8, 중력 9.81 m/s²를 적용한다. world Z=0의 실제
+0.80 x 1.60 m 책상 상판 collider를 사용한다. 캔 reference line/marker는 기본으로 숨기며, 물체 mesh pose는
 초기화/reset을 제외하고 절대 덮어쓰지 않는다. `Reset`은 로봇과 캔을 첫 자세로 되돌린다.
 
 질량과 마찰은 필요하면 변경할 수 있다.

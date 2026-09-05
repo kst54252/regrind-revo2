@@ -15,9 +15,11 @@ Commands:
   debug    Inspect observation, reward, RSI, and finite-value checks
 
 Common project options:
-  --sequence NAME    Use outputs/isaac/dexycb/NAME/rb3_revo2_reference.h5
+  --sequence NAME    Prefer rb3_revo2_reference_stable.h5 when present, otherwise
+                     use outputs/isaac/dexycb/NAME/rb3_revo2_reference.h5
   --reference PATH   Use an explicit reference file (overrides --sequence)
   --legacy-arm-rl    Select the former combined RB3+Revo2 RL task
+  --random-placement Enable random can/reference XY in evaluation (training default: ON)
 
 Play options:
   --rollout-path P   Save one floating-hand policy episode for downstream RB3 IK
@@ -44,6 +46,7 @@ full_training=false
 gui=false
 skeleton=false
 legacy_arm_rl=false
+random_placement=false
 rollout_path=""
 passthrough=()
 while [[ $# -gt 0 ]]; do
@@ -70,6 +73,10 @@ while [[ $# -gt 0 ]]; do
             legacy_arm_rl=true
             shift
             ;;
+        --random-placement)
+            random_placement=true
+            shift
+            ;;
         --rollout-path)
             [[ $# -ge 2 ]] || die "--rollout-path requires a value"
             rollout_path="$2"
@@ -94,9 +101,12 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-[[ -n "${reference}" ]] || reference="$(reference_for_sequence "${sequence}")"
+[[ -n "${reference}" ]] || reference="$(training_reference_for_sequence "${sequence}")"
 require_file "${reference}" "reference trajectory"
 setup_regrind_python
+if [[ "${random_placement}" == true && "${legacy_arm_rl}" == true ]]; then
+    die "--random-placement must run in floating-hand mode; solve strict IK for the sampled rollout before arm replay"
+fi
 
 case "${command_name}" in
     train)
@@ -109,6 +119,7 @@ case "${command_name}" in
         elif [[ "${full_training}" == true ]]; then
             task="Regrind-RB3-Revo2-TunaCan-v0"
         fi
+        [[ "${random_placement}" == true ]] && passthrough+=("env.commands.reference.randomize_object_xy=true")
         exec "${ISAAC_PYTHON}" \
             "${PROJECT_ROOT}/regrind/scripts/rsl_rl/train.py" \
             --task "${task}" \
@@ -132,6 +143,7 @@ case "${command_name}" in
             [[ "${legacy_arm_rl}" == false ]] || die "--rollout-path is only valid for floating-hand RL"
             play_args+=(--rollout-path "${rollout_path}" --num_envs 1)
         fi
+        [[ "${random_placement}" == true ]] && passthrough+=("env.commands.reference.randomize_object_xy=true")
         exec "${ISAAC_PYTHON}" \
             "${PROJECT_ROOT}/regrind/scripts/rsl_rl/play.py" \
             --task "${task}" \
@@ -154,6 +166,7 @@ case "${command_name}" in
             --reference "${reference}"
             --num_envs 1
         )
+        [[ "${random_placement}" == true ]] && zero_args+=(--random-placement)
         [[ "${gui}" == true ]] && zero_args+=(--visualizer kit --max_visible_envs 1)
         exec "${ISAAC_PYTHON}" \
             "${PROJECT_ROOT}/regrind/scripts/zero_agent.py" \

@@ -70,7 +70,7 @@ class RB3730Kinematics:
     """FK/IK for the six RB3 joints and the mounted Revo2 wrist frame.
 
     The target frame is the actual ``right_hand_base_link`` in the composed
-    ``USD/rb3_revo2.usd`` stage. Its link6-relative pose is loaded from the
+    ``USD/rb3_revo2_vertical.usda`` stage. Its link6-relative pose is loaded from the
     model snapshot; it is deliberately not approximated by the stock RB3 TCP.
     """
 

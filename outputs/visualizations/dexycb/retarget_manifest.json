@@ -55,25 +55,25 @@
   },
   {
     "sequence": "20200709_143747_left",
-    "frames": 60,
-    "success_count": 60,
+    "frames": 40,
+    "success_count": 40,
     "success_rate": 1.0,
     "failure_indices": [],
-    "mean_objective": 0.023767664852520097,
+    "mean_objective": 0.025211833660234183,
     "max_objective": 0.07105323365197724,
     "joint_limit_violation": false,
     "robot_keypoint_shape": [
-      60,
+      40,
       21,
       3
     ],
     "mano_shape": [
-      60,
+      40,
       21,
       3
     ],
     "robot_joint_shape": [
-      60,
+      40,
       6
     ],
     "finite_successful_keypoints": true,

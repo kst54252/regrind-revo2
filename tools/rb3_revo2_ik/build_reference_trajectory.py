@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 import h5py
@@ -15,6 +16,25 @@ try:
 except ImportError:  # Support direct execution.
     from rb3_kinematics import RB3730Kinematics
     from reference_trajectory import DEFAULT_REVO2_JOINT_NAMES
+
+
+WORKCELL_CONFIG = (
+    Path(__file__).resolve().parents[2]
+    / "config"
+    / "workcell"
+    / "rb3_revo2_table.json"
+)
+DEFAULT_OBJECT_MESH = (
+    Path(__file__).resolve().parents[2]
+    / "007_tuna_fish_can"
+    / "textured_simple.obj"
+)
+
+
+def _default_rb3_base_position() -> tuple[float, float, float]:
+    with WORKCELL_CONFIG.open("r", encoding="utf-8") as config_file:
+        layout = json.load(config_file)
+    return tuple(float(value) for value in layout["robot_mount"]["position"])
 
 
 def _load(path: str) -> dict[str, np.ndarray]:
@@ -81,6 +101,66 @@ def _align_trajectory_to_object_start(
     )
 
 
+def _stable_upright_pose_on_table(
+    object_position: np.ndarray,
+    object_quaternion_xyzw: np.ndarray,
+    mesh_vertices: np.ndarray,
+    *,
+    desired_xy: np.ndarray | None = None,
+    table_height: float = 0.0,
+    clearance: float = 0.0,
+) -> tuple[np.ndarray, np.ndarray, float]:
+    """Return the closest exactly-upright first pose with its mesh above a table.
+
+    Some DexYCB tuna poses are almost vertical but lean by several degrees. A
+    dynamic cylinder cannot remain in that pose once gravity starts, so PhysX
+    immediately topples it. Preserve the current horizontal heading and the
+    sign of the mesh's local Z axis, remove only roll/pitch, and compute the
+    origin height from the *rotated mesh* rather than an axis-aligned bound.
+    """
+
+    position = np.asarray(object_position, dtype=float)
+    quaternion = np.asarray(object_quaternion_xyzw, dtype=float)
+    vertices = np.asarray(mesh_vertices, dtype=float)
+    if position.shape != (3,) or quaternion.shape != (4,):
+        raise ValueError("object position/quaternion must have shape (3,)/(4,)")
+    if vertices.ndim != 2 or vertices.shape[1] != 3 or not len(vertices):
+        raise ValueError(f"mesh_vertices must have shape (N,3), got {vertices.shape}")
+    if not all(np.isfinite(value).all() for value in (position, quaternion, vertices)):
+        raise ValueError("object pose and mesh vertices must be finite")
+    if not np.isfinite(table_height) or not np.isfinite(clearance) or clearance < 0.0:
+        raise ValueError("table height must be finite and clearance must be >= 0")
+
+    source_rotation = Rotation.from_quat(quaternion).as_matrix()
+    z_sign = 1.0 if source_rotation[2, 2] >= 0.0 else -1.0
+    z_axis = np.asarray([0.0, 0.0, z_sign])
+    x_axis = source_rotation[:, 0] - z_axis * np.dot(source_rotation[:, 0], z_axis)
+    if np.linalg.norm(x_axis) < 1.0e-10:
+        y_axis = source_rotation[:, 1] - z_axis * np.dot(source_rotation[:, 1], z_axis)
+        y_axis /= np.linalg.norm(y_axis)
+        x_axis = np.cross(y_axis, z_axis)
+    else:
+        x_axis /= np.linalg.norm(x_axis)
+        y_axis = np.cross(z_axis, x_axis)
+    target_rotation = np.column_stack((x_axis, y_axis, z_axis))
+    if not np.isclose(np.linalg.det(target_rotation), 1.0, atol=1.0e-10):
+        raise RuntimeError("failed to construct a proper upright object rotation")
+
+    rotated_vertices = vertices @ target_rotation.T
+    mesh_min_relative_z = float(rotated_vertices[:, 2].min())
+    target_position = position.copy()
+    if desired_xy is not None:
+        desired_xy = np.asarray(desired_xy, dtype=float)
+        if desired_xy.shape != (2,) or not np.isfinite(desired_xy).all():
+            raise ValueError("desired_xy must contain two finite values")
+        target_position[:2] = desired_xy
+    target_position[2] = float(table_height) + float(clearance) - mesh_min_relative_z
+    initial_tilt_rad = float(
+        np.arccos(np.clip(abs(source_rotation[2, 2]), 0.0, 1.0))
+    )
+    return target_position, Rotation.from_matrix(target_rotation).as_quat(), initial_tilt_rad
+
+
 def _write(path: str, data: dict):
     output = Path(path).expanduser().resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -122,8 +202,11 @@ def main():
         help="Neutral/current RB3 configuration used for frame 0.",
     )
     parser.add_argument(
-        "--base-position", nargs=3, type=float, default=(0.0, 0.0, 0.0), metavar="M",
-        help="RB3 root position in the REGRIND world frame.",
+        "--base-position", nargs=3, type=float, default=_default_rb3_base_position(), metavar="M",
+        help=(
+            "RB3 root position in the table-relative REGRIND world frame. "
+            "Default comes from config/workcell/rb3_revo2_table.json."
+        ),
     )
     parser.add_argument(
         "--base-quat-xyzw", nargs=4, type=float, default=(0.0, 0.0, 0.0, 1.0),
@@ -161,6 +244,36 @@ def main():
             "specified, the rollout's initial object orientation is preserved."
         ),
     )
+    parser.add_argument(
+        "--level-object-on-table",
+        action="store_true",
+        help=(
+            "Remove frame-zero can roll/pitch, preserve its heading/Z-axis sign, "
+            "and rigidly transform the complete hand/object trajectory before IK."
+        ),
+    )
+    parser.add_argument(
+        "--object-mesh",
+        type=Path,
+        default=DEFAULT_OBJECT_MESH,
+        help="Mesh used to place the leveled object bottom on the table.",
+    )
+    parser.add_argument("--table-height", type=float, default=0.0)
+    parser.add_argument(
+        "--object-clearance",
+        type=float,
+        default=0.0,
+        help="Initial clearance above the table in meters (default: exact contact).",
+    )
+    parser.add_argument(
+        "--drop-leading-frames",
+        type=int,
+        default=0,
+        help=(
+            "Drop this many leading rollout frames before alignment and IK. "
+            "Useful for physics-reset settling frames."
+        ),
+    )
     parser.add_argument("--position-tolerance", type=float, default=1.0e-4)
     parser.add_argument("--orientation-tolerance", type=float, default=1.0e-3)
     parser.add_argument("--position-weight", type=float, default=10.0)
@@ -185,6 +298,8 @@ def main():
     revo2_joints = _first(
         source, ("revo2_joints", "robot_joints"), "Revo2 joint trajectory"
     )
+    revo2_follower_joints = source.get("revo2_follower_joints")
+    revo2_joint_drive_target = source.get("revo2_joint_drive_target")
     object_pos = _first(
         source, ("object_pos_world", "object_pos", "obj_pos"), "object position"
     )
@@ -200,16 +315,124 @@ def main():
         )
     wrist_quat = _to_xyzw(wrist_quat, convention)
     object_quat = _to_xyzw(object_quat, convention)
+    source_frame_count = len(wrist_pos)
+    if revo2_follower_joints is not None:
+        revo2_follower_joints = np.asarray(revo2_follower_joints, dtype=float)
+        if revo2_follower_joints.shape != (source_frame_count, 5):
+            raise ValueError(
+                "revo2_follower_joints must have shape "
+                f"{(source_frame_count, 5)}, got {revo2_follower_joints.shape}"
+            )
+    if revo2_joint_drive_target is not None:
+        revo2_joint_drive_target = np.asarray(revo2_joint_drive_target, dtype=float)
+        if revo2_joint_drive_target.shape != (source_frame_count, 6):
+            raise ValueError(
+                "revo2_joint_drive_target must have shape "
+                f"{(source_frame_count, 6)}, got {revo2_joint_drive_target.shape}"
+            )
+    if any(
+        value is not None and not np.isfinite(value).all()
+        for value in (revo2_follower_joints, revo2_joint_drive_target)
+    ):
+        raise ValueError("Revo2 follower state/drive target contains NaN/Inf")
+    if args.drop_leading_frames < 0 or args.drop_leading_frames >= source_frame_count:
+        raise ValueError(
+            "--drop-leading-frames must be in "
+            f"[0,{source_frame_count - 1}], got {args.drop_leading_frames}"
+        )
+    source_start_frame = int(args.drop_leading_frames)
+    if source_start_frame:
+        source_slice = slice(source_start_frame, None)
+        wrist_pos = wrist_pos[source_slice]
+        wrist_quat = wrist_quat[source_slice]
+        revo2_joints = revo2_joints[source_slice]
+        if revo2_follower_joints is not None:
+            revo2_follower_joints = revo2_follower_joints[source_slice]
+        if revo2_joint_drive_target is not None:
+            revo2_joint_drive_target = revo2_joint_drive_target[source_slice]
+        object_pos = object_pos[source_slice]
+        object_quat = object_quat[source_slice]
+        print(
+            f"[input trim] dropped {source_start_frame} physics-settling frame(s); "
+            f"{source_frame_count} -> {len(wrist_pos)}"
+        )
+    if args.level_object_on_table and args.object_start_quat_xyzw is not None:
+        raise ValueError(
+            "--level-object-on-table and --object-start-quat-xyzw are mutually exclusive"
+        )
+    if args.object_clearance < 0.0 or not np.isfinite(args.object_clearance):
+        raise ValueError("--object-clearance must be finite and >= 0")
+    if not np.isfinite(args.table_height):
+        raise ValueError("--table-height must be finite")
+
+    leveled_initial_tilt_rad = 0.0
+    leveled_mesh_min_z = np.nan
+    leveled_mesh_path = ""
+    leveled_position = None
+    leveled_quaternion = None
+    if args.level_object_on_table:
+        import trimesh
+
+        mesh_path = args.object_mesh.expanduser().resolve()
+        if not mesh_path.is_file():
+            raise FileNotFoundError(f"object mesh not found: {mesh_path}")
+        loaded_mesh = trimesh.load(mesh_path, force="scene", process=False)
+        if isinstance(loaded_mesh, trimesh.Scene):
+            geometries = tuple(loaded_mesh.geometry.values())
+            if not geometries:
+                raise ValueError(f"object mesh contains no geometry: {mesh_path}")
+            loaded_mesh = trimesh.util.concatenate(geometries)
+        desired_xy = (
+            np.asarray(args.object_start_position, dtype=float)[:2]
+            if args.object_start_position is not None
+            else object_pos[0, :2]
+        )
+        leveled_position, leveled_quaternion, leveled_initial_tilt_rad = (
+            _stable_upright_pose_on_table(
+                object_pos[0],
+                object_quat[0],
+                np.asarray(loaded_mesh.vertices, dtype=float),
+                desired_xy=desired_xy,
+                table_height=args.table_height,
+                clearance=args.object_clearance,
+            )
+        )
+        leveled_mesh_min_z = float(
+            (
+                Rotation.from_quat(leveled_quaternion).apply(
+                    np.asarray(loaded_mesh.vertices, dtype=float)
+                )
+                + leveled_position
+            )[:, 2].min()
+        )
+        leveled_mesh_path = str(mesh_path)
+
     alignment_rotation = Rotation.identity()
     alignment_translation = np.zeros(3, dtype=float)
-    alignment_applied = args.object_start_position is not None or args.object_start_quat_xyzw is not None
+    alignment_applied = (
+        args.level_object_on_table
+        or args.object_start_position is not None
+        or args.object_start_quat_xyzw is not None
+    )
     if alignment_applied:
         desired_object_position = np.asarray(
-            args.object_start_position if args.object_start_position is not None else object_pos[0],
+            leveled_position
+            if leveled_position is not None
+            else (
+                args.object_start_position
+                if args.object_start_position is not None
+                else object_pos[0]
+            ),
             dtype=float,
         )
         desired_object_quaternion = np.asarray(
-            args.object_start_quat_xyzw if args.object_start_quat_xyzw is not None else object_quat[0],
+            leveled_quaternion
+            if leveled_quaternion is not None
+            else (
+                args.object_start_quat_xyzw
+                if args.object_start_quat_xyzw is not None
+                else object_quat[0]
+            ),
             dtype=float,
         )
         if not np.isfinite(desired_object_position).all() or desired_object_position.shape != (3,):
@@ -239,6 +462,15 @@ def main():
         print(f"  desired object frame 0 position: {desired_object_position}")
         print(f"  actual object frame 0 position:  {object_pos[0]}")
         print(f"  actual object frame 0 quat xyzw: {object_quat[0]}")
+        if args.level_object_on_table:
+            print(
+                f"  removed initial can tilt:         "
+                f"{np.degrees(leveled_initial_tilt_rad):.6g} deg"
+            )
+            print(
+                f"  leveled mesh minimum Z:           "
+                f"{leveled_mesh_min_z:.9g} m"
+            )
     wrist_frame_correction_rpy_deg = np.asarray(
         args.target_wrist_local_rpy_deg, dtype=float
     )
@@ -395,7 +627,10 @@ def main():
     output_data = {
         "quat_convention": "xyzw",
         "fps": np.asarray(source.get("fps", 30.0)).item(),
-        "frame_index": np.asarray(source.get("frame_index", np.arange(T))),
+        "frame_index": np.asarray(
+            source.get("frame_index", np.arange(source_frame_count))
+        )[source_start_frame:],
+        "source_start_frame": source_start_frame,
         "rb3_joint_names": np.asarray(kinematics.joint_names),
         "revo2_joint_names": np.asarray(
             source.get(
@@ -443,7 +678,28 @@ def main():
         "floating_alignment_applied": alignment_applied,
         "floating_alignment_rotation": alignment_rotation.as_matrix(),
         "floating_alignment_translation": alignment_translation,
+        "object_leveled_on_table": args.level_object_on_table,
+        "object_leveling_initial_tilt_rad": leveled_initial_tilt_rad,
+        "object_leveling_table_height_m": args.table_height,
+        "object_leveling_clearance_m": args.object_clearance,
+        "object_leveling_mesh_world_min_z_m": leveled_mesh_min_z,
+        "object_leveling_mesh_path": leveled_mesh_path,
     }
+    if revo2_follower_joints is not None:
+        output_data["revo2_follower_joints"] = revo2_follower_joints
+        output_data["revo2_follower_joint_names"] = np.asarray(
+            source.get("revo2_follower_joint_names", ()), dtype=str
+        )
+    if revo2_joint_drive_target is not None:
+        output_data["revo2_joint_drive_target"] = revo2_joint_drive_target
+    if "revo2_fingertip_pos" in source:
+        fingertips = np.asarray(source["revo2_fingertip_pos"], dtype=float)
+        if fingertips.shape != (source_frame_count, 5, 3) or not np.isfinite(fingertips).all():
+            raise ValueError("revo2_fingertip_pos must be finite and have shape (T,5,3)")
+        fingertips = fingertips[source_start_frame:]
+        output_data["revo2_fingertip_pos"] = (
+            alignment_rotation.apply(fingertips.reshape(-1, 3)) + alignment_translation
+        ).reshape(T, 5, 3)
     mano_joint_world = next(
         (
             np.asarray(source[name])
@@ -459,6 +715,8 @@ def main():
         None,
     )
     if mano_joint_world is not None:
+        if mano_joint_world.shape == (source_frame_count, 21, 3):
+            mano_joint_world = mano_joint_world[source_start_frame:]
         if mano_joint_world.shape != (T, 21, 3):
             raise ValueError(
                 "MANO skeleton must have shape "

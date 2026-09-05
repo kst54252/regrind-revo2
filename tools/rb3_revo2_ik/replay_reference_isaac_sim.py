@@ -26,7 +26,7 @@ import omni.timeline
 import omni.usd
 from isaacsim.core.prims import SingleArticulation, SingleRigidPrim
 from isaacsim.core.utils.types import ArticulationAction
-from pxr import Gf, Usd, UsdGeom, UsdPhysics, Vt
+from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics, Vt
 
 
 def _env_bool(name, default):
@@ -58,6 +58,9 @@ OBJECT_MESH_PATH = os.environ.get(
 MODEL_CONFIG_PATH = os.path.join(
     PROJECT_ROOT, "tools", "rb3_revo2_ik", "rb3_model.json"
 )
+WORKCELL_CONFIG_PATH = os.path.join(
+    PROJECT_ROOT, "config", "workcell", "rb3_revo2_table.json"
+)
 VALIDATION_OUTPUT_PATH = os.path.join(
     PROJECT_ROOT,
     "outputs",
@@ -72,6 +75,10 @@ PLAYBACK_RATE = float(os.environ.get("REVO2_REPLAY_SPEED", "1.0"))
 LOOP = _env_bool("REVO2_REPLAY_LOOP", False)
 AUTO_PLAY = _env_bool("REVO2_REPLAY_AUTO_PLAY", True)
 START_FRAME = int(os.environ.get("REVO2_REPLAY_START_FRAME", "0"))
+TERMINAL_HOLD_SECONDS = float(
+    os.environ.get("REVO2_REPLAY_TERMINAL_HOLD", "0.5")
+)
+PHYSICS_HZ = float(os.environ.get("REVO2_REPLAY_PHYSICS_HZ", "120.0"))
 PRINT_EVERY = 10
 
 JOINT_READBACK_TOLERANCE_RAD = 1.0e-5
@@ -85,6 +92,9 @@ DEBUG_ROOT_PATH = "/World/RB3KinematicReplayDebug"
 OBJECT_ROOT_PATH = "/World/RB3KinematicReplayObject"
 SHOW_DEMO_SKELETON = _env_bool("REVO2_SHOW_DEMO_SKELETON", True)
 PHYSICS_OBJECT = _env_bool("REVO2_PHYSICS_OBJECT", False)
+PHYSICS_ROBOT_CONTROL = os.environ.get(
+    "REVO2_PHYSICS_ROBOT_CONTROL", "kinematic"
+).strip().lower()
 OBJECT_MASS_KG = float(os.environ.get("REVO2_OBJECT_MASS_KG", "0.15"))
 OBJECT_FRICTION = float(os.environ.get("REVO2_OBJECT_FRICTION", "0.8"))
 if PHYSICS_OBJECT:
@@ -97,8 +107,9 @@ if PHYSICS_OBJECT:
 SHOW_OBJECT_REFERENCE = _env_bool(
     "REVO2_SHOW_OBJECT_REFERENCE", not PHYSICS_OBJECT
 )
-PHYSICS_TABLE_PATH = "/World/RB3PhysicsTable"
-PHYSICS_MATERIAL_PATH = "/World/RB3PhysicsMaterial"
+WORKCELL_ROOT_PATH = "/World/RB3Workcell"
+PHYSICS_TABLE_PATH = WORKCELL_ROOT_PATH + "/TableTop"
+PHYSICS_MATERIAL_PATH = WORKCELL_ROOT_PATH + "/PhysicsMaterial"
 
 # DexYCB/MANO joint order: wrist, then four joints for thumb through pinky.
 MANO_FINGER_CHAINS = (
@@ -117,6 +128,13 @@ REVO2_FOLLOWERS = {
     "right_pinky_distal_joint": ("right_pinky_proximal_joint", 1.155, 0.0),
 }
 
+# Match the floating-hand RL asset. The imported Revo2 USD contains older,
+# highly non-uniform gains (including stiffness 500 on the ring finger), which
+# can kick a light can sideways at first contact.
+REVO2_REPLAY_STIFFNESS = 3.0
+REVO2_REPLAY_DAMPING = 0.1
+REVO2_REPLAY_MAX_FORCE = 0.5
+
 
 TOOLS_DIR = os.path.join(PROJECT_ROOT, "tools", "rb3_revo2_ik")
 if TOOLS_DIR not in sys.path:
@@ -132,6 +150,117 @@ from reference_trajectory import (  # noqa: E402
 def _load_model_config():
     with open(MODEL_CONFIG_PATH, "r", encoding="utf-8") as config_file:
         return json.load(config_file)
+
+
+def _load_workcell_config():
+    with open(WORKCELL_CONFIG_PATH, "r", encoding="utf-8") as config_file:
+        return json.load(config_file)
+
+
+def _create_box(stage, path, size, center, color, collision=True):
+    cube = UsdGeom.Cube.Define(stage, path)
+    cube.CreateSizeAttr(1.0)
+    cube.CreateDisplayColorAttr(Vt.Vec3fArray([Gf.Vec3f(*color)]))
+    xform = UsdGeom.XformCommonAPI(cube.GetPrim())
+    xform.SetScale(Gf.Vec3f(*[float(value) for value in size]))
+    xform.SetTranslate(Gf.Vec3d(*[float(value) for value in center]))
+    if collision:
+        UsdPhysics.CollisionAPI.Apply(cube.GetPrim()).CreateCollisionEnabledAttr(True)
+        # Author valid PhysX offsets before the first simulation step.  Adding
+        # them later (when the dynamic can is configured) lets PhysX parse the
+        # table once with invalid/default values and emits contact-offset errors.
+        _set_physx_collision_offsets(cube.GetPrim(), 0.005, 0.0)
+    return cube.GetPrim()
+
+
+def _apply_robot_mount_offset(stage, model, mount_position):
+    """Move both assembled source roots exactly once to the pedestal mount."""
+
+    mount_position = np.asarray(mount_position, dtype=float)
+    for path in (model["robot_root_prim"], model["hand_root_prim"]):
+        prim = stage.GetPrimAtPath(path)
+        if not prim.IsValid():
+            raise RuntimeError(f"assembled robot root not found: {path}")
+        applied = prim.GetAttribute("regrind:workcellOffsetApplied")
+        if applied and applied.Get():
+            continue
+        xformable = UsdGeom.Xformable(prim)
+        translate_op = next(
+            (
+                op
+                for op in xformable.GetOrderedXformOps()
+                if op.GetOpType() == UsdGeom.XformOp.TypeTranslate
+            ),
+            None,
+        )
+        if translate_op is None:
+            translate_op = xformable.AddTranslateOp(UsdGeom.XformOp.PrecisionDouble)
+            current = np.zeros(3, dtype=float)
+        else:
+            current = np.asarray(translate_op.Get(), dtype=float)
+        translated = current + mount_position
+        value = (
+            Gf.Vec3f(*translated.tolist())
+            if translate_op.GetPrecision() == UsdGeom.XformOp.PrecisionFloat
+            else Gf.Vec3d(*translated.tolist())
+        )
+        translate_op.Set(value)
+        prim.CreateAttribute(
+            "regrind:workcellOffsetApplied", Sdf.ValueTypeNames.Bool, custom=True
+        ).Set(True)
+
+
+def _create_workcell(stage, model):
+    """Create the 500 mm pedestal and 1600 x 800 mm physical table."""
+
+    layout = _load_workcell_config()
+    _apply_robot_mount_offset(stage, model, layout["robot_mount"]["position"])
+    if stage.GetPrimAtPath(WORKCELL_ROOT_PATH).IsValid():
+        stage.RemovePrim(WORKCELL_ROOT_PATH)
+    UsdGeom.Xform.Define(stage, WORKCELL_ROOT_PATH)
+
+    floor_z = float(layout["floor_z"])
+    base = layout["robot_base"]
+    table = layout["table"]
+    thickness = float(table["top_thickness"])
+    tabletop_center_z = float(table["top_z"]) - thickness / 2.0
+    leg_height = tabletop_center_z - thickness / 2.0 - floor_z
+    leg_center_z = floor_z + leg_height / 2.0
+
+    _create_box(
+        stage,
+        WORKCELL_ROOT_PATH + "/Floor",
+        (2.4, 2.4, 0.04),
+        (0.4, 0.0, floor_z - 0.02),
+        (0.24, 0.24, 0.26),
+    )
+    _create_box(
+        stage,
+        WORKCELL_ROOT_PATH + "/RobotBase",
+        base["size"],
+        base["center"],
+        (0.16, 0.18, 0.22),
+    )
+    _create_box(
+        stage,
+        PHYSICS_TABLE_PATH,
+        (*table["size_xy"], thickness),
+        (*table["center_xy"], tabletop_center_z),
+        (0.42, 0.31, 0.20),
+    )
+    for index, center_xy in enumerate(table["leg_centers_xy"]):
+        _create_box(
+            stage,
+            f"{WORKCELL_ROOT_PATH}/TableLeg{index}",
+            (*table["leg_size_xy"], leg_height),
+            (*center_xy, leg_center_z),
+            (0.22, 0.23, 0.25),
+        )
+    print(
+        "[workcell] robot pedestal=0.50 x 0.50 x 0.70 m, "
+        "table=0.80 x 1.60 m at Z=0, RB3 mount Z=-0.02 m"
+    )
+    return layout
 
 
 def _indices(articulation, names):
@@ -164,6 +293,76 @@ def _stage_joint_limits(stage, names):
     if not np.all(np.isfinite(lower)) or not np.all(np.isfinite(upper)):
         raise RuntimeError("Stage joint limits contain NaN/Inf")
     return lower, upper
+
+
+def _configure_revo2_drives(stage, joint_names):
+    joints = {
+        prim.GetName(): prim
+        for prim in stage.Traverse()
+        if prim.IsA(UsdPhysics.RevoluteJoint)
+    }
+    missing = [name for name in joint_names if name not in joints]
+    if missing:
+        raise RuntimeError(f"cannot configure missing Revo2 joints: {missing}")
+    for name in joint_names:
+        drive = UsdPhysics.DriveAPI.Get(joints[name], "angular")
+        if not drive:
+            drive = UsdPhysics.DriveAPI.Apply(joints[name], "angular")
+        # USD angular drives use degrees, unlike Isaac Lab tensor gains.
+        drive.CreateTypeAttr("force")
+        drive.CreateStiffnessAttr(REVO2_REPLAY_STIFFNESS * np.pi / 180.0)
+        drive.CreateDampingAttr(REVO2_REPLAY_DAMPING * np.pi / 180.0)
+        drive.CreateMaxForceAttr(REVO2_REPLAY_MAX_FORCE)
+        joints[name].CreateAttribute(
+            "physxJoint:maxJointVelocity", Sdf.ValueTypeNames.Float, custom=False
+        ).Set(float(np.rad2deg(100.0)))
+    print(
+        "[physics] Revo2 drives matched to floating RL: "
+        f"stiffness={REVO2_REPLAY_STIFFNESS:g}, "
+        f"damping={REVO2_REPLAY_DAMPING:g}, "
+        f"max_force={REVO2_REPLAY_MAX_FORCE:g}"
+    )
+
+
+def _configure_articulation_physics(stage, model):
+    """Apply the existing assembled Isaac Lab asset's SI actuator baseline."""
+    arm_kp = (300.0, 500.0, 500.0, 300.0, 200.0, 50.0)
+    arm_kd = (20.0, 20.0, 20.0, 20.0, 20.0, 10.0)
+    arm_effort = (10.0, 100.0, 100.0, 100.0, 100.0, 10.0)
+    for path, kp, kd, effort in zip(
+        model["joint_prim_paths"], arm_kp, arm_kd, arm_effort
+    ):
+        prim = stage.GetPrimAtPath(path)
+        drive = UsdPhysics.DriveAPI.Apply(prim, "angular")
+        drive.CreateTypeAttr("force")
+        drive.CreateStiffnessAttr(float(np.deg2rad(kp)))
+        drive.CreateDampingAttr(float(np.deg2rad(kd)))
+        drive.CreateMaxForceAttr(effort)
+        prim.CreateAttribute(
+            "physxJoint:maxJointVelocity", Sdf.ValueTypeNames.Float, custom=False
+        ).Set(float(np.rad2deg(10.0)))
+    for prim in stage.Traverse():
+        if prim.HasAPI(UsdPhysics.ArticulationRootAPI):
+            prim.AddAppliedSchema("PhysxArticulationAPI")
+            for name, value, value_type in (
+                ("enabledSelfCollisions", False, Sdf.ValueTypeNames.Bool),
+                ("solverPositionIterationCount", 32, Sdf.ValueTypeNames.Int),
+                ("solverVelocityIterationCount", 2, Sdf.ValueTypeNames.Int),
+            ):
+                prim.CreateAttribute(
+                    "physxArticulation:" + name, value_type, custom=False
+                ).Set(value)
+
+
+def _set_physx_collision_offsets(prim, contact_offset, rest_offset):
+    if "PhysxCollisionAPI" not in prim.GetAppliedSchemas():
+        prim.AddAppliedSchema("PhysxCollisionAPI")
+    prim.CreateAttribute(
+        "physxCollision:contactOffset", Sdf.ValueTypeNames.Float, custom=False
+    ).Set(float(contact_offset))
+    prim.CreateAttribute(
+        "physxCollision:restOffset", Sdf.ValueTypeNames.Float, custom=False
+    ).Set(float(rest_offset))
 
 
 def _set_sphere_position(sphere, position):
@@ -300,7 +499,7 @@ def _bind_physics_material(prim, material_path):
 
 
 def _configure_dynamic_can(stage, mesh_path):
-    """Add a robust cylinder collider, mass, gravity, and a Z=0 table."""
+    """Add a robust cylinder collider and use the workcell table at Z=0."""
     if OBJECT_MASS_KG <= 0.0:
         raise ValueError("REVO2_OBJECT_MASS_KG must be > 0")
     if OBJECT_FRICTION < 0.0:
@@ -337,24 +536,25 @@ def _configure_dynamic_can(stage, mesh_path):
     UsdGeom.XformCommonAPI(collider.GetPrim()).SetTranslate(Gf.Vec3d(0.0, 0.0, center_z))
     collider.MakeInvisible()
     UsdPhysics.CollisionAPI.Apply(collider.GetPrim()).CreateCollisionEnabledAttr(True)
+    _set_physx_collision_offsets(collider.GetPrim(), 0.002, 0.0)
 
     material_prim = stage.DefinePrim(PHYSICS_MATERIAL_PATH, "Material")
     material = UsdPhysics.MaterialAPI.Apply(material_prim)
     material.CreateStaticFrictionAttr(OBJECT_FRICTION)
     material.CreateDynamicFrictionAttr(OBJECT_FRICTION)
-    material.CreateRestitutionAttr(0.02)
+    material.CreateRestitutionAttr(0.0)
     _bind_physics_material(collider.GetPrim(), material_prim.GetPath())
+    # Floating training uses this default material on the robot as well.
+    _bind_physics_material(
+        stage.GetPrimAtPath(_load_model_config()["hand_root_prim"]),
+        material_prim.GetPath(),
+    )
 
-    if stage.GetPrimAtPath(PHYSICS_TABLE_PATH).IsValid():
-        stage.RemovePrim(PHYSICS_TABLE_PATH)
-    table = UsdGeom.Cube.Define(stage, PHYSICS_TABLE_PATH)
-    table.CreateSizeAttr(1.0)
-    table.CreateDisplayColorAttr(Vt.Vec3fArray([Gf.Vec3f(0.18, 0.18, 0.20)]))
-    table_xform = UsdGeom.XformCommonAPI(table.GetPrim())
-    table_xform.SetScale(Gf.Vec3f(2.0, 2.0, 0.02))
-    table_xform.SetTranslate(Gf.Vec3d(0.0, 0.0, -0.01))
-    UsdPhysics.CollisionAPI.Apply(table.GetPrim()).CreateCollisionEnabledAttr(True)
-    _bind_physics_material(table.GetPrim(), material_prim.GetPath())
+    table_prim = stage.GetPrimAtPath(PHYSICS_TABLE_PATH)
+    if not table_prim.IsValid():
+        raise RuntimeError("physical workcell table has not been created")
+    _set_physx_collision_offsets(table_prim, 0.005, 0.0)
+    _bind_physics_material(table_prim, material_prim.GetPath())
 
     scenes = [
         UsdPhysics.Scene(prim)
@@ -364,12 +564,28 @@ def _configure_dynamic_can(stage, mesh_path):
     scene = scenes[0] if scenes else UsdPhysics.Scene.Define(stage, "/World/PhysicsScene")
     scene.CreateGravityDirectionAttr(Gf.Vec3f(0.0, 0.0, -1.0))
     scene.CreateGravityMagnitudeAttr(9.81)
+    scene_prim = scene.GetPrim()
+    if "PhysxSceneAPI" not in scene_prim.GetAppliedSchemas():
+        scene_prim.AddAppliedSchema("PhysxSceneAPI")
+    for name, value, value_type in (
+        ("solverType", "TGS", Sdf.ValueTypeNames.Token),
+        ("bounceThreshold", 0.2, Sdf.ValueTypeNames.Float),
+        ("frictionOffsetThreshold", 0.01, Sdf.ValueTypeNames.Float),
+        ("frictionCorrelationDistance", 0.00625, Sdf.ValueTypeNames.Float),
+    ):
+        scene_prim.CreateAttribute("physxScene:" + name, value_type, custom=False).Set(value)
+    scene_prim.CreateAttribute(
+        "physxScene:timeStepsPerSecond", Sdf.ValueTypeNames.Int, custom=False
+    ).Set(int(round(PHYSICS_HZ)))
     print(
         "[physics] dynamic tuna can enabled: "
         f"mass={OBJECT_MASS_KG:g} kg friction={OBJECT_FRICTION:g} "
         f"cylinder(radius={radius:.5f}, height={height:.5f}) m"
     )
-    print("[physics] static collision table top: world Z=0 m; gravity: -Z, 9.81 m/s^2")
+    print(
+        "[physics] workcell collision table top: world Z=0 m; "
+        f"gravity: -Z, 9.81 m/s^2; physics: {PHYSICS_HZ:g} Hz"
+    )
 
 
 def _set_object_pose(object_xform_ops, position, quaternion_xyzw):
@@ -450,14 +666,20 @@ def _create_debug_visuals(stage, trajectory):
 class ReplayBackend:
     """Boundary between the kinematic and future physics replay paths."""
 
-    def apply(self, rb3_q, revo2_q):
+    def apply(self, rb3_q, revo2_q, follower_q=None):
         raise NotImplementedError
 
     def read(self):
         raise NotImplementedError
 
-    def teleport(self, rb3_q, revo2_q):
-        self.apply(rb3_q, revo2_q)
+    def teleport(
+        self,
+        rb3_q,
+        revo2_q,
+        follower_q=None,
+        revo2_drive_target=None,
+    ):
+        self.apply(rb3_q, revo2_q, follower_q)
 
 
 class KinematicTeleportBackend(ReplayBackend):
@@ -472,22 +694,31 @@ class KinematicTeleportBackend(ReplayBackend):
         self.hand_names = self.revo2_names + tuple(REVO2_FOLLOWERS)
         self.hand_indices = _indices(hand, self.hand_names)
 
-    def _expanded_hand(self, leader_q):
+    def _expanded_hand(self, leader_q, follower_q=None):
         values = dict(zip(self.revo2_names, np.asarray(leader_q, dtype=float)))
-        for follower, (leader, multiplier, offset) in REVO2_FOLLOWERS.items():
-            if leader not in values:
-                raise RuntimeError(
-                    f"Mimic leader {leader!r} is absent from trajectory joint order"
+        if follower_q is None:
+            for follower, (leader, multiplier, offset) in REVO2_FOLLOWERS.items():
+                if leader not in values:
+                    raise RuntimeError(
+                        f"Mimic leader {leader!r} is absent from trajectory joint order"
+                    )
+                values[follower] = offset + multiplier * values[leader]
+        else:
+            follower_q = np.asarray(follower_q, dtype=float)
+            if follower_q.shape != (len(REVO2_FOLLOWERS),):
+                raise ValueError(
+                    "Revo2 follower state must have shape "
+                    f"{(len(REVO2_FOLLOWERS),)}, got {follower_q.shape}"
                 )
-            values[follower] = offset + multiplier * values[leader]
+            values.update(zip(REVO2_FOLLOWERS, follower_q))
         return np.asarray([values[name] for name in self.hand_names], dtype=float)
 
-    def apply(self, rb3_q, revo2_q):
+    def apply(self, rb3_q, revo2_q, follower_q=None):
         self.arm.set_joint_positions(
             np.asarray(rb3_q, dtype=float), joint_indices=self.arm_indices
         )
         self.hand.set_joint_positions(
-            self._expanded_hand(revo2_q), joint_indices=self.hand_indices
+            self._expanded_hand(revo2_q, follower_q), joint_indices=self.hand_indices
         )
 
     def read(self):
@@ -497,7 +728,15 @@ class KinematicTeleportBackend(ReplayBackend):
         expanded_hand = np.asarray(
             self.hand.get_joint_positions(joint_indices=self.hand_indices), dtype=float
         )
-        return rb3, expanded_hand[:6]
+        return rb3, expanded_hand[:6], expanded_hand[6:]
+
+    def set_velocities(self, rb3_v, hand_v, follower_v):
+        self.arm.set_joint_velocities(
+            np.asarray(rb3_v, dtype=float), joint_indices=self.arm_indices
+        )
+        self.hand.set_joint_velocities(
+            self._expanded_hand(hand_v, follower_v), joint_indices=self.hand_indices
+        )
 
 
 class PhysicsPositionControllerBackend(ReplayBackend):
@@ -512,7 +751,7 @@ class PhysicsPositionControllerBackend(ReplayBackend):
         self.arm_indices = self.teleport_backend.arm_indices
         self.hand_indices = self.teleport_backend.hand_indices
 
-    def apply(self, rb3_q, revo2_q):
+    def apply(self, rb3_q, revo2_q, follower_q=None):
         self.arm.apply_action(
             ArticulationAction(
                 joint_positions=np.asarray(rb3_q, dtype=float),
@@ -521,17 +760,34 @@ class PhysicsPositionControllerBackend(ReplayBackend):
         )
         self.hand.apply_action(
             ArticulationAction(
-                joint_positions=self.teleport_backend._expanded_hand(revo2_q),
+                joint_positions=self.teleport_backend._expanded_hand(
+                    revo2_q, follower_q
+                ),
                 joint_indices=self.hand_indices,
             )
         )
 
-    def teleport(self, rb3_q, revo2_q):
-        self.teleport_backend.apply(rb3_q, revo2_q)
-        self.apply(rb3_q, revo2_q)
+    def teleport(
+        self,
+        rb3_q,
+        revo2_q,
+        follower_q=None,
+        revo2_drive_target=None,
+    ):
+        # State follows the physical floating-hand rollout. Drive targets keep
+        # the policy's q_ref + residual error, which is what produces grasp
+        # force. Falling back to the state preserves legacy trajectory support.
+        self.teleport_backend.apply(rb3_q, revo2_q, follower_q)
+        drive_target = (
+            revo2_q if revo2_drive_target is None else revo2_drive_target
+        )
+        self.apply(rb3_q, drive_target)
 
     def read(self):
         return self.teleport_backend.read()
+
+    def set_velocities(self, rb3_v, hand_v, follower_v):
+        self.teleport_backend.set_velocities(rb3_v, hand_v, follower_v)
 
 
 class KinematicReplayController:
@@ -546,6 +802,8 @@ class KinematicReplayController:
         self.stage = None
         self.timeline = None
         self.physx_interface = None
+        self.physics_simulation = None
+        self.physics_time = 0.0
         self.backend = None
         self.wrist_prim = None
         self.wrist_body = None
@@ -565,6 +823,11 @@ class KinematicReplayController:
         self.revo2_readback_error = np.full(frames, np.nan)
         self.rb3_actual = np.full((frames, 6), np.nan)
         self.revo2_actual = np.full((frames, 6), np.nan)
+        self.revo2_follower_actual = np.full((frames, 5), np.nan)
+        self.revo2_follower_readback_error = np.full(frames, np.nan)
+        self.fingertip_actual = np.full((frames, 5, 3), np.nan)
+        self.fingertip_error = np.full((frames, 5), np.nan)
+        self.fingertip_prims = []
         self.stage_wrist_pos = np.full((frames, 3), np.nan)
         self.stage_wrist_quat_xyzw = np.full((frames, 4), np.nan)
         self.viewport_wrist_pos = np.full((frames, 3), np.nan)
@@ -589,6 +852,166 @@ class KinematicReplayController:
     @property
     def dt(self):
         return self.trajectory.dt / PLAYBACK_RATE
+
+    def _follower_state(self, frame):
+        if self.trajectory.revo2_follower_joints is not None:
+            return self.trajectory.revo2_follower_joints[frame]
+        leader = dict(
+            zip(
+                self.trajectory.revo2_joint_names,
+                self.trajectory.revo2_joints[frame],
+            )
+        )
+        return np.asarray(
+            [
+                offset + multiplier * leader[leader_name]
+                for leader_name, multiplier, offset in REVO2_FOLLOWERS.values()
+            ],
+            dtype=float,
+        )
+
+    def _drive_target(self, frame):
+        if self.trajectory.revo2_joint_drive_target is not None:
+            return self.trajectory.revo2_joint_drive_target[frame]
+        return self.trajectory.revo2_joints[frame]
+
+    def _command_robot_state(self, rb3_q, hand_q, follower_q, drive_target):
+        if PHYSICS_ROBOT_CONTROL == "arm-kinematic":
+            self.backend.arm.set_joint_positions(rb3_q, joint_indices=self.backend.arm_indices)
+            self.backend.apply(rb3_q, drive_target)
+        else:
+            self.backend.teleport(rb3_q, hand_q, follower_q, drive_target)
+
+    def _command_frame(self, frame):
+        if PHYSICS_ROBOT_CONTROL != "arm-kinematic":
+            self._teleport_frame(frame)
+            return
+        self._command_robot_state(
+            self.trajectory.rb3_joints[frame], self.trajectory.revo2_joints[frame],
+            self._follower_state(frame), self._drive_target(frame),
+        )
+        before = max(0, frame - 1)
+        after = min(self.trajectory.frames - 1, frame + 1)
+        if frame == self.trajectory.frames - 1:
+            before = after
+        self.backend.arm.set_joint_velocities(
+            (self.trajectory.rb3_joints[after] - self.trajectory.rb3_joints[before])
+            / (max(1, after - before) * self.dt),
+            joint_indices=self.backend.arm_indices,
+        )
+
+    def _teleport_frame(self, frame):
+        self.backend.teleport(
+            self.trajectory.rb3_joints[frame],
+            self.trajectory.revo2_joints[frame],
+            self._follower_state(frame),
+            self._drive_target(frame),
+        )
+        before = max(0, frame - 1)
+        after = min(self.trajectory.frames - 1, frame + 1)
+        if frame == self.trajectory.frames - 1:
+            before = after  # Hold the terminal pose at zero velocity.
+        duration = max(1, after - before) * self.dt
+        self.backend.set_velocities(
+            (self.trajectory.rb3_joints[after] - self.trajectory.rb3_joints[before]) / duration,
+            (self.trajectory.revo2_joints[after] - self.trajectory.revo2_joints[before]) / duration,
+            (self._follower_state(after) - self._follower_state(before)) / duration,
+        )
+
+    async def _step_physics(self):
+        # Kit render updates may execute zero, one, or multiple physics steps.
+        # Keep its timeline paused and explicitly simulate exactly one dt.
+        self.timeline.pause()
+        step_dt = 1.0 / PHYSICS_HZ
+        self.physics_simulation.simulate(step_dt, self.physics_time)
+        self.physics_simulation.fetch_results()
+        self.physics_time += step_dt
+        self._sync_physx_transforms()
+        await omni.kit.app.get_app().next_update_async()
+
+    async def _advance_physics_updates(self, count):
+        """Yield a bounded number of Kit/PhysX updates.
+
+        ``Timeline.get_current_time()`` is not guaranteed to advance in every
+        standalone Isaac Sim configuration. Waiting for a target timeline time
+        can therefore leave the replay task stuck forever at frame zero. A
+        bounded update count keeps the UI responsive and gives every reference
+        target a deterministic number of physics steps.
+        """
+
+        for _ in range(max(0, int(count))):
+            if not self.playing:
+                break
+            if PHYSICS_ROBOT_CONTROL in ("kinematic", "arm-kinematic"):
+                self._command_frame(self.current_frame)
+            await self._step_physics()
+            if PHYSICS_ROBOT_CONTROL in ("kinematic", "arm-kinematic"):
+                self._command_frame(self.current_frame)
+                self._sync_physx_transforms()
+
+    def _sync_physx_transforms(self):
+        """Publish a teleported articulation pose without another physics step."""
+
+        try:
+            self.physx_interface.update_transformations(True, True, False, False)
+        except TypeError:
+            self.physx_interface.update_transformations(True, True, False)
+
+    async def _interpolate_kinematic_robot(self, frame, next_frame, update_count):
+        """Move the teleported robot smoothly between two 30 Hz samples.
+
+        Each state write is followed by a matching drive target through
+        ``PhysicsPositionControllerBackend.teleport``. This prevents the USD
+        drives from pulling the fingers back toward stale targets between
+        reference frames and avoids staircase contact impulses on the can.
+        """
+
+        update_count = max(0, int(update_count))
+        if update_count == 0:
+            return
+        rb3_start = self.trajectory.rb3_joints[frame]
+        rb3_end = self.trajectory.rb3_joints[next_frame]
+        hand_start = self.trajectory.revo2_joints[frame]
+        hand_end = self.trajectory.revo2_joints[next_frame]
+        follower_start = self._follower_state(frame)
+        follower_end = self._follower_state(next_frame)
+        drive_start = self._drive_target(frame)
+        drive_end = self._drive_target(next_frame)
+        denominator = float(update_count + 1)
+        for substep in range(1, update_count + 1):
+            if not self.playing:
+                break
+            alpha = substep / denominator
+            rb3_target = (1.0 - alpha) * rb3_start + alpha * rb3_end
+            hand_target = (1.0 - alpha) * hand_start + alpha * hand_end
+            follower_target = (
+                (1.0 - alpha) * follower_start + alpha * follower_end
+            )
+            drive_target = (1.0 - alpha) * drive_start + alpha * drive_end
+            self._command_robot_state(
+                rb3_target, hand_target, follower_target, drive_target
+            )
+            if PHYSICS_ROBOT_CONTROL == "arm-kinematic":
+                self.backend.arm.set_joint_velocities(
+                    (rb3_end - rb3_start) / self.dt, joint_indices=self.backend.arm_indices
+                )
+            else:
+                self.backend.set_velocities(
+                    (rb3_end - rb3_start) / self.dt,
+                    (hand_end - hand_start) / self.dt,
+                    (follower_end - follower_start) / self.dt,
+                )
+            await self._step_physics()
+            # PhysX must see the kinematic motion to generate object contacts,
+            # but the rendered robot should remain exactly on the recorded
+            # floating-hand pose instead of displaying post-step joint sag.
+            self._command_robot_state(
+                rb3_target, hand_target, follower_target, drive_target
+            )
+            self._sync_physx_transforms()
+
+    def _physics_updates_per_frame(self):
+        return max(1, int(round(self.dt * PHYSICS_HZ)))
 
     def _print_preflight(self):
         names = self.trajectory.rb3_joint_names + self.trajectory.revo2_joint_names
@@ -627,9 +1050,33 @@ class KinematicReplayController:
         print(f"[physics] can reset once at {position.tolist()}; trajectory pose driving is OFF")
 
     async def initialize(self):
+        if PLAYBACK_RATE <= 0.0:
+            raise ValueError("REVO2_REPLAY_SPEED must be > 0")
+        if TERMINAL_HOLD_SECONDS < 0.0:
+            raise ValueError("REVO2_REPLAY_TERMINAL_HOLD must be >= 0")
+        if PHYSICS_HZ <= 0.0:
+            raise ValueError("REVO2_REPLAY_PHYSICS_HZ must be > 0")
+        if PHYSICS_ROBOT_CONTROL not in ("kinematic", "arm-kinematic", "position"):
+            raise ValueError(
+                "REVO2_PHYSICS_ROBOT_CONTROL must be 'kinematic', 'arm-kinematic', or 'position'"
+            )
         self.stage = omni.usd.get_context().get_stage()
         if self.stage is None:
             raise RuntimeError("No USD Stage is currently open")
+        for finger in ("thumb", "index", "middle", "ring", "pinky"):
+            matches = [p for p in self.stage.Traverse()
+                       if p.GetName() == f"right_{finger}_touch_link"
+                       and p.HasAPI(UsdPhysics.RigidBodyAPI)]
+            if len(matches) != 1:
+                raise RuntimeError(f"Expected one physical {finger} fingertip, got {len(matches)}")
+            self.fingertip_prims.append(matches[0])
+        _create_workcell(self.stage, self.model)
+        if PHYSICS_OBJECT:
+            _configure_articulation_physics(self.stage, self.model)
+            _configure_revo2_drives(
+                self.stage,
+                self.trajectory.revo2_joint_names + tuple(REVO2_FOLLOWERS),
+            )
         arm_path = self.model["arm_articulation_prim"]
         hand_path = self.model["hand_articulation_prim"]
         wrist_path = self.model["mounted_wrist_frame"]
@@ -640,10 +1087,11 @@ class KinematicReplayController:
             if not self.stage.GetPrimAtPath(path).IsValid():
                 raise RuntimeError(f"{description} prim not found in current Stage: {path}")
 
-        # Create physics tensor views once, then pause. Replay itself never
-        # advances physics time and only teleports joint positions.
+        # Create physics tensor views once. Dynamic-object replay then advances
+        # explicit fixed steps while the Kit timeline remains paused.
         self.timeline = omni.timeline.get_timeline_interface()
         self.physx_interface = omni.physx.get_physx_interface()
+        self.physics_simulation = omni.physx.get_physx_simulation_interface()
         self.timeline.play()
         await omni.kit.app.get_app().next_update_async()
         arm = SingleArticulation(prim_path=arm_path, name="rb3_kinematic_replay")
@@ -667,6 +1115,9 @@ class KinematicReplayController:
         self.wrist_body.initialize()
         self.timeline.pause()
 
+        # Dynamic-object replay always keeps drive targets available. In
+        # kinematic robot mode ``teleport()`` writes the exact state *and* the
+        # matching target; position mode uses only ``apply()``.
         backend_type = (
             PhysicsPositionControllerBackend
             if PHYSICS_OBJECT
@@ -721,16 +1172,19 @@ class KinematicReplayController:
                 )
                 self.object_body.initialize()
                 self.timeline.pause()
-                self.backend.teleport(
-                    self.trajectory.rb3_joints[0], self.trajectory.revo2_joints[0]
-                )
+                self._teleport_frame(0)
                 self._reset_dynamic_object()
         self.initialized = True
         await self._apply_frame(self.current_frame)
         if PHYSICS_OBJECT:
             print(
-                "[replay] initialized in DYNAMIC-OBJECT mode; robot uses position "
-                "targets and the can moves only through gravity/contact"
+                "[replay] initialized in DYNAMIC-OBJECT mode; "
+                f"robot control={PHYSICS_ROBOT_CONTROL}; the can moves only "
+                "through gravity/contact"
+            )
+            print(
+                f"[replay] physics stepping: {PHYSICS_HZ:g} Hz, "
+                f"{self._physics_updates_per_frame()} update(s)/trajectory frame"
             )
         else:
             print("[replay] initialized in KINEMATIC mode; physics is paused")
@@ -746,32 +1200,67 @@ class KinematicReplayController:
             raise IndexError(f"frame must be in [0,{self.trajectory.frames - 1}]")
         rb3_ref = self.trajectory.rb3_joints[frame]
         revo_ref = self.trajectory.revo2_joints[frame]
+        follower_ref = self._follower_state(frame)
+        drive_target = self._drive_target(frame)
         if not np.isfinite(rb3_ref).all() or not np.isfinite(revo_ref).all():
             raise ValueError(f"reference frame {frame} contains NaN/Inf")
         physics_advancing = PHYSICS_OBJECT and self.playing
         if physics_advancing:
-            self.backend.apply(rb3_ref, revo_ref)
+            if PHYSICS_ROBOT_CONTROL in ("kinematic", "arm-kinematic"):
+                self._command_frame(frame)
+            else:
+                self.backend.apply(rb3_ref, drive_target)
         else:
             self.timeline.pause()
-            self.backend.teleport(rb3_ref, revo_ref)
+            self._teleport_frame(frame)
             # A paused timeline does not publish teleported link poses to
             # USD/Fabric. Synchronize without advancing gravity or contacts.
             try:
                 self.physx_interface.update_transformations(True, True, False, False)
             except TypeError:
                 self.physx_interface.update_transformations(True, True, False)
-        await omni.kit.app.get_app().next_update_async()
+        if physics_advancing:
+            await self._step_physics()
+        else:
+            await omni.kit.app.get_app().next_update_async()
 
-        rb3_actual, revo_actual = self.backend.read()
+        if physics_advancing and PHYSICS_ROBOT_CONTROL in ("kinematic", "arm-kinematic"):
+            # Match the floating task's six leader + five generated follower
+            # configuration after the physics contact step.  Without this
+            # post-step synchronization the unactuated-looking distal links
+            # visibly lag and flap even though the leader trajectory is valid.
+            self._command_frame(frame)
+            self._sync_physx_transforms()
+
+        rb3_actual, revo_actual, follower_actual = self.backend.read()
+        fingertip_cache = UsdGeom.XformCache(Usd.TimeCode.Default())
+        self.fingertip_actual[frame] = [
+            np.asarray(fingertip_cache.GetLocalToWorldTransform(p).ExtractTranslation())
+            for p in self.fingertip_prims
+        ]
+        if self.trajectory.revo2_fingertip_pos is not None:
+            self.fingertip_error[frame] = np.linalg.norm(
+                self.fingertip_actual[frame] - self.trajectory.revo2_fingertip_pos[frame], axis=1
+            )
+        if not all(np.isfinite(q).all() for q in (rb3_actual, revo_actual, follower_actual)):
+            self.playing = False
+            self.timeline.pause()
+            raise RuntimeError(f"PhysX joint state contains NaN/Inf at frame {frame}; replay stopped")
         self.rb3_actual[frame] = rb3_actual
         self.revo2_actual[frame] = revo_actual
+        self.revo2_follower_actual[frame] = follower_actual
         self.rb3_readback_error[frame] = float(np.max(np.abs(rb3_actual - rb3_ref)))
         self.revo2_readback_error[frame] = float(
             np.max(np.abs(revo_actual - revo_ref))
         )
+        self.revo2_follower_readback_error[frame] = float(
+            np.max(np.abs(follower_actual - follower_ref))
+        )
         if (
             self.rb3_readback_error[frame] > JOINT_READBACK_TOLERANCE_RAD
             or self.revo2_readback_error[frame] > JOINT_READBACK_TOLERANCE_RAD
+            or self.revo2_follower_readback_error[frame]
+            > JOINT_READBACK_TOLERANCE_RAD
         ):
             self.readback_problem_frames.add(frame)
 
@@ -805,6 +1294,7 @@ class KinematicReplayController:
         self.stage_finite[frame] = bool(
             np.isfinite(rb3_actual).all()
             and np.isfinite(revo_actual).all()
+            and np.isfinite(follower_actual).all()
             and np.isfinite(wrist_position).all()
             and np.isfinite(wrist_quaternion).all()
             and np.isfinite(viewport_position).all()
@@ -864,6 +1354,7 @@ class KinematicReplayController:
             print(
                 f"[frame {frame:04d}] rb3_readback={self.rb3_readback_error[frame]:.3g} "
                 f"revo2_readback={self.revo2_readback_error[frame]:.3g} rad "
+                f"follower_readback={self.revo2_follower_readback_error[frame]:.3g} rad "
                 f"wrist_pos={self.wrist_position_error[frame]:.3g} m "
                 f"wrist_ori={self.wrist_orientation_error[frame]:.3g} rad "
                 f"viewport_sync={self.viewport_sync_position_error[frame]:.3g} m"
@@ -877,7 +1368,7 @@ class KinematicReplayController:
     async def _run(self):
         try:
             if PHYSICS_OBJECT:
-                self.timeline.play()
+                self.timeline.pause()
             while self.playing:
                 frame = self.current_frame
                 start = time.perf_counter()
@@ -888,23 +1379,36 @@ class KinematicReplayController:
                         next_frame = 0
                         if PHYSICS_OBJECT:
                             self.timeline.pause()
-                            self.backend.teleport(
-                                self.trajectory.rb3_joints[0],
-                                self.trajectory.revo2_joints[0],
-                            )
+                            self._teleport_frame(0)
                             self._reset_dynamic_object()
-                            self.timeline.play()
+                            self.timeline.pause()
                     else:
+                        if PHYSICS_OBJECT and TERMINAL_HOLD_SECONDS > 0.0:
+                            await self._advance_physics_updates(
+                                int(round(TERMINAL_HOLD_SECONDS * PHYSICS_HZ))
+                            )
                         self.playing = False
                         self.summary()
                         break
+                if PHYSICS_OBJECT:
+                    remaining_updates = self._physics_updates_per_frame() - 1
+                    if PHYSICS_ROBOT_CONTROL in ("kinematic", "arm-kinematic") and not (
+                        LOOP and next_frame == 0
+                    ):
+                        await self._interpolate_kinematic_robot(
+                            frame, next_frame, remaining_updates
+                        )
+                    else:
+                        await self._advance_physics_updates(remaining_updates)
                 self.current_frame = next_frame
-                remaining = self.dt - (time.perf_counter() - start)
-                if remaining > 0:
-                    await asyncio.sleep(remaining)
+                if not PHYSICS_OBJECT:
+                    remaining = self.dt - (time.perf_counter() - start)
+                    if remaining > 0:
+                        await asyncio.sleep(remaining)
         except asyncio.CancelledError:
             pass
         finally:
+            self.playing = False
             if self.timeline is not None:
                 self.timeline.pause()
 
@@ -932,9 +1436,7 @@ class KinematicReplayController:
 
     async def _reset(self):
         self.current_frame = 0
-        self.backend.teleport(
-            self.trajectory.rb3_joints[0], self.trajectory.revo2_joints[0]
-        )
+        self._teleport_frame(0)
         self._reset_dynamic_object()
         await self._apply_frame(0)
 
@@ -959,6 +1461,8 @@ class KinematicReplayController:
         mode = "dynamic-object physics" if PHYSICS_OBJECT else "kinematic"
         print(f"\n[{mode} replay validation summary]")
         print(f"  total frames:                  {self.trajectory.frames}")
+        if np.isfinite(self.fingertip_error).any():
+            print(f"  fingertip position mean/max:    {np.nanmean(self.fingertip_error):.9g} / {np.nanmax(self.fingertip_error):.9g} m")
         print(f"  Stage-validated frames:        {len(checked_indices)}")
         print(f"  joint-limit violation frames: {self.limit_violation_frames.tolist()}")
         print(f"  reference NaN/Inf frames:      {self.continuity.nonfinite_frames.tolist()}")
@@ -982,9 +1486,10 @@ class KinematicReplayController:
         print(f"  joint readback problems:       {sorted(self.readback_problem_frames)}")
         if len(checked_indices):
             print(
-                f"  max RB3/Revo2 readback error:  "
+                f"  max RB3/Revo2/follower error:  "
                 f"{np.nanmax(self.rb3_readback_error[checked]):.9g} / "
-                f"{np.nanmax(self.revo2_readback_error[checked]):.9g} rad"
+                f"{np.nanmax(self.revo2_readback_error[checked]):.9g} / "
+                f"{np.nanmax(self.revo2_follower_readback_error[checked]):.9g} rad"
             )
         if self.trajectory.wrist_pos is not None and len(checked_indices):
             print(
@@ -1033,8 +1538,20 @@ class KinematicReplayController:
             reference_joints=self.trajectory.reference_joints,
             rb3_actual=self.rb3_actual,
             revo2_actual=self.revo2_actual,
+            revo2_follower_reference=np.stack(
+                [self._follower_state(frame) for frame in range(self.trajectory.frames)]
+            ),
+            revo2_follower_actual=self.revo2_follower_actual,
+            fingertip_actual=self.fingertip_actual,
+            fingertip_error=self.fingertip_error,
             rb3_readback_error_rad=self.rb3_readback_error,
             revo2_readback_error_rad=self.revo2_readback_error,
+            revo2_follower_readback_error_rad=self.revo2_follower_readback_error,
+            revo2_joint_drive_target=(
+                self.trajectory.revo2_joint_drive_target
+                if self.trajectory.revo2_joint_drive_target is not None
+                else self.trajectory.revo2_joints
+            ),
             stage_wrist_pos=self.stage_wrist_pos,
             stage_wrist_quat_xyzw=self.stage_wrist_quat_xyzw,
             viewport_wrist_pos=self.viewport_wrist_pos,

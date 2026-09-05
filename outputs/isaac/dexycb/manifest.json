@@ -5,7 +5,7 @@
     "camera_frame_convention": "dexycb_y_down",
     "frames": 69,
     "ik_success_count": 69,
-    "ik_success_rate": 1.0,
+    "ik_success_rate": 1,
     "failed_indices": [],
     "max_position_error_m": 6.069085217097776e-15,
     "max_orientation_error_rad": 5.310947100301822e-14,
@@ -14,7 +14,7 @@
     "finite": true,
     "first_object_position": [
       0.4,
-      0.0,
+      0,
       0.04300360562861344
     ],
     "last_object_position": [
@@ -30,7 +30,7 @@
     "first_mesh_min_z": -2.0816681711721685e-17,
     "world_trajectory": "/home/wanjunkim/ARSL/regrind-upload/outputs/isaac/dexycb/20200709_143626_right/world_trajectory.h5",
     "reference_trajectory": "/home/wanjunkim/ARSL/regrind-upload/outputs/isaac/dexycb/20200709_143626_right/rb3_revo2_reference.h5",
-    "yaw_deg": 120.0
+    "yaw_deg": 120
   },
   {
     "sequence": "20200709_143703_right",
@@ -38,7 +38,7 @@
     "camera_frame_convention": "dexycb_y_down",
     "frames": 67,
     "ik_success_count": 67,
-    "ik_success_rate": 1.0,
+    "ik_success_rate": 1,
     "failed_indices": [],
     "max_position_error_m": 5.833757182234959e-15,
     "max_orientation_error_rad": 1.2315799099215006e-13,
@@ -47,7 +47,7 @@
     "finite": true,
     "first_object_position": [
       0.4,
-      0.0,
+      0,
       0.042520665945491865
     ],
     "last_object_position": [
@@ -60,43 +60,48 @@
       0.042520665945491865,
       0.266868614973507
     ],
-    "first_mesh_min_z": 0.0,
+    "first_mesh_min_z": 0,
     "world_trajectory": "/home/wanjunkim/ARSL/regrind-upload/outputs/isaac/dexycb/20200709_143703_right/world_trajectory.h5",
     "reference_trajectory": "/home/wanjunkim/ARSL/regrind-upload/outputs/isaac/dexycb/20200709_143703_right/rb3_revo2_reference.h5",
-    "yaw_deg": -120.0
+    "yaw_deg": -120
   },
   {
     "sequence": "20200709_143747_left",
     "camera": "839512060362",
     "camera_frame_convention": "dexycb_y_down",
-    "frames": 60,
-    "ik_success_count": 60,
+    "frames": 40,
+    "ik_success_count": 40,
     "ik_success_rate": 1.0,
     "failed_indices": [],
-    "max_position_error_m": 3.6729227033433546e-14,
-    "max_orientation_error_rad": 4.3603460893751667e-13,
-    "max_rb3_step_rad": 0.1918506484461904,
+    "max_position_error_m": 4.1679828084299134e-15,
+    "max_orientation_error_rad": 2.4175815263226482e-14,
+    "max_rb3_step_rad": 0.2841841867315122,
     "joint_limit_violation": false,
     "finite": true,
     "first_object_position": [
       0.3999999999999999,
-      0.0,
+      0,
       0.02046913512787113
     ],
     "last_object_position": [
-      0.36872447121521357,
-      0.02892510327614528,
-      0.272988325439303
+      0.3796232011934566,
+      0.011814999378977675,
+      0.24605668195328007
     ],
-    "object_delta_z_m": 0.2525191903114319,
+    "object_delta_z_m": 0.22558754682540894,
     "object_z_range_m": [
       0.020283764682619665,
-      0.27331424363693485
+      0.24605668195328007
     ],
     "first_mesh_min_z": -2.42861286636753e-17,
     "world_trajectory": "/home/wanjunkim/ARSL/regrind-upload/outputs/isaac/dexycb/20200709_143747_left/world_trajectory.h5",
     "reference_trajectory": "/home/wanjunkim/ARSL/regrind-upload/outputs/isaac/dexycb/20200709_143747_left/rb3_revo2_reference.h5",
-    "yaw_deg": 150.0
+    "yaw_deg": 150,
+    "rb3_base_position": [
+      0,
+      0,
+      -0.02
+    ]
   },
   {
     "sequence": "20200709_143826_left",
@@ -104,7 +109,7 @@
     "camera_frame_convention": "dexycb_y_down",
     "frames": 69,
     "ik_success_count": 69,
-    "ik_success_rate": 1.0,
+    "ik_success_rate": 1,
     "failed_indices": [],
     "max_position_error_m": 6.3604037812734186e-15,
     "max_orientation_error_rad": 5.224679466808826e-14,
@@ -113,7 +118,7 @@
     "finite": true,
     "first_object_position": [
       0.4,
-      0.0,
+      0,
       0.026998784129034753
     ],
     "last_object_position": [
@@ -129,7 +134,7 @@
     "first_mesh_min_z": -1.0408340855860843e-17,
     "world_trajectory": "/home/wanjunkim/ARSL/regrind-upload/outputs/isaac/dexycb/20200709_143826_left/world_trajectory.h5",
     "reference_trajectory": "/home/wanjunkim/ARSL/regrind-upload/outputs/isaac/dexycb/20200709_143826_left/rb3_revo2_reference.h5",
-    "yaw_deg": -30.0
+    "yaw_deg": -30
   },
   {
     "sequence": "20200709_143907_right",
@@ -137,7 +142,7 @@
     "camera_frame_convention": "dexycb_y_down",
     "frames": 67,
     "ik_success_count": 67,
-    "ik_success_rate": 1.0,
+    "ik_success_rate": 1,
     "failed_indices": [],
     "max_position_error_m": 1.6532843405029767e-14,
     "max_orientation_error_rad": 8.57131486736444e-14,
@@ -146,7 +151,7 @@
     "finite": true,
     "first_object_position": [
       0.4,
-      0.0,
+      0,
       0.027522343502265623
     ],
     "last_object_position": [
@@ -162,6 +167,6 @@
     "first_mesh_min_z": 6.938893903907228e-18,
     "world_trajectory": "/home/wanjunkim/ARSL/regrind-upload/outputs/isaac/dexycb/20200709_143907_right/world_trajectory.h5",
     "reference_trajectory": "/home/wanjunkim/ARSL/regrind-upload/outputs/isaac/dexycb/20200709_143907_right/rb3_revo2_reference.h5",
-    "yaw_deg": -120.0
+    "yaw_deg": -120
   }
 ]
