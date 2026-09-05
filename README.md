@@ -16,10 +16,9 @@ DexYCB second camera
 
 RL/deployment branch
   -> RB3 없이 floating Revo2 wrist SE(3) + finger 6축 residual PPO
-  -> policy rollout의 wrist/object/Revo2 trajectory 저장
-  -> 실제 캔 시작 pose로 전체 rollout rigid alignment
-  -> RB3 strict IK
-  -> RB3 6축 + Revo2 6축 통합 replay
+  -> deployment에서는 매 step 실제 object/hand state로 policy 추론
+  -> wrist residual을 bounded RB3 strict IK로 변환
+  -> RB3 6축 + Revo2 6축 폐루프 physics 실행
 ```
 
 ## 빠른 시작
@@ -97,6 +96,12 @@ SE(3) residual 6차원과 Revo2 leader joint residual 6차원을 합친 12차원
 ./scripts/rl.sh play --sequence 20200709_143747_left \
   --checkpoint logs/rsl_rl/floating_revo2_tuna/RUN/model_999.pt \
   --rollout-path outputs/floating/20200709_143747_left/rollout.h5
+
+# 같은 floating checkpoint를 RB3+Revo2+책상에서 온라인 폐루프 실행
+# 매 episode마다 캔 XY는 IK 안전 영역에서 다시 샘플링됨
+./scripts/rl.sh play-arm --sequence 20200709_143747_left \
+  --checkpoint logs/rsl_rl/floating_revo2_tuna/RUN/model_4999.pt \
+  --num_envs 1 --real_time
 
 # Actual can start pose alignment + RB3 strict IK
 ./scripts/floating_to_rb3.sh \

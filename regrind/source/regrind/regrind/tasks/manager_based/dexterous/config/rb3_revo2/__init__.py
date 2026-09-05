@@ -24,6 +24,21 @@ _register("Regrind-RB3-Revo2-TunaCan-v0", "RB3Revo2TunaEnvCfg")
 _register("Regrind-RB3-Revo2-TunaCan-Smoke-v0", "RB3Revo2TunaEnvCfg_SMOKE")
 _register("Regrind-RB3-Revo2-TunaCan-Play-v0", "RB3Revo2TunaEnvCfg_PLAY")
 
+# The online bridge loads a floating-hand checkpoint unchanged (67-D actor
+# observation, 12-D action), solves the wrist action with bounded RB3 IK, and
+# drives Revo2's six leaders directly in the assembled physics scene.
+gym.register(
+    id="Regrind-RB3-Revo2-TunaCan-Online-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": (
+            f"{__name__}.rb3_revo2_online_env_cfg:RB3Revo2TunaOnlineEnvCfg_PLAY"
+        ),
+        "rsl_rl_cfg_entry_point": _AGENT_CFG,
+    },
+)
+
 # Backward-compatible names used by the earlier validation scripts.
 _register("Regrind-RB3-Revo2-Tuna-v0", "RB3Revo2TunaEnvCfg")
 _register("Regrind-RB3-Revo2-Tuna-Play-v0", "RB3Revo2TunaEnvCfg_PLAY")

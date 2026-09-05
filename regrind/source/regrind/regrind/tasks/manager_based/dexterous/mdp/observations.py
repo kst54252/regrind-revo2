@@ -241,8 +241,10 @@ def action_base_wrist_pos(
 ) -> torch.Tensor:
     """Env-relative wrist position used as the SE3 action base."""
     term = env.action_manager.get_term(action_term_name)
-    if not isinstance(term, SE3ImpedanceActionTerm):
-        raise TypeError(f"action term {action_term_name!r} must be SE3ImpedanceActionTerm, got {type(term)}")
+    if not hasattr(term, "get_base_pose"):
+        raise TypeError(
+            f"action term {action_term_name!r} must expose get_base_pose(), got {type(term)}"
+        )
     base_pos, _ = term.get_base_pose()
     if command_name is not None:
         command = env.command_manager.get_term(command_name)
@@ -253,8 +255,10 @@ def action_base_wrist_pos(
 def action_base_wrist_rot6d(env: ManagerBasedEnv, action_term_name: str = "root_pose") -> torch.Tensor:
     """Wrist orientation (rot6d) used as the SE3 action base."""
     term = env.action_manager.get_term(action_term_name)
-    if not isinstance(term, SE3ImpedanceActionTerm):
-        raise TypeError(f"action term {action_term_name!r} must be SE3ImpedanceActionTerm, got {type(term)}")
+    if not hasattr(term, "get_base_pose"):
+        raise TypeError(
+            f"action term {action_term_name!r} must expose get_base_pose(), got {type(term)}"
+        )
     _, base_quat = term.get_base_pose()
     mat = matrix_from_quat(base_quat)
     return mat[..., :2].reshape(mat.shape[0], -1)
@@ -267,8 +271,10 @@ def action_base_wrist_pos_and_rot6d(
 ) -> torch.Tensor:
     """Wrist position and orientation (rot6d) used as the SE3 action base."""
     term = env.action_manager.get_term(action_term_name)
-    if not isinstance(term, SE3ImpedanceActionTerm):
-        raise TypeError(f"action term {action_term_name!r} must be SE3ImpedanceActionTerm, got {type(term)}")
+    if not hasattr(term, "get_base_pose"):
+        raise TypeError(
+            f"action term {action_term_name!r} must expose get_base_pose(), got {type(term)}"
+        )
     base_pos, base_quat = term.get_base_pose()
     if command_name is not None:
         command = env.command_manager.get_term(command_name)

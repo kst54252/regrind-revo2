@@ -69,6 +69,41 @@ parser.add_argument(
     default=0,
     help="Frames to save; 0 uses the loaded reference length.",
 )
+parser.add_argument(
+    "--arm-tracking-path",
+    "--arm_tracking_path",
+    type=str,
+    default=None,
+    help=(
+        "For the online RB3 task, save the first episode's commanded/measured "
+        "arm and wrist response as NPZ and print a delay/tracking report."
+    ),
+)
+parser.add_argument(
+    "--arm-tracking-max-lag",
+    "--arm_tracking_max_lag",
+    type=int,
+    default=8,
+    help="Maximum causal control-step lag considered by arm tracking analysis.",
+)
+parser.add_argument(
+    "--rb3-stiffness-scale",
+    type=float,
+    default=1.0,
+    help="Runtime multiplier for the assembled RB3 stiffness (play-arm only).",
+)
+parser.add_argument(
+    "--rb3-damping-scale",
+    type=float,
+    default=1.0,
+    help="Runtime multiplier for the assembled RB3 damping (play-arm only).",
+)
+parser.add_argument(
+    "--rb3-effort-scale",
+    type=float,
+    default=1.0,
+    help="Runtime multiplier for the assembled RB3 effort limits (play-arm only).",
+)
 
 # append RSL-RL cli arguments
 cli_args.add_rsl_rl_args(parser)
@@ -96,6 +131,7 @@ sys.argv = [sys.argv[0]] + hydra_args
 import gymnasium as gym
 import h5py
 import importlib.metadata as metadata
+import importlib.util
 import numpy as np
 import os
 from pathlib import Path
@@ -208,6 +244,60 @@ def _floating_snapshot(
     return sample
 
 
+def _save_arm_tracking_telemetry(
+    path: str,
+    samples: list[dict[str, np.ndarray]],
+    dt: float,
+    max_lag_steps: int,
+    actuator_scales: tuple[float, float, float],
+) -> None:
+    """Persist the first online-arm episode and run the standalone analyzer."""
+
+    if not samples:
+        raise RuntimeError("no online RB3 samples were captured")
+    output = Path(path).expanduser().resolve()
+    if output.suffix.lower() != ".npz":
+        raise ValueError(f"--arm-tracking-path must end in .npz: {output}")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    arrays = {
+        key: np.stack([sample[key] for sample in samples])
+        for key in samples[0]
+    }
+    arrays["dt"] = np.asarray(dt, dtype=np.float64)
+    arrays["quat_convention"] = np.asarray("xyzw")
+    arrays["rb3_stiffness_scale"] = np.asarray(actuator_scales[0], dtype=np.float64)
+    arrays["rb3_damping_scale"] = np.asarray(actuator_scales[1], dtype=np.float64)
+    arrays["rb3_effort_scale"] = np.asarray(actuator_scales[2], dtype=np.float64)
+    np.savez_compressed(output, **arrays)
+
+    # Load by repository path so this also works with Isaac launchers that do
+    # not put the repository root on sys.path.
+    analyzer_path = (
+        Path(__file__).resolve().parents[3]
+        / "tools"
+        / "rb3_revo2_ik"
+        / "analyze_arm_tracking.py"
+    )
+    spec = importlib.util.spec_from_file_location(
+        "regrind_arm_tracking_analyzer", analyzer_path
+    )
+    if spec is None or spec.loader is None:
+        raise ImportError(f"cannot load arm tracking analyzer: {analyzer_path}")
+    analyzer = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = analyzer
+    spec.loader.exec_module(analyzer)
+    report = analyzer.analyze_arrays(arrays, max_lag_steps=max_lag_steps)
+    analyzer.print_report(report, output)
+
+
+def _scale_numeric_config(value, factor: float):
+    if factor <= 0.0 or not np.isfinite(factor):
+        raise ValueError(f"actuator scale must be positive and finite, got {factor}")
+    if isinstance(value, dict):
+        return {key: item * factor for key, item in value.items()}
+    return value * factor
+
+
 # PLACEHOLDER: Extension template (do not remove this comment)
 
 def _infer_gravity_from_checkpoint(resume_path: str, num_steps_per_env: int) -> tuple[float, float, float] | None:
@@ -281,6 +371,34 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # note: certain randomizations occur in the environment initialization so we set the seed here
     env_cfg.seed = agent_cfg.seed
     env_cfg.sim.device = args_cli.device if args_cli.device is not None else env_cfg.sim.device
+
+    actuator_scales = (
+        args_cli.rb3_stiffness_scale,
+        args_cli.rb3_damping_scale,
+        args_cli.rb3_effort_scale,
+    )
+    if actuator_scales != (1.0, 1.0, 1.0):
+        try:
+            rb3_actuator = env_cfg.scene.robot.actuators["rb3_arm"]
+        except (AttributeError, KeyError) as error:
+            raise RuntimeError(
+                "RB3 actuator scale options require an assembled RB3 task"
+            ) from error
+        rb3_actuator.stiffness = _scale_numeric_config(
+            rb3_actuator.stiffness, args_cli.rb3_stiffness_scale
+        )
+        rb3_actuator.damping = _scale_numeric_config(
+            rb3_actuator.damping, args_cli.rb3_damping_scale
+        )
+        rb3_actuator.effort_limit_sim = _scale_numeric_config(
+            rb3_actuator.effort_limit_sim, args_cli.rb3_effort_scale
+        )
+        print(
+            "[RB3 actuator runtime scales] "
+            f"stiffness={args_cli.rb3_stiffness_scale:g}, "
+            f"damping={args_cli.rb3_damping_scale:g}, "
+            f"effort={args_cli.rb3_effort_scale:g}"
+        )
 
     # specify directory for logging experiments
     log_root_path = os.path.join("logs", "rsl_rl", agent_cfg.experiment_name)
@@ -358,6 +476,32 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     rollout_command = None
     rollout_joint_action = None
     rollout_frame_limit = 0
+    online_command = None
+    online_ik_action = None
+    online_object_positions: list[np.ndarray] = []
+    online_wrist_position_errors: list[float] = []
+    online_arm_tracking_errors: list[float] = []
+    online_ik_failures: list[int] = []
+    arm_tracking_samples: list[dict[str, np.ndarray]] = []
+    capture_arm_tracking = args_cli.arm_tracking_path is not None
+    try:
+        candidate_command = env.unwrapped.command_manager.get_term("reference")
+        candidate_action = env.unwrapped.action_manager.get_term("root_pose")
+        if hasattr(candidate_action, "ik_success") and hasattr(
+            candidate_command, "current_object_pos"
+        ):
+            online_command = candidate_command
+            online_ik_action = candidate_action
+            online_object_positions.append(_tensor_row(online_command.current_object_pos))
+            print(
+                "[ONLINE] closed-loop floating policy -> strict RB3 IK diagnostics enabled"
+            )
+    except (AttributeError, KeyError):
+        pass
+    if capture_arm_tracking and online_command is None:
+        raise RuntimeError(
+            "--arm-tracking-path requires the online assembled task; use ./scripts/rl.sh play-arm"
+        )
     if args_cli.rollout_path is not None:
         if env.num_envs != 1:
             raise ValueError("--rollout_path requires --num_envs 1")
@@ -404,6 +548,62 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             if args_cli.zero_actions:
                 actions.zero_()
             obs, rewards, dones, extras = env.step(actions)
+
+        if online_command is not None and not bool(dones[0].item()):
+            online_object_positions.append(_tensor_row(online_command.current_object_pos))
+            online_wrist_position_errors.append(
+                float(
+                    torch.linalg.vector_norm(
+                        online_command.current_hand_wrist_pos[0]
+                        - online_ik_action.target_pos[0]
+                    ).item()
+                )
+            )
+            actual_arm = online_command.robot.data.joint_pos.torch[
+                0, online_ik_action._joint_ids
+            ]
+            online_arm_tracking_errors.append(
+                float(
+                    torch.linalg.vector_norm(
+                        actual_arm - online_ik_action.last_joint_target[0]
+                    ).item()
+                )
+            )
+            if not bool(online_ik_action.ik_success[0].item()):
+                online_ik_failures.append(timestep)
+            # ManagerBasedRLEnv has already reset a done environment before it
+            # returns from step(). Exclude that reset sample, then stop at the
+            # first episode boundary so lag estimation never crosses a reset.
+            if capture_arm_tracking:
+                arm_tracking_samples.append(
+                    {
+                        "frame_index": np.asarray(
+                            int(online_command.time_steps[0].item()), dtype=np.int64
+                        ),
+                        "target_rb3_joints": _tensor_row(
+                            online_ik_action.last_joint_target
+                        ),
+                        "actual_rb3_joints": _tensor_row(actual_arm.unsqueeze(0)),
+                        "actual_rb3_joint_velocity": _tensor_row(
+                            online_command.robot.data.joint_vel.torch[
+                                0, online_ik_action._joint_ids
+                            ].unsqueeze(0)
+                        ),
+                        "target_wrist_pos": _tensor_row(online_ik_action.target_pos),
+                        "actual_wrist_pos": _tensor_row(
+                            online_command.current_hand_wrist_pos
+                        ),
+                        "target_wrist_quat_xyzw": _tensor_row(
+                            online_ik_action.target_quat
+                        ),
+                        "actual_wrist_quat_xyzw": _tensor_row(
+                            online_command.current_hand_wrist_quat
+                        ),
+                        "object_pos": _tensor_row(online_command.current_object_pos),
+                    }
+                )
+        if online_command is not None and capture_arm_tracking and bool(dones[0].item()):
+            capture_arm_tracking = False
 
         reward_sum += float(rewards.detach().sum().cpu())
         reward_samples += int(rewards.numel())
@@ -481,8 +681,44 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             for term_name, count in sorted(termination_counts.items()):
                 print(f"    {term_name}: {count}")
 
+    if online_command is not None and online_object_positions:
+        object_positions = np.asarray(online_object_positions)
+        object_delta = object_positions[-1] - object_positions[0]
+        reference_delta = (
+            online_command.reference.object_pos[-1]
+            - online_command.reference.object_pos[0]
+        )
+        print("\n[online RB3+Revo2 physical diagnostics]")
+        print(f"  object start xyz:       {object_positions[0].tolist()}")
+        print(f"  object final xyz:       {object_positions[-1].tolist()}")
+        print(f"  object delta xyz:       {object_delta.tolist()}")
+        print(f"  object max z:           {float(object_positions[:, 2].max()):.8g} m")
+        print(f"  reference delta xyz:    {reference_delta.tolist()}")
+        print(f"  online IK failed steps: {sorted(set(online_ik_failures))}")
+        if online_wrist_position_errors:
+            print(
+                "  wrist target error mean/max: "
+                f"{float(np.mean(online_wrist_position_errors)):.8g} / "
+                f"{float(np.max(online_wrist_position_errors)):.8g} m"
+            )
+        if online_arm_tracking_errors:
+            print(
+                "  arm q target error mean/max: "
+                f"{float(np.mean(online_arm_tracking_errors)):.8g} / "
+                f"{float(np.max(online_arm_tracking_errors)):.8g} rad"
+            )
+
     if args_cli.rollout_path is not None:
         _save_floating_rollout(args_cli.rollout_path, rollout_samples, rollout_command, dt)
+
+    if args_cli.arm_tracking_path is not None:
+        _save_arm_tracking_telemetry(
+            args_cli.arm_tracking_path,
+            arm_tracking_samples,
+            dt,
+            args_cli.arm_tracking_max_lag,
+            actuator_scales,
+        )
 
     # close the simulator
     env.close()

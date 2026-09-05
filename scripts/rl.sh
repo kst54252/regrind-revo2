@@ -11,6 +11,7 @@ Usage: ./scripts/rl.sh COMMAND [options]
 Commands:
   train    Train floating Revo2 PPO (16-env smoke task by default; --full uses 4096 env config)
   play     Replay a floating-hand policy in the deterministic GUI task
+  play-arm Run that floating policy online on RB3+Revo2 using per-step strict IK
   zero     Replay the floating-hand reference with zero residual actions
   debug    Inspect observation, reward, RSI, and finite-value checks
 
@@ -23,6 +24,12 @@ Common project options:
 
 Play options:
   --rollout-path P   Save one floating-hand policy episode for downstream RB3 IK
+  --arm-tracking-path P
+                     Save first play-arm episode target/measured telemetry as NPZ
+  --rb3-stiffness-scale S
+  --rb3-damping-scale S
+  --rb3-effort-scale S
+                     Runtime play-arm gain/limit multipliers for measured comparison
 
 Zero options handled here:
   --gui              Open the Kit viewer
@@ -126,7 +133,7 @@ case "${command_name}" in
             "${passthrough[@]}" \
             "env.commands.reference.trajectory_path=${reference}"
         ;;
-    play)
+    play|play-arm)
         play_args=()
         headless=false
         for argument in "${passthrough[@]}"; do
@@ -136,11 +143,14 @@ case "${command_name}" in
             play_args+=(--visualizer kit --max_visible_envs 1)
         fi
         task="Regrind-Floating-Revo2-TunaCan-Play-v0"
-        if [[ "${legacy_arm_rl}" == true ]]; then
+        if [[ "${command_name}" == "play-arm" ]]; then
+            task="Regrind-RB3-Revo2-TunaCan-Online-Play-v0"
+        elif [[ "${legacy_arm_rl}" == true ]]; then
             task="Regrind-RB3-Revo2-TunaCan-Play-v0"
         fi
         if [[ -n "${rollout_path}" ]]; then
-            [[ "${legacy_arm_rl}" == false ]] || die "--rollout-path is only valid for floating-hand RL"
+            [[ "${command_name}" == "play" && "${legacy_arm_rl}" == false ]] || \
+                die "--rollout-path is only valid for floating-hand RL"
             play_args+=(--rollout-path "${rollout_path}" --num_envs 1)
         fi
         [[ "${random_placement}" == true ]] && passthrough+=("env.commands.reference.randomize_object_xy=true")

@@ -8,6 +8,7 @@ Run commands from the repository root. The maintained entry points are:
 | `./scripts/run_isaac_replay.sh` | Isaac Sim kinematic/physics-object replay |
 | `./scripts/rl.sh train` | PPO smoke or full training |
 | `./scripts/rl.sh play` | Deterministic trained-policy replay |
+| `./scripts/rl.sh play-arm` | Floating policy + per-step RB3 strict IK closed-loop GUI |
 | `./scripts/rl.sh zero` | Zero-residual reference validation |
 | `./scripts/rl.sh debug` | Observation/reward/RSI diagnostics |
 | `./scripts/run_tests.sh` | Shell syntax and Python regression tests |

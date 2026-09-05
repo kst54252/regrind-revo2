@@ -48,6 +48,19 @@ RB3 replay와 legacy arm RL 환경은 `config/workcell/rb3_revo2_table.json`을
 이 모드는 현재 grasp 성공을 보장하지 않습니다. trajectory가 open-loop kinematic
 reference이고 controller/contact tuning을 하지 않았기 때문입니다.
 
+학습 정책의 폐루프 물리 파지를 확인할 때는 open-loop replay 대신 다음 온라인
+배치 명령을 사용합니다.
+
+```bash
+./scripts/rl.sh play-arm \
+  --sequence 20200709_143747_left \
+  --checkpoint logs/rsl_rl/floating_revo2_tuna/RUN/model_4999.pt \
+  --num_envs 1 --real_time
+```
+
+이 경로는 simulator의 현재 tuna/hand state를 매 policy step 다시 관측하고, wrist
+6-D residual을 동일한 bounded strict IK로 풀며, 이전 IK 해를 warm start로 사용합니다.
+
 ## Floating 학습 기록과 통합 재생 비교
 
 같은 동작 자체를 확인할 때는 **물리 캔 옵션 없이** 저장된 손과 캔 상태를 재생합니다.

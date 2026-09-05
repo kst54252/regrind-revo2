@@ -1,7 +1,9 @@
 # Floating Revo2 + tuna can REGRIND PPO
 
 학습과 로봇팔 배치를 분리합니다. PPO는 RB3 없이 떠 있는 Revo2 손만 제어하고,
-policy rollout이 완성된 뒤에만 RB3-730 strict IK를 실행합니다.
+학습은 RB3 없이 수행합니다. 배치는 두 방식이 있습니다. 기록 검증은 policy rollout을
+저장한 뒤 offline strict IK로 변환하고, 실제 물리 파지는 floating checkpoint를
+통합 환경에서 계속 추론하면서 매 step wrist target을 strict IK로 풉니다.
 
 ```text
 reference wrist/object/Revo2 trajectory
@@ -11,6 +13,72 @@ reference wrist/object/Revo2 trajectory
   -> RB3-730 strict IK (previous-frame warm start + joint limits)
   -> RB3 6 + Revo2 6 = 12-DoF replay
 ```
+
+### 온라인 RB3 배치 (실제 물리 파지)
+
+```text
+current tuna/hand state
+  -> trained floating actor (67-D observation -> 12-D action)
+  -> wrist 6-D residual -> bounded RB3 IK (previous solution warm start)
+  -> Revo2 six leader residual + five deterministic mimic targets
+  -> RB3/Revo2 actuator + contact physics
+  -> next state feedback
+```
+
+체크포인트의 관측/action 순서를 바꾸지 않으므로 floating model을 그대로 로드합니다.
+각 episode가 끝나면 캔 시작 XY를 strict-IK 사전 검증 영역
+`X=[0.40, 0.50] m`, `Y=[-0.20, 0.20] m`에서 다시 샘플링합니다. 캔과 전체
+wrist/object reference에 동일한 평행이동을 적용하고, 새 첫 wrist pose의 IK 해로
+RB3도 reset 전에 맞춥니다. 따라서 이전 위치에서 새 위치로 팔이 급하게 횡단하지
+않습니다.
+GUI 실행:
+
+```bash
+./scripts/rl.sh play-arm \
+  --sequence 20200709_143747_left \
+  --checkpoint logs/rsl_rl/floating_revo2_tuna/RUN/model_4999.pt \
+  --num_envs 1 --real_time
+```
+
+Headless 1회 검증은 `--headless --max_steps 37`을 추가합니다. 종료 시 실제 캔의
+start/final/max Z, online IK 실패 step, wrist 및 arm tracking error가 출력됩니다.
+2026-09-05 `model_4999.pt` 검증에서는 online IK `37/37`, 캔 Z
+`0.012636 -> max 0.251227 m`였으며 NaN/Inf 없이 캔이 실제 접촉으로 상승했습니다.
+
+### RB3 응답 측정과 system identification
+
+Floating policy와 strict IK는 그대로 둔 채, 첫 episode의 RB3 목표/실제 관절과
+목표/실제 wrist pose를 NPZ로 기록할 수 있습니다. 분석기는 관절 속도 응답을 기준으로
+0 이상 정수 control-step 지연을 추정하고, 관절별 RMSE와 wrist 위치/회전 오차를
+출력합니다. Episode reset sample은 측정에서 제외됩니다.
+
+```bash
+./scripts/rl.sh play-arm \
+  --sequence 20200709_143747_left \
+  --checkpoint logs/rsl_rl/floating_revo2_tuna/RUN/model_4999.pt \
+  --headless --eval_episodes 1 \
+  --arm-tracking-path outputs/diagnostics/rb3_arm_tracking.npz
+
+python3 tools/rb3_revo2_ik/analyze_arm_tracking.py \
+  outputs/diagnostics/rb3_arm_tracking.npz
+```
+
+시뮬레이션 gain 후보는 학습 checkpoint를 수정하지 않고 실행 시 비교합니다.
+
+```bash
+./scripts/rl.sh play-arm \
+  --sequence 20200709_143747_left \
+  --checkpoint logs/rsl_rl/floating_revo2_tuna/RUN/model_4999.pt \
+  --headless --eval_episodes 5 \
+  --rb3-stiffness-scale 2.0 \
+  --rb3-damping-scale 1.5 \
+  --rb3-effort-scale 2.0
+```
+
+Gain 선택은 wrist 오차만으로 하지 않고 random placement 파지 성공률도 함께
+비교해야 합니다. 현재 측정에서는 위 후보가 지연과 wrist 오차는 줄였지만 5회 중
+4회 성공이어서 기본값으로 고정하지 않았습니다. Floating 학습 환경에는 이미 공개
+REGRIND 방식의 0~2 control-step observation delay randomization이 활성화되어 있습니다.
 
 현재 `20200709_143747_left`의 학습 기본 입력은
 `outputs/isaac/dexycb/20200709_143747_left/rb3_revo2_reference_stable.h5`입니다.

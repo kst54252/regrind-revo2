@@ -71,11 +71,15 @@ class RB3Revo2ReferenceCommand(CommandTerm):
             raise ValueError(
                 f"unsupported joint_reference {cfg.joint_reference!r}; expected 'combined' or 'revo2'"
             )
-        if cfg.randomize_object_xy and cfg.joint_reference != "revo2":
+        if (
+            cfg.randomize_object_xy
+            and cfg.joint_reference != "revo2"
+            and not cfg.expose_revo2_as_hand
+        ):
             raise ValueError(
                 "per-episode can placement randomization is only valid for the floating "
-                "Revo2 task (joint_reference='revo2'). The assembled RB3 task requires "
-                "a new strict-IK trajectory for each sampled placement."
+                "Revo2 task or the online-IK assembled task. The legacy assembled RB3 "
+                "task requires a new strict-IK trajectory for each sampled placement."
             )
         x_range = tuple(float(value) for value in cfg.object_start_x_range)
         y_range = tuple(float(value) for value in cfg.object_start_y_range)
@@ -92,6 +96,20 @@ class RB3Revo2ReferenceCommand(CommandTerm):
         self.joint_ids = [self.robot.joint_names.index(name) for name in self.controlled_joint_names]
         self.actuated_dof_indices = self.joint_ids
 
+        # A floating-hand checkpoint observes and actuates only the six Revo2
+        # leaders, even when it is evaluated on the assembled RB3+Revo2
+        # articulation.  Keep the full twelve-joint reference for reset/RSI,
+        # while exposing the same six-dimensional "hand" API used during
+        # floating training.
+        self.hand_joint_names = (
+            tuple(REVO2_JOINT_NAMES)
+            if cfg.expose_revo2_as_hand
+            else self.controlled_joint_names
+        )
+        missing_hand = [name for name in self.hand_joint_names if name not in self.robot.joint_names]
+        if missing_hand:
+            raise RuntimeError(f"articulation is missing hand joints: {missing_hand}")
+        self.hand_joint_ids = [self.robot.joint_names.index(name) for name in self.hand_joint_names]
         self.follower_names = tuple(REVO2_FOLLOWER_JOINTS)
         missing_followers = [name for name in self.follower_names if name not in self.robot.joint_names]
         if missing_followers:
@@ -117,12 +135,22 @@ class RB3Revo2ReferenceCommand(CommandTerm):
             return torch.as_tensor(value, dtype=torch.float32, device=self.device)
 
         self.reference_joint_pos = tensor(reference_joint_pos)
+        self._hand_reference_joint_pos = (
+            tensor(self.reference.revo2_joints)
+            if cfg.expose_revo2_as_hand
+            else None
+        )
         self.reference_object_pos = tensor(self.reference.object_pos)
         self.reference_object_quat = tensor(self.reference.object_quat_xyzw)
         self.reference_wrist_pos = tensor(self.reference.wrist_pos)
         self.reference_wrist_quat = tensor(self.reference.wrist_quat_xyzw)
         self.object_keypoints_local = tensor(object_keypoints)
         self.reference_joint_vel = self._finite_difference_vector(self.reference_joint_pos)
+        self._hand_reference_joint_vel = (
+            self._finite_difference_vector(self._hand_reference_joint_pos)
+            if self._hand_reference_joint_pos is not None
+            else None
+        )
         self.reference_wrist_lin_vel = self._finite_difference_vector(self.reference_wrist_pos)
         self.reference_wrist_ang_vel = self._finite_difference_quat(self.reference_wrist_quat)
         self.reference_object_lin_vel = self._finite_difference_vector(self.reference_object_pos)
@@ -203,10 +231,14 @@ class RB3Revo2ReferenceCommand(CommandTerm):
 
     @property
     def target_hand_joint_pos(self) -> torch.Tensor:
+        if self._hand_reference_joint_pos is not None:
+            return self._hand_reference_joint_pos[self.time_steps]
         return self.target_joint_pos
 
     @property
     def target_hand_joint_vel(self) -> torch.Tensor:
+        if self._hand_reference_joint_vel is not None:
+            return self._hand_reference_joint_vel[self.time_steps]
         return self.reference_joint_vel[self.time_steps]
 
     @property
@@ -301,15 +333,15 @@ class RB3Revo2ReferenceCommand(CommandTerm):
 
     @property
     def current_hand_joint_pos(self) -> torch.Tensor:
-        return self.robot.data.joint_pos.torch[:, self.joint_ids]
+        return self.robot.data.joint_pos.torch[:, self.hand_joint_ids]
 
     @property
     def current_hand_joint_vel(self) -> torch.Tensor:
-        return self.robot.data.joint_vel.torch[:, self.joint_ids]
+        return self.robot.data.joint_vel.torch[:, self.hand_joint_ids]
 
     @property
     def default_hand_joint_pos(self) -> torch.Tensor:
-        return self.robot.data.default_joint_pos.torch[:, self.joint_ids]
+        return self.robot.data.default_joint_pos.torch[:, self.hand_joint_ids]
 
     @property
     def current_fingertips_pos(self) -> torch.Tensor:
@@ -341,7 +373,7 @@ class RB3Revo2ReferenceCommand(CommandTerm):
         )
         self.metrics["joint_tracking_error"].copy_(
             torch.linalg.vector_norm(
-                self.target_joint_pos - self.current_hand_joint_pos,
+                self.target_hand_joint_pos - self.current_hand_joint_pos,
                 dim=-1,
             )
         )
@@ -403,7 +435,10 @@ class RB3Revo2ReferenceCommand(CommandTerm):
         self._sample_placement(env_ids)
 
         joint_pos = self.target_joint_pos[env_ids].clone()
-        joint_vel = self.target_hand_joint_vel[env_ids].clone()
+        # Reset/RSI always writes the complete selected reference state.  The
+        # policy-facing hand view may intentionally expose only six Revo2
+        # joints, so it must not be used as the full reset velocity here.
+        joint_vel = self.reference_joint_vel[self.time_steps[env_ids]].clone()
         object_pos = self.target_object_pos[env_ids].clone()
         object_quat = self.target_object_quat[env_ids].clone()
         if self.cfg.enable_reset_perturbation:
@@ -540,6 +575,9 @@ class RB3Revo2ReferenceCommandCfg(CommandTermCfg):
     )
     start_frame: int = 0
     joint_reference: str = "combined"
+    # Preserve a combined 12-DoF reset/reference, but present only Revo2's six
+    # leaders to a policy trained in the floating-hand environment.
+    expose_revo2_as_hand: bool = False
     reset_floating_root: bool = False
     # Preserve the policy's original phase convention after leading reference
     # frames are removed.  For example, trimming 4 frames from a 64-frame
