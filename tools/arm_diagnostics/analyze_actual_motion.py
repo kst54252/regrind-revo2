@@ -3,7 +3,7 @@ import argparse
 import json
 from pathlib import Path
 import numpy as np
-from tools.rb3_revo2_ik.analyze_mounted_interface import stats
+from tools.arm_diagnostics.analyze_mounted_interface import stats
 
 
 def analyze(directory):

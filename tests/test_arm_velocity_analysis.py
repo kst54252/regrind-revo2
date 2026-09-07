@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import numpy as np
 
-from tools.rb3_revo2_ik.analyze_arm_velocity import load_velocity_path, sign_changes
+from tools.arm_diagnostics.analyze_arm_velocity import load_velocity_path, sign_changes
 
 
 class ArmVelocityAnalysisTest(unittest.TestCase):
@@ -19,7 +19,7 @@ class ArmVelocityAnalysisTest(unittest.TestCase):
                           actuator=dict(v_path=[1.], q_cmd=[.2]))]
 
     def load(self, rows=None, meta=None):
-        with patch("tools.rb3_revo2_ik.analyze_arm_velocity.read_run", return_value=(meta or self.meta, rows or self.rows)):
+        with patch("tools.arm_diagnostics.analyze_arm_velocity.read_run", return_value=(meta or self.meta, rows or self.rows)):
             return load_velocity_path("unused.jsonl", self.source_meta, self.source)
 
     def test_named_mapping_and_reset_seed(self):
@@ -56,7 +56,7 @@ class ArmVelocityAnalysisTest(unittest.TestCase):
         meta = dict(self.meta, condition="present")
         with self.assertRaisesRegex(ValueError, "matching"):
             self.load(meta=meta)
-        with patch("tools.rb3_revo2_ik.analyze_arm_velocity.read_run", return_value=(meta, self.rows)):
+        with patch("tools.arm_diagnostics.analyze_arm_velocity.read_run", return_value=(meta, self.rows)):
             np.testing.assert_array_equal(load_velocity_path("unused", self.source_meta, self.source, "present"), [[1.]])
 
     def test_deadband_crossings(self):

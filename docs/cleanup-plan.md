@@ -3,6 +3,98 @@
 > On-demand document: read this only for cleanup, retention, or repository
 > archaeology. Start normal work from [architecture.md](architecture.md).
 
+## Readable layout cleanup
+
+2026-09-07; branch `cleanup/readable-layout-20260907`, starting from `531b9c8`.
+Only the two untracked `outputs/diagnostics/ik120_*_20260907/` directories were
+present initially; both are preserved. This user-authorized cleanup supersedes
+the earlier KEEP decision for duplicate RL aliases and rejected gain configs.
+No cleanup commit or push has been made automatically.
+
+### Applied changes and migration
+
+| Old path | Current path / action | Reason and evidence |
+|---|---|---|
+| `tools/rb3_revo2_ik/analyze_*.py`, `compare_*.py` (13 modules) | `tools/arm_diagnostics/`, same basename except below | Offline analysis separated from FK/IK/Isaac execution; import sites, mock string targets, shell paths, docs and tests updated. Shared helpers still used by runtime capture are preserved. No scoring/control changes. |
+| `tools/rb3_revo2_ik/analyze_ik120.py` | `tools/arm_diagnostics/analyze_ik_tracking.py` | Name describes the analysis rather than one experiment frequency. Matching test renamed to `tests/test_ik_tracking_analysis.py`. |
+| `scripts/play_arm_fast.sh` | `scripts/play_arm_candidate.sh` | Name no longer implies guaranteed real-time execution; identical options/checkpoint/config defaults. |
+| `scripts/train_rb3_revo2_ppo.sh` | Removed → `bash scripts/rl.sh train` | Exact pass-through alias, no unique code or runtime caller. |
+| `scripts/play_rb3_revo2_ppo.sh` | Removed → `bash scripts/rl.sh play` | Exact pass-through alias. |
+| `scripts/run_rl_zero_replay.sh` | Removed → `bash scripts/rl.sh zero` | Exact pass-through alias. |
+| `scripts/run_rl_zero_replay_gui.sh` | Removed → `bash scripts/rl.sh zero --gui` | Preserves injected GUI option. |
+| `scripts/run_rl_zero_replay_skeleton_gui.sh` | Removed → `bash scripts/rl.sh zero --gui --skeleton` | Preserves both injected options. |
+| `scripts/run_rl_mdp_debug.sh` | Removed → `bash scripts/rl.sh debug` | Exact pass-through alias. |
+| `config/experiments/rb3_ik120_gain_candidates.json`, `rb3_ik120_wrist3_candidate.json` | Removed | Explicitly rejected wrist3-only experiment; no active default uses them. Only mutual config, historical report and config-specific test references. Reports retain measured results and mark historical reproduction requirements. |
+| `config/experiments/rb3_velocity_bounded_ik.json` | Removed | Explicitly rejected velocity-only preset with acceleration spike; not the smooth bounded-IK candidate. Only historical report referenced it. Solver/CLI capability and regression tests remain. |
+
+Recover exact deleted content using `git show 531b9c8:OLD_PATH`; historical
+experiments can be reproduced from that revision. Current supported commands
+are in [scripts/README.md](../scripts/README.md). Old Python import paths and
+removed shell aliases intentionally no longer work: external notebooks/scripts
+must use the mapping above. No shim copies were added.
+
+Reference review: `git grep -I` and hidden-aware `rg` through tracked source,
+shell scripts, configs, registrations, documentation, tests and editor settings;
+reviewed whole removed aliases and candidate configs. No USD/URDF/mesh or
+texture paths are changed. Git contents matched every deletion target before
+removal, so current versions are recoverable. Data preprocessing and asset
+generation remain untouched, regardless of how recently they were used.
+
+One removed test checked only the retired gain-candidate JSON values. Its
+deletion does not remove timing/phase/reset, joint mapping, FK/IK/mount/mimic,
+observation/action, units/quaternion or paired-state assertions. Three new
+navigation tests check analysis imports, launcher resolution and the preserved
+opt-in candidate/config boundary.
+
+### Deferred, not presumed dead
+
+- Legacy combined-arm tasks, upstream LEAP/WUJI/manual tools and `train-arm`:
+  still registered or independently callable; absent checkpoints/data or
+  inconclusive historical performance do not establish obsolete code.
+- Actual-motion/recovery/precision/actuator diagnostics: retained shared
+  implementations, CLI users and unique failure-reproduction tests.
+- Runtime MDP names, core FK/IK modules, task/config registration and assets:
+  no cosmetic rename that would broaden the physics/runtime change surface.
+- Datasets, checkpoints, references, experiment traces, media, local settings
+  and duplicate asset/keypoint sources: untouched.
+
+### Validation of this change
+
+- Before: 112 tests passed. After: 114 passed (112 − one retired-config-only
+  test + three layout/config tests), including shell syntax. Existing unclosed
+  file ResourceWarnings in actual-motion tests were not suppressed.
+- All 10 existing offline analysis/comparison shell launchers passed `--help`;
+  renamed IK analysis passed module `--help`. RL help and Isaac sequence listing
+  resolve (five sequences), without regenerating any data.
+- Actual headless floating, legacy arm and smooth-IK arm policy runs: one completed
+  episode each, 152 physics samples each, existing success termination true. Same
+  checkpoint `2026-09-05_16-46-54_floating_stable_ground_5000/model_4999.pt` and
+  tracked held-out initial-state bank as the previous experiments.
+- Arm run versus first episode of `ik120_velocity_bound_20260907/held20_smooth`:
+  physical initial states, all 152 actual states (joints/velocities/wrist/object),
+  actions, IK/command targets, contact totals, timestamps and termination exactly
+  match. This smoke run omitted `--recovery-capture`, so reset-buffer telemetry
+  is absent and was not claimed equal; physical settings/checkpoint/reference
+  match. This is one-episode regression evidence, not a new 20-placement study.
+- All 13 moved analysis modules have identical computation ASTs after excluding
+  imports/docstrings. Runtime-file diffs contain import path changes only;
+  no tracked asset, dataset, workcell or task/controller file changed.
+  Maintained source/config/test/launcher old-analysis references are absent;
+  historical deleted-config references are explicitly labelled in reports.
+  Final `git diff --check` passed.
+- Logs/results: `/tmp/regrind_cleanup_{arm,floating,legacy}_20260907*`;
+  tests: `/tmp/regrind_cleanup_tests_20260907.log`. First sandbox arm launch
+  failed with `RuntimeError: No CUDA GPUs are available`; same command was
+  rerun with GPU access (`...arm_20260907_gpu.log`). Temporary logs are local,
+  not versioned evidence artifacts. No training or full 20-placement rerun.
+
+Exact smoke commands: `bash scripts/evaluate_mounted_interface.sh --mode MODE
+--episodes 1 --headless --states
+outputs/diagnostics/arm_transfer_recovery/heldout_initial_states_v2.jsonl
+--checkpoint logs/rsl_rl/floating_revo2_tuna/2026-09-05_16-46-54_floating_stable_ground_5000/model_4999.pt
+--output NEW_DIRECTORY`, with MODE `floating` / `legacy`; for MODE `simple`,
+also pass `--fast-ik --transfer-config config/experiments/rb3_smooth_bounded_ik.json`.
+
 ## JSON retention cleanup after merge (2026-09-07)
 
 Separately authorized after the earlier cleanup and selective push. Starting
@@ -15,7 +107,7 @@ asset, checkpoint, reference, or dataset contents changed.
 | 26 `policy.json` placeholders under `outputs/diagnostics/{arm_transfer_recovery,floating_actual_replay_20260907}/` | **Removed locally**: every file was exactly `[]\n` (3 bytes), matched Git HEAD, and contained no observations/actions. Traced `evaluate_mounted_interface.py` producer and searched tracked code, scripts, tests and docs; no file reader depends on these empty placeholders. They are recoverable from the commit above. Empty records alone do not prove that a run made no policy calls (lightweight capture can omit them). |
 | Remaining 126 tracked diagnostic JSON files | **Untracked, not deleted**; SHA-256 checked unchanged. These include required inputs to historical analyzers, so local copies remain. |
 | Generated diagnostic JSON/JSONL, comparison-capture JSONL, and three cleanup worktree snapshot files | **Ignored**. The 100 previously untracked files are preserved, now ignored. No raw trace or nonempty policy record was deleted. |
-| `arm_transfer_recovery/heldout_initial_states_v2.jsonl` | **Keep tracked**: explicit default in `scripts/play_arm_fast.sh`; ignore exception verified. |
+| `arm_transfer_recovery/heldout_initial_states_v2.jsonl` | **Keep tracked**: explicit default in `scripts/play_arm_candidate.sh`; ignore exception verified. |
 | All JSON outside `outputs/diagnostics/`, and all NPZ/H5/CSV/PNG artifacts | **Keep**: configuration, model/keypoints, pipeline/gallery manifests, or other artifacts outside this bounded cleanup. No global `*.json` or blanket `outputs/` ignore. |
 
 Deleted placeholders can be recovered at their exact bytes with

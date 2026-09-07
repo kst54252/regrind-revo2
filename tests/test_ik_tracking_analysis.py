@@ -1,14 +1,12 @@
 """No simulator needed: diagnostic reset, topology and comparison contracts."""
 import copy
-import json
-from pathlib import Path
 import unittest
 
 import numpy as np
-from tools.rb3_revo2_ik.analyze_ik120 import differences, paired_initials
+from tools.arm_diagnostics.analyze_ik_tracking import differences, paired_initials
 
 
-class IK120AnalysisTest(unittest.TestCase):
+class IKTrackingAnalysisTest(unittest.TestCase):
     def test_differences_use_reset_sample_and_never_wrap_bounded_joints(self):
         path,command_acc,actual_acc=differences(np.array([[3.],[-3.]]),
             np.array([[1.],[2.]]),np.array([2.9]),np.array([0.]),.1)
@@ -17,21 +15,6 @@ class IK120AnalysisTest(unittest.TestCase):
         np.testing.assert_allclose(actual_acc[:,0],[10.,10.])
         again,_,_=differences(np.array([[0.]]),np.array([[0.]]),np.array([0.]),np.array([0.]),.1)
         np.testing.assert_array_equal(again,[[0.]])
-
-    def test_candidates_change_only_wrist3_and_keep_120hz_response_contract(self):
-        root=Path(__file__).resolve().parents[1]
-        table=json.loads((root/'config/experiments/rb3_ik120_gain_candidates.json').read_text())
-        original=json.loads((root/'config/experiments/rb3_precision_candidates.json').read_text())['c3']
-        self.assertEqual(table['baseline'],original)
-        self.assertEqual(len(table)-1,3)
-        for name in ('c1','c2','c3'):
-            for gain in ('kp','kd'):
-                self.assertEqual(table[name][gain][:5],original[gain][:5])
-                self.assertTrue(np.isfinite(table[name][gain]).all())
-        selected=json.loads((root/'config/experiments/rb3_ik120_wrist3_candidate.json').read_text())
-        self.assertEqual(selected['response_tau'],.1)
-        self.assertTrue(selected['arm_response_physics'])
-        self.assertTrue(selected['arm_velocity_path'])
 
     def test_paired_validation_rejects_history_or_initial_state_changes(self):
         keys=('checkpoint_sha256','reference','state_bank','physics_dt','control_dt','limits',

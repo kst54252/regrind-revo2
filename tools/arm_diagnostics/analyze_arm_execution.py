@@ -9,10 +9,10 @@ from pathlib import Path
 import numpy as np
 
 if __package__:
-    from .rb3_kinematics import RB3730Kinematics
+    from tools.rb3_revo2_ik.rb3_kinematics import RB3730Kinematics
     from .analyze_arm_tracking import quaternion_error_xyzw
 else:
-    from rb3_kinematics import RB3730Kinematics
+    from tools.rb3_revo2_ik.rb3_kinematics import RB3730Kinematics
     from analyze_arm_tracking import quaternion_error_xyzw
 
 

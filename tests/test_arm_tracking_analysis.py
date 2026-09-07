@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from tools.rb3_revo2_ik.analyze_arm_tracking import (
+from tools.arm_diagnostics.analyze_arm_tracking import (
     analyze_arrays,
     estimate_integer_delay,
     quaternion_error_xyzw,

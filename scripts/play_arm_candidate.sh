@@ -3,7 +3,7 @@
 set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cd "${SCRIPT_DIR}/.."
-output="${1:?Usage: bash scripts/play_arm_fast.sh NEW_OUTPUT_DIRECTORY [extra evaluator options]}"
+output="${1:?Usage: bash scripts/play_arm_candidate.sh NEW_OUTPUT_DIRECTORY [extra evaluator options]}"
 shift
 exec bash scripts/evaluate_mounted_interface.sh --mode simple --episodes 20 \
   --visualizer kit --realtime-view --fast-ik \

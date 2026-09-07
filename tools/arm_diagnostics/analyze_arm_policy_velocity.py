@@ -9,11 +9,11 @@ import numpy as np
 if __package__:
     from .analyze_arm_execution import analyze as analyze_execution
     from .analyze_arm_velocity import sign_changes
-    from .paired_arm_states import check_state
+    from tools.rb3_revo2_ik.paired_arm_states import check_state
 else:
     from analyze_arm_execution import analyze as analyze_execution
     from analyze_arm_velocity import sign_changes
-    from paired_arm_states import check_state
+    from tools.rb3_revo2_ik.paired_arm_states import check_state
 
 
 def read_trace(path):

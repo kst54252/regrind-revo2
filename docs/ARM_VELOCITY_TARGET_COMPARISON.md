@@ -114,7 +114,7 @@ console 로그는 `/tmp/arm_velocity_{zero,path,analysis}_20260907.log`.
 - `regrind/scripts/rsl_rl/play.py`: 기본 None인 진단 전용
   `--arm-velocity-path-trace`; OFF recorded replay + actuator diagnostic에서만 허용.
 - `tools/rb3_revo2_ik/replay_arm_contact.py`: 팔 이름 매핑 후 동일 step 속도만 교체.
-- `tools/rb3_revo2_ik/analyze_arm_velocity.py`: trace 일치 검증, 분석/그래프.
+- `tools/arm_diagnostics/analyze_arm_velocity.py`: trace 일치 검증, 분석/그래프.
 - `scripts/analyze_arm_velocity.sh`: 유지관리용 분석 진입점.
 - `tests/test_arm_velocity_analysis.py`: timestep, 이름, finger command,
   미분값, baseline 구분, deadband 검사 7개.

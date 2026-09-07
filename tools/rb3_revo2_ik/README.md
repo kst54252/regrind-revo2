@@ -20,6 +20,10 @@ REGRIND가 만든 Revo2 wrist trajectory를 RB3-730의 bounded numerical IK로 �
 stage에서 추출해 `rb3_model.json`에 저장했다. 모듈 로딩 시 원본 USD SHA-256이
 달라졌으면 경고한다.
 
+저장된 추종·접촉·정책 로그의 분석기는
+[`../arm_diagnostics/`](../arm_diagnostics/README.md)로 분리했습니다.
+이 폴더에는 FK/IK, reference 생성, 실제 Isaac 실행과 런타임 계측이 남습니다.
+
 ## 실행
 
 ```bash

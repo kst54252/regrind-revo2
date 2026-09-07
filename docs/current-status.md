@@ -64,11 +64,17 @@ from17/20 to20/20, with increased peak acceleration. Normal deployment defaults
 remain unchanged; see that report for limitations and exact reproduction inputs.
 
 The subsequent [fast execution experiment](ARM_REALTIME_EXECUTION.md) is also
-opt-in: `scripts/play_arm_fast.sh` chooses that candidate and warm-first IK.
+opt-in: `scripts/play_arm_candidate.sh` chooses that candidate and warm-first IK.
 Measured headless/GUI throughput was about .63x/.48x, not guaranteed real time.
 Use [the command index](../scripts/README.md) to distinguish current evaluators
-from completed diagnostic recipes. Retired one-shot sweep launchers are recorded
-in the cleanup history; all experiment implementations and contract tests remain.
+from completed diagnostic recipes. Retired launchers and rejected candidate
+configs are recorded in the cleanup history; reusable experiment implementations
+and contract tests remain. Offline analysis now lives in `tools/arm_diagnostics/`.
+
+The [120 Hz smooth bounded-IK candidate](ARM_IK_SINGULARITY_FIX.md) subsequently
+preserved 40/40 observed task/contact-proxy outcomes and reduced the worst sampled
+wrist position error to about 6 mm. It allows approximate IK near singularities
+and remains opt-in, not a general grasp-success guarantee or a new default.
 
 ## Incomplete or out of scope
 
@@ -88,7 +94,7 @@ in the cleanup history; all experiment implementations and contract tests remain
 
 - LeapHand/WujiHand and the `--legacy-arm-rl` combined task remain registered,
   but their current training quality has not been revalidated.
-- Compatibility shell wrappers intentionally delegate to `scripts/rl.sh`.
+- Duplicate RL aliases were removed; use `scripts/rl.sh` subcommands.
 - Several upstream/manual diagnostic scripts have no internal caller but have
   not been proven unused.
 - `regrind/source/regrind/test/` is outside `scripts/run_tests.sh` discovery.

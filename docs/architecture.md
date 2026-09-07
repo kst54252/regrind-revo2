@@ -33,6 +33,7 @@ or nested repository.
 | `tools/dexycb_world_transform/` | Camera-to-world transforms and viewers |
 | `tools/revo2_kinematics/` | Isaac-independent Revo2 FK and 21 keypoints |
 | `tools/rb3_revo2_ik/` | RB3 FK/IK, trajectory tools, diagnostics, replay |
+| `tools/arm_diagnostics/` | Offline trace analysis and paired-result comparisons; no simulator launch |
 | `regrind/scripts/` | Retargeting and Isaac Lab/RSL-RL Python entry points |
 | `regrind/source/regrind/regrind/` | Installable package, tasks, assets, and MDP terms |
 | `config/workcell/` | Shared table, pedestal, and mount geometry |
@@ -62,13 +63,13 @@ pipeline manifests are not covered by this ignore rule.
 | `./scripts/random_can_full_replay.sh` | Random placement, policy, IK, and workcell replay |
 | `./scripts/run_tests.sh` | Shell checks and root `tests/` discovery |
 
-Other root `train_*`, `play_*`, and `run_rl_*` scripts are compatibility
-wrappers around `scripts/rl.sh`.
+Old duplicate train/play/zero/debug aliases were removed. Use `scripts/rl.sh`;
+the [migration table](cleanup-plan.md#readable-layout-cleanup) records replacements.
 
 Opt-in experiments are **not** replacements for `rl.sh play-arm`:
 `evaluate_mounted_interface.sh` dispatches floating/legacy/simple modes;
 `arm_transfer_recovery.sh` adds recovery capture to that evaluator;
-`play_arm_fast.sh` explicitly selects the candidate in
+`play_arm_candidate.sh` explicitly selects the candidate in
 `config/experiments/rb3_transfer_recovery_candidate.json` and fast IK. Start from
 the [diagnostic index](../scripts/README.md#experiments-and-failure-reproduction-opt-in),
 not every historical report. The minimal adapter is

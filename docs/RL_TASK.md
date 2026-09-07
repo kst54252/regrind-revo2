@@ -154,7 +154,7 @@ and measured telemetry, add
 `--arm-tracking-path outputs/diagnostics/rb3_arm_tracking.npz`, then run:
 
 ```bash
-python3 tools/rb3_revo2_ik/analyze_arm_tracking.py \
+python3 -m tools.arm_diagnostics.analyze_arm_tracking \
   outputs/diagnostics/rb3_arm_tracking.npz
 ```
 

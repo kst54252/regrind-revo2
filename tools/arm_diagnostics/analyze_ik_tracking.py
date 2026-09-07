@@ -1,6 +1,6 @@
 """Offline 120 Hz comparison; reuse existing FK, scoring and effort provenance.
 
-python -m tools.rb3_revo2_ik.analyze_ik120 ROOT RUN [RUN ...]
+python -m tools.arm_diagnostics.analyze_ik_tracking ROOT RUN [RUN ...]
 Pair adjacent runs with --paired. Output stays under ROOT; no simulator calls.
 """
 import argparse
@@ -8,9 +8,9 @@ import json
 from pathlib import Path
 
 import numpy as np
-from tools.rb3_revo2_ik.analyze_mounted_interface import stats
-from tools.rb3_revo2_ik.analyze_transfer_recovery import summarize
-from tools.rb3_revo2_ik.analyze_arm_execution import pose_errors
+from tools.arm_diagnostics.analyze_mounted_interface import stats
+from tools.arm_diagnostics.analyze_transfer_recovery import summarize
+from tools.arm_diagnostics.analyze_arm_execution import pose_errors
 
 
 def differences(commands, actual_velocity, initial_command, initial_velocity, dt):

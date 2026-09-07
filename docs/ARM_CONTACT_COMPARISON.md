@@ -96,7 +96,7 @@ torque saturation.
 - `tools/rb3_revo2_ik/trace_arm_execution.py`: optional full-state/target capture.
 - `tools/rb3_revo2_ik/replay_arm_contact.py`: prefix reproduction, initial-state
   checks, isolated recorded-command replay and actual setter observation.
-- `tools/rb3_revo2_ik/analyze_arm_contact.py`: existing mounted FK/error helpers,
+- `tools/arm_diagnostics/analyze_arm_contact.py`: existing mounted FK/error helpers,
   paired-command/config validation, phase statistics, CSV and comparison plot.
 - `scripts/analyze_arm_contact.sh`: maintained standalone analysis launcher.
 - `tests/test_arm_contact_analysis.py`: rejects changed hand commands, timing

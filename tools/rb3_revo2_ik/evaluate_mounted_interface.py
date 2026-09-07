@@ -69,7 +69,7 @@ from regrind.tasks.manager_based.dexterous.mdp.simple_mounted_interface import S
 from tools.rb3_revo2_ik.frozen_policy_adapter import FrozenPolicyAdapter
 from tools.rb3_revo2_ik.trace_arm_execution import array,serial
 from tools.rb3_revo2_ik.rb3_kinematics import RB3730Kinematics
-from tools.rb3_revo2_ik.analyze_arm_execution import pose_errors
+from tools.arm_diagnostics.analyze_arm_execution import pose_errors
 
 
 def main():

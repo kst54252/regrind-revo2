@@ -58,7 +58,7 @@ def run(wrapped, obs, policy, args, checkpoint):
     backend_ids = [robot.backend_joint_names.index(n) for n in names]
     velocity_path = None
     if args.arm_velocity_path_trace:
-        from tools.rb3_revo2_ik.analyze_arm_velocity import load_velocity_path
+        from tools.arm_diagnostics.analyze_arm_velocity import load_velocity_path
         velocity_path = load_velocity_path(args.arm_velocity_path_trace, meta, rows, args.arm_contact_condition)
     for field, key in (("joint_stiffness", "actual_stiffness"), ("joint_damping", "actual_damping"),
                        ("joint_effort_limits", "actual_effort_limits"), ("joint_vel_limits", "actual_velocity_limits")):

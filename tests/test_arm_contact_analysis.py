@@ -2,7 +2,7 @@
 import copy
 import unittest
 
-from tools.rb3_revo2_ik.analyze_arm_contact import verify_pair
+from tools.arm_diagnostics.analyze_arm_contact import verify_pair
 
 
 class ContactPairTest(unittest.TestCase):

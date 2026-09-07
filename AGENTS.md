@@ -16,8 +16,9 @@ RB3-730 arm, Isaac replay, and floating-hand residual PPO for a tuna can.
 
 ## Map
 
-- `scripts/`: maintained user entry points; compatibility wrappers delegate here.
+- `scripts/`: maintained user entry points; RL uses `rl.sh` subcommands.
 - `tools/`: preprocessing, transforms, standalone kinematics/IK, and replay.
+- `tools/arm_diagnostics/`: offline trace analysis and paired-run comparisons.
 - `regrind/source/regrind/regrind/`: package, assets, MDP terms, and task configs.
 - `tests/`: primary simulator-independent regressions.
 - `config/workcell/`: shared workcell geometry and mount configuration.

@@ -5,7 +5,7 @@ import numpy as np
 import torch
 from types import SimpleNamespace as NS
 from tools.rb3_revo2_ik.recovery_replay import schedule,validate_unique_placements
-from tools.rb3_revo2_ik.analyze_transfer_recovery import lag_samples
+from tools.arm_diagnostics.analyze_transfer_recovery import lag_samples
 
 
 class TestTransferRecovery(unittest.TestCase):

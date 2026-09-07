@@ -37,7 +37,7 @@ import regrind.tasks
 from tools.rb3_revo2_ik.precision_trajectory import build,command_rows
 from tools.rb3_revo2_ik.trace_arm_execution import array,serial
 from tools.rb3_revo2_ik.rb3_kinematics import RB3730Kinematics
-from tools.rb3_revo2_ik.analyze_arm_execution import pose_errors
+from tools.arm_diagnostics.analyze_arm_execution import pose_errors
 
 
 def main():
@@ -154,7 +154,7 @@ def main():
                     submitted_velocity=sent['v'][bids],drive_saturation='UNKNOWN')
                 stream.write(json.dumps(row,default=serial)+'\n');saved.append(row)
                 if i%600==0:print(f'[precision] {args.candidate} {t:.2f}s error={pe[0]*1000:.3f}mm',flush=True)
-        from tools.rb3_revo2_ik.analyze_arm_precision import summarize
+        from tools.arm_diagnostics.analyze_arm_precision import summarize
         summary=summarize(metadata,saved,output)
         print('[precision complete]',json.dumps(summary['headline']),flush=True)
     finally:

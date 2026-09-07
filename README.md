@@ -55,7 +55,7 @@ RL/deployment branch
 | 기존 arm baseline 정책 | `scripts/rl.sh play-arm`: floating checkpoint + reference → 실제 mounted 상태 기반 정책·IK 실행 |
 | 궤적만 시각화 | `scripts/run_isaac_replay.sh --trajectory FILE.h5`: reference → Isaac viewer; policy 평가와 구분 |
 | 고정 초기 상태 비교 | `bash scripts/evaluate_mounted_interface.sh --mode legacy --checkpoint FILE.pt --states BANK.jsonl --output NEW_DIR --episodes 20 --headless`: mode는 floating/legacy/simple 중 선택; [실행 계약/비교](docs/MINIMAL_MOUNTED_INTERFACE.md) |
-| 검증 중인 arm 후보 GUI | `bash scripts/play_arm_fast.sh NEW_OUTPUT_DIR`: [고정 candidate 및 속도 한계](docs/ARM_REALTIME_EXECUTION.md); 기존 baseline을 대체하지 않음 |
+| 검증 중인 arm 후보 GUI | `bash scripts/play_arm_candidate.sh NEW_OUTPUT_DIR`: [고정 candidate 및 속도 한계](docs/ARM_REALTIME_EXECUTION.md); 기존 baseline을 대체하지 않음 |
 
 전체 pipeline은 생성물을 다시 작성하므로 단순 실행 확인에 사용하지 마세요.
 `--sequence` 필터가 전처리 전체를 제한하지 않는 점은
@@ -71,7 +71,8 @@ RL/deployment branch
 | `tools/dexycb_batch/` | 전체 파이프라인 orchestration | 포함 |
 | `tools/dexycb_world_transform/` | camera-to-world 변환 | 포함 |
 | `tools/revo2_kinematics/` | Revo2 FK와 semantic keypoint | 포함 |
-| `tools/rb3_revo2_ik/` | RB3 IK, 진단, Isaac replay | 포함 |
+| `tools/rb3_revo2_ik/` | RB3 FK/IK, reference 생성, Isaac 실행·런타임 계측 | 포함 |
+| `tools/arm_diagnostics/` | 저장된 팔 추종·접촉·정책 비교 결과 분석 (시뮬레이터 실행 아님) | 포함 |
 | `scripts/` | 사람이 사용하는 대표 실행 명령 | 포함 |
 | `tests/` | 주 simulator-independent 회귀 테스트 | 포함 |
 | `docs/` | 구조, 데이터, 실행 설명 | 포함 |
@@ -135,8 +136,9 @@ SE(3) residual 6차원과 Revo2 leader joint residual 6차원을 합친 12차원
 이전 RB3+Revo2 동시 residual task는 삭제하지 않았으며 필요한 경우 RL 명령에
 `--legacy-arm-rl`을 붙여 사용할 수 있습니다.
 
-`train_rb3_revo2_ppo.sh`, `play_rb3_revo2_ppo.sh`, `run_rl_zero_replay*.sh`는
-기존 사용자를 위한 얇은 호환 wrapper이며 실제 launcher 로직은 `scripts/rl.sh`와
-`scripts/_common.sh`에 한 번만 정의됩니다.
+중복된 이전 실행 이름은 제거했습니다. 학습·평가·제로 에이전트·디버그는
+`scripts/rl.sh train|play|zero|debug`로 실행하세요. GUI는 `zero --gui`,
+스켈레톤 표시는 `zero --gui --skeleton`입니다.
+이전 이름과 새 이름의 대응은 [정리 기록](docs/cleanup-plan.md#readable-layout-cleanup)에 있습니다.
 
 자세한 범위와 검증 기준은 [RL task 문서](docs/RL_TASK.md)를 참고하세요.

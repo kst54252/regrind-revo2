@@ -1,5 +1,11 @@
 # 120 Hz mounted-policy improvement — completed, candidate not promoted
 
+Historical experiment report: rejected wrist3 gain tables/config were retired
+during [layout cleanup](cleanup-plan.md#readable-layout-cleanup). Their exact
+contents remain in Git commit `531b9c8`. Candidate commands below require that
+historical revision; they are not supported commands in the current checkout.
+Current bounded-IK execution is documented in [ARM_IK_SINGULARITY_FIX](ARM_IK_SINGULARITY_FIX.md).
+
 **결론:** 120 Hz를 유지한 3개 gain 후보와 실제 40개 초기 배치 비교를
 완료했다. wrist3 오차 감소는 확인했지만 손목 위치 정밀도는 개선되지 않았고,
 held-out 16번에서 파지 유지가 악화되어 후보를 기본 실행으로 채택하지 않았다.
@@ -10,7 +16,7 @@ held-out 16번에서 파지 유지가 악화되어 후보를 기본 실행으로
 ## Scope and frozen baseline
 
 Baseline is **not** the original zero-velocity arm controller: it is
-`scripts/play_arm_fast.sh`: simple mounted bridge, warm-first existing IK at
+`scripts/play_arm_candidate.sh`: simple mounted bridge, warm-first existing IK at
 120 Hz, c3 gains, physics-rate wrist response tau=0.1 s and path velocity
 targets. Policy is 30 Hz, physics is 120 Hz. The 30 Hz IK option remains off.
 Normal launch/training defaults are not promoted or modified.
@@ -240,13 +246,13 @@ No dt changes, skipped steps or
 post-hoc trajectory time shifts. Final smoke verified 152 IK solves for
 152 physics steps, `ik_update_dt=1/120`; policy stays 1/30.
 
-## Reproduce / preserve or undo
+## Historical reproduction (retired candidate requires revision 531b9c8)
 
 From repository root; choose a **new** output directory (existing logs protected):
 
 ```bash
 # Supported 120 Hz GUI baseline — NOT the rejected wrist3 candidate.
-bash scripts/play_arm_fast.sh outputs/diagnostics/ik120_repeat_gui
+bash scripts/play_arm_candidate.sh outputs/diagnostics/ik120_repeat_gui
 
 CKPT=logs/rsl_rl/floating_revo2_tuna/2026-09-05_16-46-54_floating_stable_ground_5000/model_4999.pt
 DIAG_OUT=outputs/diagnostics/ik120_repeat
@@ -266,7 +272,7 @@ for bank in old20 held20; do
       --output "$DIAG_OUT/${bank}_${variant}" || break 2
   done
 done
-/home/wanjunkim/IsaacLab/.venv/bin/python -m tools.rb3_revo2_ik.analyze_ik120 \
+/home/wanjunkim/IsaacLab/.venv/bin/python -m tools.arm_diagnostics.analyze_ik_tracking \
   "$DIAG_OUT" old20_baseline old20_candidate held20_baseline held20_candidate \
   --paired --plot-episode 16
 
@@ -293,7 +299,7 @@ Regression baseline 102 tests → final **106 passed**, shell syntax and diff ch
 Final baseline and candidate one-placement smoke both reproduced their earlier
 152-sample joint/velocity/wrist/object/action/command traces **bit-for-bit**.
 No commit/push or previous log overwrite. To keep/restore supported behavior,
-use `play_arm_fast.sh` without an extra transfer-config override; no source
+use `play_arm_candidate.sh` without an extra transfer-config override; no source
 revert, asset edit or checkpoint rollback is needed.
 
 See [execution index](../scripts/README.md), [transfer recovery](ARM_TRANSFER_RECOVERY.md),

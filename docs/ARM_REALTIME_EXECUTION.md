@@ -6,7 +6,7 @@ state bank, contact settings and the distinction between equilibrium and actual 
 
 ## Changes, all opt-in
 
-- `scripts/play_arm_fast.sh` selects the already verified transfer config and
+- `scripts/play_arm_candidate.sh` selects the already verified transfer config and
   adds lightweight actual-policy viewing plus `--fast-ik`. No recorded actions,
   joint-state replay or prerecorded observations are used.
 - `tools/rb3_revo2_ik/warm_start_ik.py` first solves from previous accepted q
@@ -94,7 +94,7 @@ already disabled, so disabling them is not a further performance fix.
 
 ## Reproduce
 
-Optional scheduling experiment: append `--ik-policy-rate` to `play_arm_fast.sh`.
+Optional scheduling experiment: append `--ik-policy-rate` to `play_arm_candidate.sh`.
 This samples the existing 120 Hz shaped pose on the first physics substep of
 each 30 Hz policy action, then holds the accepted IK goal for the remaining
 substeps. Existing 120 Hz joint slew limits and velocity-target calculation
@@ -104,7 +104,7 @@ metadata records the option. Full traces distinguish the last sampled IK input
 from the continuously shaped target. This is not the validated 120 Hz IK
 candidate and requires separate grasp evaluation; the default remains unchanged.
 
-GUI smoke executed with `bash scripts/play_arm_fast.sh
+GUI smoke executed with `bash scripts/play_arm_candidate.sh
 outputs/diagnostics/arm_transfer_recovery/live_ik30_20260907_01 --ik-policy-rate`.
 Runtime reported 180 IK solves / 720 physics applies (reset IK excluded),
 confirming 30/120 Hz scheduling. Early rolling throughput was about .55–.58x;
@@ -113,7 +113,7 @@ passed, including new scheduling, unchanged-default, failure-hold and reset test
 
 ```bash
 # Actual live policy + dynamic can + Kit viewer, fresh directory required.
-bash scripts/play_arm_fast.sh outputs/diagnostics/arm_transfer_recovery/my_fast_view
+bash scripts/play_arm_candidate.sh outputs/diagnostics/arm_transfer_recovery/my_fast_view
 
 # Recorded-input IK comparison, no Isaac GUI needed.
 bash scripts/benchmark_warm_start_ik.sh \

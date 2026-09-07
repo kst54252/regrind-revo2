@@ -153,10 +153,10 @@ default `zero`는 기존 위치-only 명령 경로를 유지한다. `RB3WristIKA
 - `regrind/scripts/rsl_rl/play.py`: live 선택 옵션, paired 초기 상태 옵션, ON fixed replay 허용.
 - `.../mdp/rb3_revo2_actions.py`: opt-in physics-rate 팔 속도 목표와 reset 처리.
 - `tools/rb3_revo2_ik/replay_arm_contact.py`: 기존 termination terms의 read-only 경계 검사.
-- `tools/rb3_revo2_ik/analyze_arm_velocity.py`: 같은 접촉 조건 비교, can trajectory/종료 flag.
+- `tools/arm_diagnostics/analyze_arm_velocity.py`: 같은 접촉 조건 비교, can trajectory/종료 flag.
 - `tools/rb3_revo2_ik/trace_arm_execution.py`: full reset/명령/config 계측 확장.
 - `tools/rb3_revo2_ik/paired_arm_states.py`: 저장 placement 적용 및 실제 초기 상태 검사.
-- `tools/rb3_revo2_ik/analyze_arm_policy_velocity.py`, `scripts/analyze_arm_policy_velocity.sh`.
+- `tools/arm_diagnostics/analyze_arm_policy_velocity.py`, `scripts/analyze_arm_policy_velocity.sh`.
 - `tests/test_arm_velocity_live.py`, `tests/test_arm_velocity_analysis.py`.
 
 아래 `_repeat` 이름으로 재실행 가능하다. 경로가 이미 존재하면 새 이름으로 바꿔야 한다.

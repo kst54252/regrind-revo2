@@ -103,7 +103,7 @@ was performed.
 - `tools/rb3_revo2_ik/actual_motion_replay.py`: validated source loading and replay.
 - `tools/rb3_revo2_ik/evaluate_mounted_interface.py`: opt-in `--stage actual`,
   existing environment/reset/PhysX logging reused; no runner/policy constructed.
-- `scripts/analyze_actual_motion.sh` and `tools/rb3_revo2_ik/analyze_actual_motion.py`:
+- `scripts/analyze_actual_motion.sh` and `tools/arm_diagnostics/analyze_actual_motion.py`:
   same-timestamp comparisons and plots.
 - `tests/test_actual_motion_replay.py`: measured-vs-target distinction, timestamp,
   success/quaternion validation, no-policy/no-teleport boundary checks.

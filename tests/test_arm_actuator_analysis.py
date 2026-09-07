@@ -1,7 +1,7 @@
 """Topology and threshold statistics must not manufacture saturation evidence."""
 import unittest
 import numpy as np
-from tools.rb3_revo2_ik.analyze_arm_actuator import intervals, proximity, raw_path_speed
+from tools.arm_diagnostics.analyze_arm_actuator import intervals, proximity, raw_path_speed
 
 
 class ArmActuatorAnalysisTest(unittest.TestCase):

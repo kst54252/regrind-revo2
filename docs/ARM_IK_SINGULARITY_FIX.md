@@ -117,12 +117,13 @@ IK·native command/정책 행동이 이전 baseline과 bit-for-bit 동일**했�
 수정안 GUI (새 output 경로 사용):
 
 ```bash
-bash scripts/play_arm_fast.sh outputs/diagnostics/ik120_smooth_view \
+bash scripts/play_arm_candidate.sh outputs/diagnostics/ik120_smooth_view \
   --transfer-config config/experiments/rb3_smooth_bounded_ik.json
 ```
 
 기존 동작은 위 추가 `--transfer-config`만 빼면 된다. 속도만 제한한
-`rb3_velocity_bounded_ik.json`은 첫 실패 후보 재현용이며 권장하지 않는다.
+속도만 제한한 실패 후보 설정은 정리 과정에서 삭제했다. 과거
+`rb3_velocity_bounded_ik.json`은 Git 커밋 `531b9c8`에서 복구할 수 있다.
 
 Headless 비교 재현: 기존 `scripts/evaluate_mounted_interface.sh`에
 `--mode simple --episodes 20 --headless --fast-ik --recovery-capture`와
@@ -133,7 +134,7 @@ Headless 비교 재현: 기존 `scripts/evaluate_mounted_interface.sh`에
 checkpoint/reference 경로와 원래 명령은 아래 이전 보고서를 참조한다.
 
 ```bash
-/home/wanjunkim/IsaacLab/.venv/bin/python -m tools.rb3_revo2_ik.analyze_ik120 \
+/home/wanjunkim/IsaacLab/.venv/bin/python -m tools.arm_diagnostics.analyze_ik_tracking \
   outputs/diagnostics/ik120_velocity_bound_20260907 \
   old20_finalbaseline old20_smooth held20_finalbaseline held20_smooth \
   --paired --plot-episode 11
@@ -143,7 +144,7 @@ checkpoint/reference 경로와 원래 명령은 아래 이전 보고서를 참�
 - 구현: `tools/rb3_revo2_ik/velocity_bounded_ik.py`.
 - 연결: `mdp/simple_mounted_interface.py`, `evaluate_mounted_interface.py`의
   opt-in 설정/명령 및 pose-success 구분. 기존 decoder/FK/model은 그대로다.
-- 분석: `analyze_ik120.py`에 IK input→actual(F) 오차와 특이점 구간 그래프 추가.
+- 분석: `tools/arm_diagnostics/analyze_ik_tracking.py`에 IK input→actual(F) 오차와 특이점 구간 그래프 추가.
 - 테스트: `test_velocity_bounded_ik.py`, `test_policy_rate_ik.py`의 reset 회귀.
 - 로그/그래프: `outputs/diagnostics/ik120_velocity_bound_20260907/`.
   `singularity_old20_finalbaseline_old20_smooth_ep11.png`가 요청 구간 비교다.
