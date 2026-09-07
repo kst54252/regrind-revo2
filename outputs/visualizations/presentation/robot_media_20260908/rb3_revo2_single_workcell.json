@@ -1,0 +1,65 @@
+{
+  "task": "Regrind-RB3-Revo2-TunaCan-Online-Play-v0",
+  "num_envs": 1,
+  "mode": "normal reference reset plus one zero-residual control step; no policy or training",
+  "physics_dt": 0.008333333333333333,
+  "control_dt": 0.03333333333333333,
+  "reference": "/home/wanjunkim/ARSL/regrind-upload/outputs/isaac/dexycb/20200709_143747_left/rb3_revo2_reference_stable.h5",
+  "env_origins": [
+    [
+      -0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "joint_names": [
+    "base",
+    "shoulder",
+    "elbow",
+    "wrist1",
+    "wrist2",
+    "wrist3",
+    "right_thumb_metacarpal_joint",
+    "right_index_proximal_joint",
+    "right_middle_proximal_joint",
+    "right_ring_proximal_joint",
+    "right_pinky_proximal_joint",
+    "right_thumb_proximal_joint",
+    "right_index_distal_joint",
+    "right_middle_distal_joint",
+    "right_ring_distal_joint",
+    "right_pinky_distal_joint",
+    "right_thumb_distal_joint"
+  ],
+  "initial_joint_positions": [
+    [
+      -0.5657311677932739,
+      -0.24278686940670013,
+      2.475226879119873,
+      1.6445882320404053,
+      0.8661781549453735,
+      -2.4327809810638428,
+      0.10592463612556458,
+      0.00300994492135942,
+      0.0009458632557652891,
+      0.06405223906040192,
+      0.08561316877603531,
+      0.16884537041187286,
+      0.003264685394242406,
+      0.0009104693308472633,
+      0.07384339720010757,
+      0.098784901201725,
+      0.1681004762649536
+    ]
+  ],
+  "eye": [
+    2.5,
+    2.4,
+    1.7
+  ],
+  "lookat": [
+    0.25,
+    0.0,
+    0.18
+  ]
+}
