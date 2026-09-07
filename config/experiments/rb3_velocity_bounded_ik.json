@@ -1,0 +1,9 @@
+{
+  "status": "velocity_only_NOT_recommended_due_to_2399_rad_s2_acceleration_spike_reproduction_only",
+  "arm_gains_key": "c3",
+  "arm_velocity_path": true,
+  "arm_response_physics": true,
+  "response_tau": 0.1,
+  "velocity_bounded_ik": true,
+  "scope": "120 Hz command-velocity-constrained existing IK; explicit 5 mm/.05 rad pose approximation budget. Native gains/limits/physics/policy unchanged. Exact existing IK at reset."
+}

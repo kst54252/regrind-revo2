@@ -1,0 +1,10 @@
+{
+  "status": "verified_paired40_task_and_lift_contact_opt_in_simulation_only",
+  "arm_gains_key": "c3",
+  "arm_velocity_path": true,
+  "arm_response_physics": true,
+  "response_tau": 0.1,
+  "velocity_bounded_ik": true,
+  "ik_acceleration_limit": 250.0,
+  "scope": "Simulation-only command acceleration bound, not manufacturer or actuator limit. Converged best feasible pose accepted; strict and 5 mm/.05 rad budget errors reported separately. Native dynamics, hand and policy unchanged."
+}

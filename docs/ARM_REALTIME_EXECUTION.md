@@ -94,6 +94,23 @@ already disabled, so disabling them is not a further performance fix.
 
 ## Reproduce
 
+Optional scheduling experiment: append `--ik-policy-rate` to `play_arm_fast.sh`.
+This samples the existing 120 Hz shaped pose on the first physics substep of
+each 30 Hz policy action, then holds the accepted IK goal for the remaining
+substeps. Existing 120 Hz joint slew limits and velocity-target calculation
+remain unchanged; no new interpolation or prediction is added. Reset IK is
+separate and clears the pending flag. The GUI prints solve/apply counts, and
+metadata records the option. Full traces distinguish the last sampled IK input
+from the continuously shaped target. This is not the validated 120 Hz IK
+candidate and requires separate grasp evaluation; the default remains unchanged.
+
+GUI smoke executed with `bash scripts/play_arm_fast.sh
+outputs/diagnostics/arm_transfer_recovery/live_ik30_20260907_01 --ik-policy-rate`.
+Runtime reported 180 IK solves / 720 physics applies (reset IK excluded),
+confirming 30/120 Hz scheduling. Early rolling throughput was about .55–.58x;
+this is not a completed paired success comparison. All 102 lightweight tests
+passed, including new scheduling, unchanged-default, failure-hold and reset tests.
+
 ```bash
 # Actual live policy + dynamic can + Kit viewer, fresh directory required.
 bash scripts/play_arm_fast.sh outputs/diagnostics/arm_transfer_recovery/my_fast_view

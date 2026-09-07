@@ -13,6 +13,8 @@ parser.add_argument('--benchmark',default=str(ROOT/'config/experiments/rb3_preci
 parser.add_argument('--candidates',default=str(ROOT/'config/experiments/rb3_precision_candidates.json'))
 parser.add_argument('--candidate',default='baseline')
 parser.add_argument('--held-out',action='store_true')
+parser.add_argument('--single-joints',action='store_true',help='Six fixed 0.05 rad isolated quintics, 1 s each way')
+parser.add_argument('--move-can-away',action='store_true',help='Move only the can +10 m at initialization; preserve collisions')
 parser.add_argument('--command-mode',choices=('analytical','linear_zero','smooth_pv'),default='analytical')
 parser.add_argument('--output',required=True)
 parser.add_argument('--headless',dest='legacy_headless',action='store_true')
@@ -39,6 +41,10 @@ from tools.rb3_revo2_ik.analyze_arm_execution import pose_errors
 
 
 def main():
+    global config
+    if args.single_joints:
+        from tools.rb3_revo2_ik.precision_trajectory import single_joint_config
+        config=single_joint_config(config)
     q0,trajectory,phases=build(config,args.held_out)
     cfg=parse_env_cfg('Regrind-RB3-Revo2-TunaCan-Online-Play-v0',device=args.device,num_envs=1,use_fabric=True)
     cfg.commands.reference.trajectory_path=str(ROOT/config['reference'])
@@ -51,6 +57,9 @@ def main():
     env=gym.make('Regrind-RB3-Revo2-TunaCan-Online-Play-v0',cfg=cfg).unwrapped
     env.reset()
     command=env.command_manager.get_term('reference');robot=command.robot
+    if args.move_can_away:
+        pose=command.object.data.root_link_pose_w.torch.clone();pose[:,0]+=10.
+        command.object.write_root_link_pose_to_sim_index(root_pose=pose)
     if env.event_manager.active_terms or env.physics_dt!=config['physics_dt']:raise ValueError('Unexpected events/dt')
     original_trajectory=trajectory
     trajectory=command_rows(trajectory,q0,args.command_mode,cfg.decimation)
@@ -93,6 +102,7 @@ def main():
         initial_root=array(robot.data.root_state_w)[0],initial_object=array(command.object.data.root_state_w)[0],
         contact_bodies=sensor.body_names,contact_body_paths=contact_paths,articulation_link_paths=link_paths,
         compensation='none',drive_saturation='UNKNOWN',
+        single_joints=args.single_joints,can_moved_away=args.move_can_away,
         command_mode=args.command_mode,command_substeps=cfg.decimation,
         a_target_definition=('Unused zero placeholder; linear corners have undefined instantaneous acceleration. See comparison backward differences.'
                              if args.command_mode=='linear_zero' else 'Analytical path acceleration, not submitted to simulator.'),

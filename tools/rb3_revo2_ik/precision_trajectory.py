@@ -2,6 +2,23 @@
 import numpy as np
 
 
+def single_joint_config(config, amplitude=.05):
+    """Six isolated, slow out-and-back quintics; no online IK or ZOH stretch."""
+    import copy
+    result=copy.deepcopy(config)
+    base=np.asarray(config['poses']['A'])
+    result['poses']={'A':base.tolist()}
+    sequence=[]
+    for index,name in enumerate(config['joint_names']):
+        target=base.copy();target[index]+=amplitude
+        result['poses'][name]=target.tolist()
+        result['poses'][name+'_return']=base.tolist()
+        sequence.extend([name,name+'_return'])
+    result.update(initial_offset_from_A_rad=[0.]*6,segment_duration_s=1.,
+                  hold_duration_s=1.,selection_sequence=sequence,validation_sequence=sequence)
+    return result
+
+
 def quintic(start, end, time, duration):
     u=np.clip(np.asarray(time)/duration,0,1)
     delta=np.asarray(end)-np.asarray(start)

@@ -6,6 +6,19 @@ from tools.rb3_revo2_ik.precision_trajectory import build, quintic, command_rows
 
 
 class PrecisionTrajectoryTest(unittest.TestCase):
+    def test_single_joint_diagnostic_is_smooth_and_does_not_mutate_source(self):
+        from tools.rb3_revo2_ik.precision_trajectory import single_joint_config
+        source=json.loads((Path(__file__).resolve().parents[1]/'config/experiments/rb3_precision_benchmark.json').read_text())
+        original=json.dumps(source,sort_keys=True)
+        c=single_joint_config(source)
+        q0,rows,phases=build(c)
+        self.assertEqual(json.dumps(source,sort_keys=True),original)
+        for phase in phases:
+            delta=np.asarray(phase['end_q'])-phase['start_q']
+            self.assertLessEqual(np.count_nonzero(abs(delta)>1e-12),1)
+        self.assertLessEqual(np.max(np.abs([r[2] for r in rows])),.094)
+        self.assertLessEqual(np.max(np.abs([r[3] for r in rows])),.289)
+
     def setUp(self):
         self.config=json.loads((Path(__file__).resolve().parents[1]/'config/experiments/rb3_precision_benchmark.json').read_text())
 

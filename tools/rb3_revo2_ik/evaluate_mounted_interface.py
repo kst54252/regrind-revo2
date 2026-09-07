@@ -15,12 +15,17 @@ p.add_argument('--recovery-capture',action='store_true')
 p.add_argument('--realtime-view',action='store_true',help='Live policy with reduced diagnostics and wall-clock pacing; does not guarantee real-time throughput')
 p.add_argument('--record-video',action='store_true',help='Record native simulation frames at control FPS, not wall-clock speed')
 p.add_argument('--fast-ik',action='store_true',help='Opt-in warm-first existing IK with bounded-step validation and full fallback')
+p.add_argument('--ik-policy-rate',action='store_true',help='Live simple mode: solve IK on the first physics substep of each policy action, holding accepted q between solves')
+p.add_argument('--velocity-bounded-ik',action='store_true',help='Opt-in IK inside q_cmd +/- velocity_limit*physics_dt; explicit 5 mm/.05 rad pose budget')
+p.add_argument('--ik-acceleration-limit',type=float,default=0.,help='Optional command-only rad/s² bound inside IK; reports best feasible pose even outside the pose budget')
 p.add_argument('--zero-actions',action='store_true',help='Live reference-only comparison: all 12 residuals zero, no policy inference')
 p.add_argument('--recovery-kind',choices=('F1','F1_pipeline','F2','R1'),default='R1')
 p.add_argument('--recovery-no-can',action='store_true')
 p.add_argument('--recovery-speed',type=int,choices=(1,4),default=1)
 p.add_argument('--recovery-holds',action='store_true')
 p.add_argument('--arm-gains-key',choices=('baseline','c1','c2','c3'),default='baseline')
+p.add_argument('--arm-gains-file',default=str(ROOT/'config/experiments/rb3_precision_candidates.json'),
+    help='Opt-in diagnostic gain table; does not change the task defaults')
 p.add_argument('--arm-velocity-path',action='store_true')
 p.add_argument('--arm-response-physics',action='store_true')
 p.add_argument('--new-state-seed',type=int)
@@ -42,6 +47,9 @@ if args.transfer_config:
     if selected['arm_gains_key'] not in ('baseline','c1','c2','c3'):raise ValueError('Unknown gain profile')
     for key in ('arm_gains_key','arm_velocity_path','arm_response_physics','response_tau'):
         setattr(args,key,selected[key])
+    if 'arm_gains_file' in selected:args.arm_gains_file=selected['arm_gains_file']
+    if 'velocity_bounded_ik' in selected:args.velocity_bounded_ik=selected['velocity_bounded_ik']
+    if 'ik_acceleration_limit' in selected:args.ik_acceleration_limit=selected['ik_acceleration_limit']
 args.headless=args.legacy_headless;del args.legacy_headless
 if args.record_video:args.enable_cameras=True
 out=Path(args.output)
@@ -72,6 +80,13 @@ def main():
     native_settings={key:carb.settings.get_settings().get(getattr(_physx,key)) for key in
                      ('SETTING_NUM_THREADS','SETTING_UPDATE_TO_USD','SETTING_UPDATE_VELOCITIES_TO_USD','SETTING_PHYSX_DISPATCHER')}
     if args.fast_ik and args.mode!='simple':raise ValueError('Fast IK requires simple mode')
+    if not np.isfinite(args.ik_acceleration_limit) or args.ik_acceleration_limit<0 or (args.ik_acceleration_limit and not args.velocity_bounded_ik):
+        raise ValueError('Command acceleration bound requires velocity-bounded IK and a finite nonnegative value')
+    if args.velocity_bounded_ik and (args.mode!='simple' or args.stage not in ('grasp','ab') or
+                                   not args.arm_response_physics or args.ik_policy_rate):
+        raise ValueError('Velocity-bounded IK requires live/AB physics-rate simple mode')
+    if args.ik_policy_rate and (args.mode!='simple' or args.stage!='grasp' or not args.arm_response_physics):
+        raise ValueError('Policy-rate IK requires live simple mode with physics-rate response')
     if args.realtime_view and (args.stage!='grasp' or args.recovery_capture or args.save_state_bank):
         raise ValueError('Realtime view is live grasp only, without recovery capture/state collection')
     if args.record_video and args.stage!='grasp':raise ValueError('Video capture supports live grasp only')
@@ -87,7 +102,7 @@ def main():
         raise ValueError('New states must be captured with baseline live legacy policy and --save-state-bank')
     if args.save_state_bank and Path(args.save_state_bank).exists():raise FileExistsError(args.save_state_bank)
     if args.arm_velocity_path and args.mode!='simple':raise ValueError('Velocity option is simple-mode only')
-    if args.arm_response_physics and (args.mode!='simple' or args.response_tau<=0 or args.stage!='grasp'):
+    if args.arm_response_physics and (args.mode!='simple' or args.response_tau<=0 or args.stage not in ('grasp','ab')):
         raise ValueError('Physics response is a live simple-mode positive-tau experiment')
     bank_records=[json.loads(line) for line in Path(args.states).open()]
     bank_meta=bank_records[0]
@@ -102,17 +117,24 @@ def main():
         # PLAY disables placement sampling; enable ONLY for the explicit bank
         # capture. Existing training-defined XY ranges and all dynamics remain.
         cfg.commands.reference.randomize_object_xy=True
-    if args.arm_gains_key!='baseline':
+    gains=None
+    if args.arm_gains_key!='baseline' or Path(args.arm_gains_file).resolve()!=ROOT/'config/experiments/rb3_precision_candidates.json':
         if floating:raise ValueError('Arm gains cannot be used for floating')
         from regrind.data.rb3_revo2_reference import RB3_JOINT_NAMES
-        gains=json.loads((ROOT/'config/experiments/rb3_precision_candidates.json').read_text())[args.arm_gains_key]
+        gains=json.loads(Path(args.arm_gains_file).read_text())[args.arm_gains_key]
+        for name in ('kp','kd'):
+            values=np.asarray(gains[name],dtype=float)
+            if values.shape!=(6,) or not np.isfinite(values).all() or np.any(values<=0):
+                raise ValueError('Arm gain table requires six positive finite '+name+' values')
         cfg.scene.robot.actuators['rb3_arm'].stiffness=dict(zip(RB3_JOINT_NAMES,gains['kp']))
         cfg.scene.robot.actuators['rb3_arm'].damping=dict(zip(RB3_JOINT_NAMES,gains['kd']))
     if args.mode=='simple':
         old=cfg.actions.root_pose
         cfg.actions.root_pose=SimpleMountedWristCfg(asset_name='robot',scale_pos=old.scale_pos,
             scale_rot=old.scale_rot,raw_clip=old.raw_clip,response_tau=args.response_tau,
-            velocity_path=args.arm_velocity_path,response_at_physics=args.arm_response_physics,fast_ik=args.fast_ik)
+            velocity_path=args.arm_velocity_path,response_at_physics=args.arm_response_physics,fast_ik=args.fast_ik,
+            ik_policy_rate=args.ik_policy_rate,velocity_bounded_ik=args.velocity_bounded_ik,
+            ik_acceleration_limit=args.ik_acceleration_limit)
     cfg.scene.object.spawn.activate_contact_sensors=True
     cfg.scene.can_robot_contact=ContactSensorCfg(prim_path='{ENV_REGEX_NS}/Object',update_period=0.)
     if args.record_video:
@@ -176,7 +198,15 @@ def main():
             np.testing.assert_allclose(s['all_v'],expected['all_joint_vel'],atol=1e-6,rtol=0)
         if args.stage!='ab' and not args.recovery_no_can:np.testing.assert_allclose(s['object_state'],expected['object_root_state'],atol=1e-6,rtol=0)
         if s['phase']!=expected['reference_frame']:raise ValueError('Phase mismatch')
-        s['episode']=counter['episode'];initial_records.append(s)
+        s['episode']=counter['episode']
+        if args.recovery_capture:
+            # Read reset-owned buffers only; never advance observation history.
+            s['reset_buffers']={key:array(getattr(root_action,key)) for key in
+                ('raw_actions','processed_actions','target_pos','target_quat','goal','applied',
+                 'ik_target_pos','ik_target_quat','bounded_velocity') if isinstance(getattr(root_action,key,None),torch.Tensor)}
+            s['reset_buffers']['previous_action']=array(env.action_manager.prev_action)
+            s['reset_buffers']['action']=array(env.action_manager.action)
+        initial_records.append(s)
     view_env=env
     if args.record_video:
         # Original record-video integration, FPS derived from unchanged control dt.
@@ -210,7 +240,7 @@ def main():
     if args.recovery_capture or args.stage=='recovery':
         from tools.rb3_revo2_ik.recovery_probe import RecoveryProbe
         probe=RecoveryProbe(env,counter,snapshot,root_action)
-        if args.arm_gains_key!='baseline':
+        if gains is not None:
             np.testing.assert_allclose(np.asarray(probe.runtime['kp'])[arm_ids],gains['kp'])
             np.testing.assert_allclose(np.asarray(probe.runtime['kd'])[arm_ids],gains['kd'])
     original_update=env.scene.update
@@ -257,9 +287,30 @@ def main():
             qik=array(root_action.goal)[0] if args.mode=='simple' else array(root_action.last_joint_target)[0]
             ikpos=array(root_action.ik_target_pos) if args.mode=='simple' else target_pos
             ikquat=array(root_action.ik_target_quat) if args.mode=='simple' else target_quat
+            if args.ik_policy_rate:
+                ikpos=array(root_action.last_ik_input_pos);ikquat=array(root_action.last_ik_input_quat)
+                row['ik_updated_this_step']=root_action.ik_updated_this_step
+                row['response_target_pos']=array(root_action.ik_target_pos)[0]
+                row['response_target_quat']=array(root_action.ik_target_quat)[0]
             fkpos,fkquat=kin.forward(qik);ap,ar=pose_errors(ikpos,ikquat,fkpos[None],fkquat[None])
             cpos,cquat=kin.forward(qcmd);cp,cr=pose_errors(cpos[None],cquat[None],s['wrist_pos'][None],s['wrist_quat'][None])
             actual_fk=kin.forward(s['all_q'][arm_ids]);fp,fr=pose_errors(actual_fk[0][None],actual_fk[1][None],s['wrist_pos'][None],s['wrist_quat'][None])
+            if args.recovery_capture:
+                bp,br=pose_errors(fkpos[None],fkquat[None],cpos[None],cquat[None])
+                cp_fk,cr_fk=pose_errors(cpos[None],cquat[None],actual_fk[0][None],actual_fk[1][None])
+                row.update(postprocess_position_m=float(bp[0]),postprocess_rotation_rad=float(br[0]),
+                           tracking_fk_position_m=float(cp_fk[0]),tracking_fk_rotation_rad=float(cr_fk[0]))
+                if args.mode=='simple':
+                    from dataclasses import asdict
+                    row['raw_solve']=asdict(root_action.solve_result)
+                    row['ik_strict_pose_success']=bool(root_action.solve_result.finite and
+                        root_action.solve_result.position_error_m<=1e-4 and
+                        root_action.solve_result.orientation_error_rad<=1e-3)
+                    row['velocity_bounded_ik']=args.velocity_bounded_ik
+                    row['ik_command_accepted']=root_action.ik_command_accepted
+                    row['ik_pose_budget_met']=root_action.solve_result.success
+                    row['held_previous_accepted_ik']=not root_action.ik_command_accepted if args.arm_response_physics else not root_action.solve_result.success
+                    row['ik_fallback_count']=root_action.fast_kin.fallbacks if root_action.fast_kin else None
             row.update(q_ik=qik,q_cmd=qcmd,ik_position_error_m=float(ap[0]),ik_rotation_error_rad=float(ar[0]),
                        ik_input_pos=ikpos[0],ik_input_quat=ikquat[0],
                        tracking_position_m=float(cp[0]),tracking_rotation_rad=float(cr[0]),
@@ -280,7 +331,7 @@ def main():
     solve_timing=[]
     component_timing={}
     profiled=[]
-    if args.realtime_view:
+    if args.realtime_view or args.recovery_capture:
         for label,obj,name in [('root_apply',root_action,'apply_actions'),('hand_apply',hand_action,'apply_actions'),
                                ('write',env.scene,'write_data_to_sim'),('physics_render',env.sim,'step'),
                                ('scene_update',env.scene,'update')]:
@@ -290,7 +341,7 @@ def main():
                 component_timing.setdefault(_label,[]).append(time.perf_counter()-begin)
                 return result
             setattr(obj,name,timed);profiled.append((obj,name,original))
-    if args.realtime_view and args.mode=='simple':
+    if (args.realtime_view or args.recovery_capture) and args.mode=='simple':
         original_solve=root_action.solve
         def timed_solve(*a,**kw):
             started=time.perf_counter()
@@ -331,7 +382,9 @@ def main():
                 if not args.realtime_view and not args.zero_actions:
                     same=env.observation_manager.compute_group('policy',update_history=False)
                     torch.testing.assert_close(same,obs['policy'],rtol=0,atol=0)
+                inference_started=time.perf_counter()
                 actions=torch.zeros((1,12),device=env.device) if args.zero_actions else adapter(obs)
+                inference_elapsed=time.perf_counter()-inference_started
                 if not args.realtime_view:
                     if not args.zero_actions:
                         with torch.inference_mode():torch.testing.assert_close(actions,policy(obs),rtol=0,atol=0)
@@ -341,26 +394,38 @@ def main():
                 counter.update(active=True,command_frame=int(command.time_steps[0]),
                     command_time=counter['step']*env.physics_dt,action=array(actions)[0])
                 obs,_,_,_=wrapper.step(actions)
-                if args.realtime_view:
+                if args.realtime_view or args.recovery_capture:
                     work=time.perf_counter()-started
                     # Only wait when ahead: never drop steps or change physics dt.
                     remaining=env.step_dt-work
-                    if remaining>0:time.sleep(remaining)
-                    timing.append(dict(work_s=work,wall_s=time.perf_counter()-started,simulation_s=env.step_dt))
+                    if args.realtime_view and remaining>0:time.sleep(remaining)
+                    timing.append(dict(work_s=work,wall_s=time.perf_counter()-started,simulation_s=env.step_dt,
+                                       inference_s=inference_elapsed))
                     if len(timing)%30==0:
                         recent=timing[-30:];wall=sum(r['wall_s'] for r in recent)
                         print(f'[live speed] sim/wall={sum(r["simulation_s"] for r in recent)/wall:.3f}x; IK mean={np.mean(solve_timing[-120:])*1000 if solve_timing else 0:.2f} ms',flush=True)
+                        if args.ik_policy_rate:
+                            print(f'[IK schedule] {root_action.tracking_ik_count} solves / {root_action.physics_apply_count} physics applies; policy={1/env.step_dt:g} Hz, physics={1/env.physics_dt:g} Hz (reset IK excluded)',flush=True)
         if adapter is not None:adapter.assert_frozen()
         meta=dict(mode=args.mode,stage=args.stage,checkpoint=str(Path(args.checkpoint).resolve()),
             realtime_view=args.realtime_view,
             zero_actions=args.zero_actions,
             fast_ik=args.fast_ik,
+            ik_policy_rate=args.ik_policy_rate,
+            velocity_bounded_ik=args.velocity_bounded_ik,
+            ik_acceleration_limit=args.ik_acceleration_limit,
+            ik_acceptance_mode='converged feasible best pose, budget violations reported' if args.ik_acceleration_limit else 'pose budget or hold',
+            ik_pose_acceptance=dict(position_m=.005,orientation_rad=.05) if args.velocity_bounded_ik else dict(position_m=1e-4,orientation_rad=1e-3),
+            ik_solver='velocity-box existing least-squares; fast IK reset only' if args.velocity_bounded_ik else 'unchanged',
+            tracking_ik_count=root_action.tracking_ik_count if args.mode=='simple' and args.arm_response_physics else None,
+            tracking_physics_applies=root_action.physics_apply_count if args.mode=='simple' else None,
             initial_native_settings=native_settings,
             record_video=args.record_video,video_fps=round(1/env.step_dt) if args.record_video else None,
             response_tau_s=args.response_tau,
             recovery_kind=args.recovery_kind if args.stage=='recovery' else None,
             recovery_no_can=args.recovery_no_can,recovery_speed=args.recovery_speed,
             recovery_holds=args.recovery_holds,arm_gains_key=args.arm_gains_key,
+            arm_gains_file=args.arm_gains_file,
             arm_velocity_path=args.arm_velocity_path,
             arm_response_physics=args.arm_response_physics,
             transfer_config=args.transfer_config,
@@ -368,7 +433,7 @@ def main():
             seed=cfg.seed,
             input_sha256={str(path):hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in
                 (args.states,bank_meta['reference'],str(ROOT/'tools/rb3_revo2_ik/rb3_model.json'),
-                 str(ROOT/'config/experiments/rb3_precision_candidates.json'))},
+                 args.arm_gains_file)},
             checkpoint_sha256=hashlib.sha256(Path(args.checkpoint).read_bytes()).hexdigest(),
             reference=bank_meta['reference'],state_bank=str(Path(args.states).resolve()),
             initial_states=initial_records,ends=ends,observation_action_parity_checks=observations_checked,
@@ -376,6 +441,10 @@ def main():
             actual_motion_source=str(Path(args.actual_source).resolve()) if args.stage in ('actual','recovery') else None,
             actual_motion_timing='recorded t_k sample commanded during (t_k-dt,t_k]; actual measured at t_k; offline endpoint ZOH, no time shift' if args.stage=='actual' else None,
             target_update_dt=env.physics_dt if args.stage=='actual' else env.step_dt,
+            policy_target_update_dt=env.step_dt,
+            ik_update_dt=(env.physics_dt if args.stage in ('actual','recovery') or
+                (args.arm_response_physics and not args.ik_policy_rate) else env.step_dt) if args.mode=='simple' else None,
+            joint_target_update_dt=env.physics_dt,
             env_origins=array(env.scene.env_origins),
             physics_dt=env.physics_dt,control_dt=env.step_dt,
             joint_names=robot.joint_names,arm_ids=arm_ids,hand_ids=hand_ids,
@@ -385,7 +454,8 @@ def main():
             gravity=env.cfg.sim.gravity,robot_spawn=robot.cfg.spawn.to_dict(),
             observation_terms=env.observation_manager.active_terms['policy'],
             observation_dimensions=env.observation_manager.group_obs_term_dim['policy'],
-            arm_target_mode='optional causal wrist response -> IK -> hold with per-physics target slew <= runtime velocity limit; zero velocity target' if args.mode=='simple' else 'unchanged',
+            arm_target_mode=('causal wrist response -> IK -> per-physics bounded position target; '
+                +('velocity = final position backward difference / physics_dt' if args.arm_velocity_path else 'zero velocity target')) if args.mode=='simple' else 'unchanged',
             effort_provenance='No verified drive-only torque; saturation UNKNOWN',
             timestamp='command before first physics substep; actual state after scene.update; no post-hoc time shift')
         def encode(x):
@@ -393,7 +463,7 @@ def main():
             return serial(x)
         (out/'metadata.json').write_text(json.dumps(meta,default=encode,indent=2)+'\n')
         (out/'policy.json').write_text(json.dumps(policy_records,default=serial)+'\n')
-        if args.realtime_view:
+        if args.realtime_view or (args.recovery_capture and args.stage=='grasp'):
             measured=dict(steps=timing,ik_s=solve_timing,simulation_s=len(timing)*env.step_dt,
                           component_s=component_timing,
                           wall_s=time.perf_counter()-wall_start,

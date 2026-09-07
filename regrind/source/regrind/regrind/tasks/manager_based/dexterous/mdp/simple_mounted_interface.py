@@ -56,16 +56,41 @@ class SimpleMountedWrist(SE3ImpedanceActionTerm):
         self.ik_target_pos=None;self.ik_target_quat=None
         self.velocity_path=cfg.velocity_path
         self.response_at_physics=cfg.response_at_physics
+        self.ik_policy_rate=cfg.ik_policy_rate
+        self._ik_pending=False
+        self.physics_apply_count=0;self.tracking_ik_count=0
+        self.ik_updated_this_step=False
         if self.response_at_physics and cfg.response_tau<=0:
             raise ValueError('Physics-rate response requires positive response_tau')
         self.limits=self._asset.data.soft_joint_pos_limits.torch[:,self.ids]
         self.speed_limit=self._asset.data.joint_vel_limits.torch[:,self.ids]
         if not torch.isfinite(self.speed_limit).all() or (self.speed_limit<=0).any():raise ValueError('Invalid speed limits')
+        self.bounded_kin=None
+        self.bounded_velocity=torch.zeros_like(self.applied)
+        self.ik_command_accepted=None
+        if not math.isfinite(cfg.ik_acceleration_limit) or cfg.ik_acceleration_limit<0 or (cfg.ik_acceleration_limit and not cfg.velocity_bounded_ik):
+            raise ValueError('Command acceleration bound requires velocity-bounded IK and finite nonnegative acceleration')
+        if cfg.velocity_bounded_ik:
+            if not cfg.response_at_physics or cfg.ik_policy_rate:
+                raise ValueError('Velocity-bounded IK requires physics-rate response and IK')
+            from tools.rb3_revo2_ik.velocity_bounded_ik import VelocityBoundedIK
+            self.bounded_kin=VelocityBoundedIK(self.kin)
 
     @property
     def applied_joint_target(self):return self.applied
 
-    def solve(self,pos,quat,previous):
+    def solve(self,pos,quat,previous,*,bounded=True):
+        # Keep the actual sampled IK input separate from the evolving response.
+        self.last_ik_input_pos=pos.detach().clone()[None]
+        self.last_ik_input_quat=quat.detach().clone()[None]
+        if bounded and self.bounded_kin is not None:
+            return self.bounded_kin.inverse(pos.detach().cpu().numpy(),quat.detach().cpu().numpy(),
+                command_q=self.applied[0].detach().cpu().numpy(),
+                velocity_limit=self.speed_limit[0].detach().cpu().numpy(),dt=self._env.physics_dt,
+                position_lower=self.limits[0,:,0].detach().cpu().numpy(),
+                position_upper=self.limits[0,:,1].detach().cpu().numpy(),
+                previous_velocity=self.bounded_velocity[0].detach().cpu().numpy(),
+                acceleration_limit=self.cfg.ik_acceleration_limit)
         actual=self._asset.data.joint_pos.torch[0,self.ids].detach().cpu().numpy()
         solver=self.fast_kin or self.kin
         return solver.inverse(pos.detach().cpu().numpy(),quat.detach().cpu().numpy(),
@@ -75,8 +100,9 @@ class SimpleMountedWrist(SE3ImpedanceActionTerm):
         if actions.shape!=(1,6) or not torch.isfinite(actions).all():raise ValueError('Nonfinite/invalid wrist action')
         # Single source of truth for clip -> scale -> reference + residual.
         super().process_actions(actions)
+        self._ik_pending=True
         if self.response_at_physics:
-            return  # The raw equilibrium is held; shaping/IK runs at physics rate.
+            return  # Shape at physics rate; optionally solve once per policy action.
         self.ik_target_pos,self.ik_target_quat=response_step(
             self.ik_target_pos,self.ik_target_quat,self.target_pos,self.target_quat,
             self._env.step_dt,self.cfg.response_tau)
@@ -87,14 +113,28 @@ class SimpleMountedWrist(SE3ImpedanceActionTerm):
         # Otherwise keep the previous accepted target, explicitly logged by runner.
 
     def apply_actions(self):
+        self.physics_apply_count=getattr(self,'physics_apply_count',0)+1
+        self.ik_updated_this_step=False
         if getattr(self,'response_at_physics',False):
             self.ik_target_pos,self.ik_target_quat=response_step(
                 self.ik_target_pos,self.ik_target_quat,self.target_pos,self.target_quat,
                 self._env.physics_dt,self.cfg.response_tau)
-            r=self.solve(self.ik_target_pos[0],self.ik_target_quat[0],self.goal[0])
-            self.solve_result=r
-            if r.success and r.finite and not r.joint_limit_violation:
-                self.goal[0]=torch.as_tensor(r.q,device=self.device,dtype=self.goal.dtype)
+            if not getattr(self,'ik_policy_rate',False) or self._ik_pending:
+                r=self.solve(self.ik_target_pos[0],self.ik_target_quat[0],self.goal[0])
+                self.solve_result=r
+                self._ik_pending=False
+                self.ik_updated_this_step=True
+                self.tracking_ik_count=getattr(self,'tracking_ik_count',0)+1
+                # With an acceleration box, abruptly holding position may itself
+                # violate the acceleration constraint. Follow the feasible
+                # converged best pose; report an unmet pose budget separately.
+                feasible_progress=(getattr(self,'bounded_kin',None) is not None and
+                    self.cfg.ik_acceleration_limit>0 and r.optimizer_success)
+                self.ik_command_accepted=bool((r.success or feasible_progress) and r.finite and not r.joint_limit_violation)
+                if self.ik_command_accepted:
+                    self.goal[0]=torch.as_tensor(r.q,device=self.device,dtype=self.goal.dtype)
+                elif getattr(self,'bounded_kin',None) is not None and self.cfg.ik_acceleration_limit>0:
+                    raise RuntimeError('No feasible converged acceleration-bounded IK command; stop diagnostic')
         # Bound raw coordinate changes, never wrap angles. Velocity is opt-in.
         limit=self.speed_limit*self._env.physics_dt
         delta=self.goal-self.applied
@@ -105,12 +145,18 @@ class SimpleMountedWrist(SE3ImpedanceActionTerm):
         self._asset.set_joint_position_target_index(target=self.applied,joint_ids=self.ids)
         velocity=(self.applied-previous)/self._env.physics_dt if getattr(self,'velocity_path',False) else torch.zeros_like(self.applied)
         self._asset.set_joint_velocity_target_index(target=torch.clamp(velocity,min=-self.speed_limit,max=self.speed_limit),joint_ids=self.ids)
+        if getattr(self,'bounded_kin',None) is not None:
+            self.bounded_velocity.copy_((self.applied-previous)/self._env.physics_dt)
 
     def reset_from_reference(self,env_ids):
         # Called by the existing command reset AFTER placement/phase selection.
         command=self._env.command_manager.get_term(self.cfg.command_name)
         actual=self._asset.data.joint_pos.torch[0,self.ids]
-        r=self.solve(command.target_hand_wrist_pos[0],command.target_hand_wrist_quat[0],actual)
+        if getattr(self,'bounded_kin',None) is not None:
+            # Reset is the existing exact IK initialization, not a one-tick move.
+            r=self.solve(command.target_hand_wrist_pos[0],command.target_hand_wrist_quat[0],actual,bounded=False)
+        else:
+            r=self.solve(command.target_hand_wrist_pos[0],command.target_hand_wrist_quat[0],actual)
         if not (r.success and r.finite and not r.joint_limit_violation):raise RuntimeError('Reset IK failed')
         self.goal[0]=torch.as_tensor(r.q,device=self.device,dtype=self.goal.dtype)
         self.applied.copy_(self.goal);self.solve_result=None;self.rate_limited=False
@@ -120,6 +166,9 @@ class SimpleMountedWrist(SE3ImpedanceActionTerm):
         self.target_pos=command.target_hand_wrist_pos.clone();self.target_quat=command.target_hand_wrist_quat.clone()
         # No previous episode's command may leak into this response history.
         self.ik_target_pos=self.target_pos.clone();self.ik_target_quat=self.target_quat.clone()
+        self._ik_pending=False;self.ik_updated_this_step=False
+        if hasattr(self,'bounded_velocity'):self.bounded_velocity.zero_()
+        self.ik_command_accepted=None
 
 
 @configclass
@@ -132,3 +181,6 @@ class SimpleMountedWristCfg(SE3ImpedanceActionCfg):
     velocity_path:bool=False  # Diagnostic feedforward; never enabled implicitly.
     response_at_physics:bool=False
     fast_ik:bool=False  # Existing multi-seed selection remains the default.
+    ik_policy_rate:bool=False  # Sample the physics-rate response once per policy action.
+    velocity_bounded_ik:bool=False  # Explicit approximate pose budget: 5 mm / .05 rad.
+    ik_acceleration_limit:float=0.0  # Optional COMMAND bound, not a native actuator limit.
