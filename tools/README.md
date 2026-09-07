@@ -11,4 +11,5 @@
 | `rb3_revo2_ik/` | RB3 FK/IK, reference 생성, 진단, Isaac GUI replay |
 | `arm_diagnostics/` | 기록된 팔 추종·접촉·정책 평가 로그의 분석과 비교; 시뮬레이션 실행과 분리 |
 
-회귀 테스트는 구현과 섞이지 않도록 최상위 `tests/`에 모았습니다.
+주 회귀 테스트는 최상위 `tests/`에 있으며 `scripts/run_tests.sh`가 실행합니다.
+`regrind/source/regrind/test/`의 별도 패키지 테스트는 이 명령의 수집 대상이 아닙니다.

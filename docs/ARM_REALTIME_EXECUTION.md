@@ -51,8 +51,9 @@ capture. Ratios are simulated seconds / wall seconds; 1x means real-time speed.
 
 `fast_ik_gui20_v1` was also launched with the Kit window verified visible. Its
 observed rolling30-control-step rate is .455–.485x (IK about1.6–2.0ms), slower
-than headless because rendering is included. At handoff it is still running;
-these are rolling measurements, not a completed20-episode GUI success claim.
+than headless because rendering is included. At the original measurement handoff
+the run was still active; this is not a current process-status assertion or a
+completed20-episode GUI success claim.
 
 Full20 final IK falls back31 times (including reset calls); fallback remains
 expensive and does not guarantee an8.33ms deadline. PhysX step wall mean8.659ms

@@ -8,6 +8,7 @@ one deeper document if needed:
 - [Floating Revo2 RL task](RL_TASK.md)
 - [Isaac replay](ISAAC_SIM_REPLAY.md)
 - [Execution/diagnostic command index](../scripts/README.md), for arm comparisons
+- [Presentation media commands](../scripts/README.md#presentation-media), for captures
 - [Cleanup audit record](cleanup-plan.md), for cleanup work only
 
 ## System shape
@@ -121,9 +122,11 @@ registrations remain secondary compatibility paths.
 - Revo2 has six independent joints; five distal joints are deterministic mimic
   followers. The 21 semantic points are FK outputs, never optimization DoFs.
 - Final joint arrays are RB3 six joints followed by Revo2 six leaders.
-- Quaternion order is metadata-driven: retargeted files use `xyzw`, world files
-  use `wxyz`, and final RB3+Revo2 references use `xyzw`.
+- Quaternion order is metadata-driven: preprocessed files use `wxyz`, retargeted
+  files use `xyzw`, world files use `wxyz`, and final RB3+Revo2 references use `xyzw`.
 - One rigid camera-to-world transform is applied to object, wrist, and MANO.
+- MANO21 sequential topology differs from Revo2 semantic correspondence order;
+  use the [stage-specific field/order contract](DATA_PIPELINE.md#mano와-revo2-topology).
 - The workcell uses tabletop `Z=0`; replay and RL share the same workcell file.
 - Pure-Python tests cannot establish Isaac/PhysX contact behavior.
 

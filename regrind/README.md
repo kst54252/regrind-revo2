@@ -1,5 +1,15 @@
 # REGRIND
 
+This directory contains the upstream-derived REGRIND package, not a separate
+Git repository. For this fork's RB3/Revo2 setup and supported commands, start at
+the [root README](../README.md) and [RL task guide](../docs/RL_TASK.md).
+The badges and installation recipe below describe the **original upstream
+baseline** (Python 3.11 / Isaac Sim 5.1 / Lab 2.3), not the port used by the
+current code. See the [Isaac Lab migration record](MIGRATION_ISAACLAB_3.md)
+before choosing an environment; compatibility with the old stack is not newly
+verified. Commands in this README assume the `regrind/` directory as cwd;
+root `scripts/rl.sh` commands in the linked guides assume the repository root.
+
 [![Python](https://img.shields.io/badge/python-3.11-blue.svg)](https://docs.python.org/3/whatsnew/3.11.html)
 [![IsaacSim](https://img.shields.io/badge/IsaacSim-5.1.0-silver.svg)](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/index.html)
 [![IsaacLab](https://img.shields.io/badge/IsaacLab-2.3.0-silver.svg)](https://isaac-sim.github.io/IsaacLab/main/index.html)
@@ -65,7 +75,8 @@ Make sure the path environment variables are set (`source scripts/set_path.sh`) 
 and assets resolve, then run:
 
 ```bash
-python scripts/retarget_hand_object.py --robot {leaphand,wujihand} --object {scissors,screwdriver}
+# Example; choose a supported robot/object pair (not shell brace expansion).
+python scripts/retarget_hand_object.py --robot leaphand --object scissors
 ```
 
 Revo2 uses 21 semantic points driven by a floating wrist and six independent
@@ -122,7 +133,8 @@ python scripts/visualize_retargeted_sequence.py /tmp/revo2_sequence.h5 \
 The trajectory fields follow the schema expected by `load_retargeted_traj` (keys `robot_pos`,
 `robot_quat`, `robot_joints`, `object_pos`, `object_quat`, `object_joint`, `robot_keypoints`,
 `mano_joint_coords`). Visualize / sanity-check it against an environment by overriding the
-trajectory path:
+trajectory path. This Leap/scissors example requires a Leap/scissors trajectory,
+not the Revo2/tuna output above; for Revo2 use the [project replay guide](../docs/ISAAC_SIM_REPLAY.md):
 
 ```bash
 python scripts/replay_retargeted_traj.py --task Regrind-LeapHand-Scissors-Play-v0 \
@@ -140,7 +152,9 @@ python scripts/list_envs.py
 ```
 
 You can add `--suite [suite]` to only show tasks from a specified suite (robot), where `[suite]` 
-can be either `LeapHand` or `WujiHand`.
+is a registered task-prefix such as `LeapHand`, `WujiHand`, `Floating-Revo2`,
+or `RB3-Revo2`. See the [current task guide](../docs/RL_TASK.md#registered-tasks)
+for the primary floating-hand task IDs.
 
 (From now on, we will use `[task]` to denote the task name. Each task is named as 
 `Regrind-[suite]-[object]-v0`, e.g., `Regrind-LeapHand-Scissors-v0`, 

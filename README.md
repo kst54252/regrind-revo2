@@ -44,6 +44,10 @@ RL/deployment branch
 
 기본 Python 경로는 `/home/wanjunkim/IsaacLab/.venv/bin/python`입니다. 다른 환경은
 `ISAAC_SIM_PYTHON=/path/to/python`으로 지정할 수 있습니다.
+현재 포팅 환경과 원본 REGRIND 설치 환경은 다릅니다.
+[환경 이력](regrind/MIGRATION_ISAACLAB_3.md)을 먼저 확인하세요. Python 경로만
+바꾸면 Isaac 의존성이 설치되는 것은 아닙니다. 다른 PC에서는 데이터셋·체크포인트·
+필요한 reference 및 로컬 진단 입력을 별도로 준비해야 합니다.
 
 ### 어떤 경로를 실행할 것인가
 
@@ -61,6 +65,9 @@ RL/deployment branch
 `--sequence` 필터가 전처리 전체를 제한하지 않는 점은
 [현재 상태](docs/current-status.md)에 설명되어 있습니다. 비교 실행에는 매번 새 출력
 디렉터리를 사용하세요. 핵심 진단은 [실행/진단 색인](scripts/README.md)에서 선택합니다.
+
+발표용 스켈레톤/Isaac 영상, 작업 셀 사진, 병렬 학습 영상 및 비교 영상은
+[미디어 실행 안내](scripts/README.md#presentation-media)를 참고하세요.
 
 ## 디렉터리
 
@@ -102,6 +109,9 @@ reward와 실제 로봇 deployment는 현재 범위 밖입니다.
 SE(3) residual 6차원과 Revo2 leader joint residual 6차원을 합친 12차원 action을
 사용합니다. 학습된 floating trajectory는 실행 위치의 tuna can pose에 rigid alignment한
 후 RB3 strict IK로 12-DoF robot reference로 변환합니다.
+이는 **저장된 rollout의 오프라인 변환**입니다. `play-arm`은 저장 행동을 재생하지
+않고 실제 mounted 상태에서 매번 정책을 추론합니다. 원래 baseline과 선택형
+120 Hz 후보의 제어 주기·근사 IK 허용 여부는 [RL 실행 문서](docs/RL_TASK.md#online-rb3-deployment)에서 구분합니다.
 
 ```bash
 # Floating-hand zero-residual GUI

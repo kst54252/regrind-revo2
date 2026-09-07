@@ -9,7 +9,9 @@
 Only the two untracked `outputs/diagnostics/ik120_*_20260907/` directories were
 present initially; both are preserved. This user-authorized cleanup supersedes
 the earlier KEEP decision for duplicate RL aliases and rejected gain configs.
-No cleanup commit or push has been made automatically.
+The user subsequently authorized committing and pushing this cleanup to `main`;
+the recorded cleanup commit is `cf39236`. This audit record is historical, not
+a statement that the current working tree is clean or fully pushed.
 
 ### Applied changes and migration
 
@@ -211,6 +213,10 @@ edits, deliberately separated from the cleanup commits.
 | Minimal bridge, actual/recovery replay, precision and warm-start experiments; their tests/configs | **KEEP** | Actual imports/CLI flags, rejection criteria and comparison reports depend on them. Separate baseline/candidate navigation instead of deleting failed experiments. |
 | Manual upstream scripts, standalone trim/asset generators, package tests | **DEFER** | External/manual use and unique dependency boundaries remain uncertain; no proof of redundancy. |
 | Duplicate keypoints, model/asset copies, local settings, datasets, checkpoints, experiment logs/videos | **PROTECTED / DEFER** | Runtime or provenance/retention dependencies; no deletion or movement this round. |
+
+The alias KEEP decision above was later superseded by
+[readable layout cleanup](#readable-layout-cleanup). Other historical decisions
+and test counts describe their own execution date, not the latest checkout.
 
 For all three removed launchers: full shell contents inspected; imports/calls,
 string paths, task/config registration, tests, shell entry points, documentation,

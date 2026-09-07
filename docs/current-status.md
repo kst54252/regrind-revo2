@@ -1,7 +1,8 @@
 # Current project status
 
-Last structure review: 2026-09-07. This records implemented paths and known
-limits. The [cleanup validation record](cleanup-plan.md#validation-record)
+Documentation/code-path review: 2026-09-08 (no new physics evaluation).
+This records implemented paths and known limits. The latest
+[cleanup validation record](cleanup-plan.md#validation-of-this-change)
 distinguishes fresh baseline regression runs from historical experiments.
 
 ## Active pipeline
@@ -106,6 +107,14 @@ and remains opt-in, not a general grasp-success guarantee or a new default.
 - Runtime Hydra overrides of materialized actuator dictionaries may not update
   all derived values; arm evaluation has explicit `play.py --rb3-*-scale`
   options pending config-lifecycle cleanup.
+- Training accepts `--experiment_name` but the repository argument updater does
+  not apply it; use `agent.experiment_name=NAME` until that separate source issue
+  is fixed. Capture runs must not pollute normal latest-checkpoint selection.
+- The offline pipeline does not regenerate the preferred stable RL reference;
+  ordinary and stable references must not be assumed to contain the same frames.
+- Some standalone CLI help retains old local-Y model correction / 180° wrist
+  correction suggestions. Those are not required by the current verified
+  camera/mount contract; follow the data/frame docs, not those legacy hints.
 - Bare evaluator `--help` hits the installed AppLauncher required-argument
   preparse; supplying mode/checkpoint/output with help works. Actual evaluation
   is unaffected; see the cleanup record for the failed command and validation.

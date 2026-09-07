@@ -116,6 +116,15 @@ Training logs are written below `logs/rsl_rl/floating_revo2_tuna/`. A valid
 smoke run has finite observations/rewards, RSI resets, a PPO learning iteration,
 loss output, and a generated checkpoint.
 
+`--max_iterations N` is the number of updates in this invocation, including on
+resume; it is not an absolute checkpoint-iteration ceiling. The full floating
+config defaults to 20,000 updates, so specify this flag for a bounded run.
+Watch logs with `tensorboard --logdir logs/rsl_rl/floating_revo2_tuna` in an
+environment with TensorBoard installed. W&B uses `--logger wandb --log_project_name NAME`.
+For a separate capture experiment use the Hydra override
+`agent.experiment_name=presentation_capture`; the current repository's
+`cli_args.update_rsl_rl_cfg` accepts but does not apply `--experiment_name`.
+
 ## Convert a rollout to RB3
 
 Offline conversion rigidly aligns object, wrist, and MANO together, then solves
@@ -169,6 +178,14 @@ writing the new RSI frame/object placement. That synchronizes measured arm
 joints, the IK warm start, and interpolation targets before observations.
 Solving IK in the earlier action reset uses the previous episode's pose.
 The online task interpolates each 30 Hz IK target over four 120 Hz substeps.
+
+This timing describes the **original `rl.sh play-arm` baseline**. The opt-in
+`play_arm_candidate.sh` transfer configuration instead shapes the wrist target
+and solves IK at 120 Hz; policy/reference remain 30 Hz. Its
+`rb3_smooth_bounded_ik.json` variant permits explicitly logged approximate IK
+near singularities. See [candidate comparison](ARM_IK_SINGULARITY_FIX.md).
+`--real_time` paces a run only when computation is faster than the simulated
+period; it cannot guarantee 1× wall-clock speed or zero physical tracking error.
 
 Run the simulator regression for asynchronous RSI and random placement:
 

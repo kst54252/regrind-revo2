@@ -2,8 +2,10 @@
 
 Historical experiment report: rejected wrist3 gain tables/config were retired
 during [layout cleanup](cleanup-plan.md#readable-layout-cleanup). Their exact
-contents remain in Git commit `531b9c8`. Candidate commands below require that
-historical revision; they are not supported commands in the current checkout.
+contents remain in Git commit `531b9c8`. Candidate commands below use the current
+launcher/analyzer names but require restoring both retired gain JSON files in
+an isolated reproduction checkout. They are not ready-to-run current defaults;
+checking out `531b9c8` alone also restores the old launcher/analyzer names.
 Current bounded-IK execution is documented in [ARM_IK_SINGULARITY_FIX](ARM_IK_SINGULARITY_FIX.md).
 
 **결론:** 120 Hz를 유지한 3개 gain 후보와 실제 40개 초기 배치 비교를
@@ -246,7 +248,7 @@ No dt changes, skipped steps or
 post-hoc trajectory time shifts. Final smoke verified 152 IK solves for
 152 physics steps, `ik_update_dt=1/120`; policy stays 1/30.
 
-## Historical reproduction (retired candidate requires revision 531b9c8)
+## Historical reproduction (retired configs from revision 531b9c8 required)
 
 From repository root; choose a **new** output directory (existing logs protected):
 

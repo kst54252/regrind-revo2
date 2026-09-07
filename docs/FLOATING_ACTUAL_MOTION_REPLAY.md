@@ -117,7 +117,8 @@ bash scripts/replay_floating_actual_motion.sh --episodes 20 --headless \
 bash scripts/analyze_actual_motion.sh outputs/diagnostics/floating_actual_replay_repeat
 ```
 
-Use a new output path. For GUI, omit `--headless`; `--episodes 1` shows the first
+Use a new output path. For GUI, replace `--headless` with `--visualizer kit`;
+`--episodes 1` shows the first
 motion once and closes. The checkpoint argument validates the recording's SHA;
 weights are not loaded. Reference is the source's existing stable HDF5.
 

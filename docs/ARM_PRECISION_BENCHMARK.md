@@ -164,7 +164,8 @@ Console 로그는 `/tmp/precision_{baseline_launch2,c1,c2,c3,best_heldout,baseli
 `/tmp/precision_baseline_20260907.log`를 보존했다. 정상 학습/play 코드는 수정하지 않았다.
 
 추가 파일: `config/experiments/rb3_precision_*.json`,
-`tools/rb3_revo2_ik/{precision_trajectory,benchmark_arm_precision,analyze_arm_precision,compare_arm_precision}.py`,
+`tools/rb3_revo2_ik/{precision_trajectory,benchmark_arm_precision}.py`,
+`tools/arm_diagnostics/{analyze_arm_precision,compare_arm_precision}.py`,
 `scripts/{benchmark_arm_precision,compare_arm_precision}.sh`, `tests/test_arm_precision.py`, 이 문서.
 
 `validate-regrind-change`에 따라 실제 Isaac 실행 6회 완료, 고정 입력/설정 비교 통과,

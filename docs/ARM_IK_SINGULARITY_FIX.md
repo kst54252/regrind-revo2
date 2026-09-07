@@ -121,7 +121,8 @@ bash scripts/play_arm_candidate.sh outputs/diagnostics/ik120_smooth_view \
   --transfer-config config/experiments/rb3_smooth_bounded_ik.json
 ```
 
-기존 동작은 위 추가 `--transfer-config`만 빼면 된다. 속도만 제한한
+기존 transfer candidate 동작은 위 추가 `--transfer-config`만 빼면 된다.
+원래 arm baseline은 `scripts/rl.sh play-arm`이다.
 속도만 제한한 실패 후보 설정은 정리 과정에서 삭제했다. 과거
 `rb3_velocity_bounded_ik.json`은 Git 커밋 `531b9c8`에서 복구할 수 있다.
 
