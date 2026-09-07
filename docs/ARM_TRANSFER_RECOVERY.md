@@ -41,7 +41,10 @@ All new outputs: `outputs/diagnostics/arm_transfer_recovery/`.
 - Drive-only torque unverified; saturation remains UNKNOWN, not inferred from
   `applied_effort` or total reaction. See ARM_ACTUATOR_DIAGNOSIS.md.
 
-## Progress / resume point
+## Historical execution journal (completed)
+
+The entries below retain the experiment order, not pending work. Use the final
+results and reproduction sections for the supported evaluator commands.
 
 F0 completed: 20/20, 2,964 states bitwise identical to existing floating20.
 F1 original-command replay: 5/5. All position/velocity/effort and wrist equilibrium
@@ -80,14 +83,14 @@ at policy dt), then use the same IK/gains/velocity path. Both live **5/5**.
 Candidate 6 has a lower maximum acceleration (238 vs 277 rad/s²), a recorded
 trade-off, but not selected. No hand control changes in live execution.
 
-Resume: fixed full replay and old20/new20 policy evaluations queued by
-`scripts/finish_arm_transfer_recovery.sh 0.1`. Candidate selection is frozen.
+At this point in the experiment, full replay and old20/new20 policy evaluations
+were queued with candidate selection frozen; all completed below.
 
 Full replay completed: **R0 0/20; R1 0/20; R2 20/20**, each 2,964 samples.
 R0 joint q/dq, wrist and object states reproduce the original actual-motion
 replay exactly (max component difference zero). R2 uses c3+velocity-path only;
 the response filter is NOT used for recorded actual-wrist replay.
-Live baseline old20 is now running, followed by frozen candidate and held-out runs.
+Live baseline old20, frozen candidate and held-out runs followed this replay.
 
 R2 caveat: the unchanged task-success flag is 20/20, but the supplementary final
 .2 s lift/contact proxy is **19/20**. Placement 13 loses contact near 1.2 s and
@@ -98,7 +101,7 @@ verified identical; initial states and non-gain physical configuration match.
 Mean wrist error 17.65→.91 mm, but max R2 position error is 15.42 mm: not a
 uniform 1-mm controller guarantee.
 Legacy old20 rerun completed 19/20 and exactly reproduces old joint/wrist/object
-state traces. New live policy old20 is running.
+state traces. The new live policy old20 was evaluated next.
 
 First full live runs: old20 baseline 19/20 → candidate **20/20** (placement 15
 recovered, no regression). The original `live_new20_*` 20/20 runs were subsequently
@@ -321,10 +324,28 @@ bash scripts/analyze_transfer_recovery.sh outputs/diagnostics/arm_transfer_recov
 ./scripts/run_tests.sh
 ```
 
-The executed bounded suites are recorded in `scripts/screen_arm_transfer_recovery.sh`,
-`scripts/screen_arm_response_recovery.sh`, `scripts/finish_arm_transfer_recovery.sh`.
-They intentionally refuse existing output directories; do not delete original
-evidence to rerun. Normal `scripts/rl.sh play-arm` remains the original route.
+### Retired one-shot orchestration
+
+The three completed sweep launchers were removed during cleanup; their exact
+contents are recoverable from Git commit `34c896d` (see
+[cleanup record](cleanup-plan.md#supported-path-cleanup-2026-09-07)). They contained
+only fixed invocations of the retained `scripts/arm_transfer_recovery.sh`, not
+controller or evaluation logic. All seventeen result directories and their
+`metadata.json` files remain under `outputs/diagnostics/arm_transfer_recovery/`.
+
+| Historical output labels | Evaluator conditions beyond the common checkpoint/headless arguments |
+|---|---|
+| `holds_base`, `motion_base`, `slow_base` | simple/R1 recovery, source `F0`, no-can, 1 episode; respectively holds, motion, speed 4 |
+| `holds_c3`, `motion_c3` | same no-can tests, c3 gains |
+| `R2_c1_screen`, `R2_c2_screen`, `R2_c3_screen` | simple/R1 recovery, source `F0`, 5 episodes, each gain key; no velocity-path option |
+| `live_response_0.1_screen`, `live_response_0.075_screen` | simple grasp, 5 episodes, c3 + velocity-path + physics response, respective tau |
+| `R0_full`, `R1_full`, `R2_full` | 20 episodes from `F0`: actual replay, R1 recovery, R1 recovery + c3 + velocity-path |
+| `live_old20_baseline`, `live_old20_candidate` | legacy versus simple/c3/path/physics response tau .1, original state bank, 20 episodes |
+| `live_new20_v2_baseline`, `live_new20_v2_candidate` | legacy sampled seed 20260908 and saved v2 state bank; same frozen candidate evaluated that bank, 20 episodes |
+
+Use the individual commands above and fresh output paths for reproductions;
+never remove old evidence merely to rerun a suite. The public
+`scripts/rl.sh play-arm` remains the original route.
 Rollback means omitting the selected experimental config/flags, not reverting
 unrelated repository files.
 

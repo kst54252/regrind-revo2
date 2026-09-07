@@ -67,3 +67,52 @@ removed. This is historical evidence, not a claim about the current tree.
    absolute paths.
 5. Keep source/tool removal, asset migration, and experiment pruning as separate
    reviewable changes.
+
+## Supported-path cleanup 2026-09-07
+
+Branch: `codex/cleanup-supported-paths-20260907`, forked from `84d0423`.
+The tree already contained modified source/docs, untracked experiments, ignored
+data/logs, and the deleted preview listed above. These are not cleanup changes.
+Only the three removal targets and documents being edited were snapshotted at
+their current contents in commit `34c896d`; no checkpoint, log, data, asset or
+unrelated source was staged. That snapshot includes pre-existing documentation
+edits, deliberately separated from the cleanup commits.
+
+### Decisions and reference evidence
+
+| Current path / family | Decision / action | Reason, checks and expected impact |
+|---|---|---|
+| `scripts/screen_arm_transfer_recovery.sh` | **SAFE TO CHANGE — removed** | Fixed completed eight-condition launcher; no unique implementation. All eight metadata files exist. Only report references found; recipe retained in ARM_TRANSFER_RECOVERY. |
+| `scripts/screen_arm_response_recovery.sh` | **SAFE TO CHANGE — removed** | Fixed completed two-candidate launcher; both results preserved. Same evaluator and no unique tests or settings implementation. |
+| `scripts/finish_arm_transfer_recovery.sh` | **SAFE TO CHANGE — removed** | Fixed completed seven-run orchestration. Every result exists; old “resume” text was stale. General evaluator and explicit reproduction commands remain. |
+| Six `train_rb3_*` / `play_rb3_*` / `run_rl_*` compatibility aliases | **KEEP** | Deliberately documented external CLI compatibility, not dead code. Delegate to `rl.sh`; negligible duplication. |
+| `tools/dexycb_batch/run_all.sh`, `run_preprocess_all.sh`; `tools/rb3_revo2_ik/run_replay_gui.sh` | **KEEP** | Pipeline substeps, preprocessing-only CLI and GUI bootstrap have distinct behavior/direct callers. Root scripts remain the recommended entry points. |
+| Minimal bridge, actual/recovery replay, precision and warm-start experiments; their tests/configs | **KEEP** | Actual imports/CLI flags, rejection criteria and comparison reports depend on them. Separate baseline/candidate navigation instead of deleting failed experiments. |
+| Manual upstream scripts, standalone trim/asset generators, package tests | **DEFER** | External/manual use and unique dependency boundaries remain uncertain; no proof of redundancy. |
+| Duplicate keypoints, model/asset copies, local settings, datasets, checkpoints, experiment logs/videos | **PROTECTED / DEFER** | Runtime or provenance/retention dependencies; no deletion or movement this round. |
+
+For all three removed launchers: full shell contents inspected; imports/calls,
+string paths, task/config registration, tests, shell entry points, documentation,
+`.agents` and VS Code references searched. No runtime caller or asset reference
+was found. They were independently executable, but specifically encoded completed
+bounded sweeps with occupied output directories. This completion evidence, the
+retained shared evaluator and Git snapshot—not absence of search hits—justify
+removal. No USD/URDF/mesh/texture or model path changes are involved.
+
+Recover one exact retired file without altering the worktree:
+
+```bash
+git show 34c896d:scripts/screen_arm_transfer_recovery.sh
+```
+
+No tests consolidated or removed: mount/FK/IK/order, mimic, quaternions/units,
+observation/action parity, command-versus-state, timing/reset and paired-state
+comparisons remain under `tests/`. No `.gitignore` changes in this round.
+
+### Validation record
+
+Artifacts: `outputs/diagnostics/cleanup_20260907/`. Baseline status and tracked
+diff are saved there, separately from prior experiment evidence. Pre-cleanup:
+98 tests passed; full floating and legacy-arm 20-placement evaluations completed
+using the same saved original state bank, checkpoint and reference. Post-cleanup
+checks and exact trace comparisons are recorded below after execution.
