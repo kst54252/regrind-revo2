@@ -1,0 +1,11 @@
+{
+  "best": {
+    "selected_from": "c3",
+    "selection_scope": "Frozen static/slow benchmark only; not a policy/grasp or hardware controller",
+    "kp": [700, 20000, 12000, 900, 2400, 250],
+    "kd": [35, 260, 140, 45, 70, 20],
+    "compensation": "none",
+    "joint_order": ["base", "shoulder", "elbow", "wrist1", "wrist2", "wrist3"],
+    "normal_defaults_changed": false
+  }
+}

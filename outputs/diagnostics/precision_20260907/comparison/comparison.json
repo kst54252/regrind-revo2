@@ -1,0 +1,142 @@
+{
+  "identical_conditions_verified": true,
+  "unique_gain_configurations": 4,
+  "selected": "c3",
+  "held_out_gain_change": false,
+  "results": {
+    "baseline": {
+      "static_max_mm": 21.593423308711774,
+      "static_max_deg": 2.513972458843642,
+      "motion_p95_mm": 21.572572163482818,
+      "motion_max_mm": 21.594035292830423,
+      "motion_p95_deg": 2.513941509521577,
+      "motion_max_deg": 2.5150229699163207,
+      "static_target_met": false,
+      "motion_target_met": false,
+      "stable": true,
+      "valid": true,
+      "contact_peak_N": 0.0,
+      "position_limit_violations": 0,
+      "velocity_limit_violations": 0,
+      "finite": true,
+      "drive_saturation": "UNKNOWN"
+    },
+    "c1": {
+      "static_max_mm": 3.4525626979154826,
+      "static_max_deg": 0.46890701894755027,
+      "motion_p95_mm": 3.4478655409995245,
+      "motion_max_mm": 3.452629619422975,
+      "motion_p95_deg": 0.47206548114463376,
+      "motion_max_deg": 0.473385838067616,
+      "static_target_met": false,
+      "motion_target_met": false,
+      "stable": true,
+      "valid": true,
+      "contact_peak_N": 0.0,
+      "position_limit_violations": 0,
+      "velocity_limit_violations": 0,
+      "finite": true,
+      "drive_saturation": "UNKNOWN"
+    },
+    "c2": {
+      "static_max_mm": 1.4483247255234935,
+      "static_max_deg": 0.22233051632615056,
+      "motion_p95_mm": 1.4459293590146816,
+      "motion_max_mm": 1.4483273580873832,
+      "motion_p95_deg": 0.2233516978482726,
+      "motion_max_deg": 0.2239353496234092,
+      "static_target_met": false,
+      "motion_target_met": true,
+      "stable": true,
+      "valid": true,
+      "contact_peak_N": 0.0,
+      "position_limit_violations": 0,
+      "velocity_limit_violations": 0,
+      "finite": true,
+      "drive_saturation": "UNKNOWN"
+    },
+    "c3": {
+      "static_max_mm": 0.7446326533651205,
+      "static_max_deg": 0.13415433741882288,
+      "motion_p95_mm": 0.7432497010192259,
+      "motion_max_mm": 0.7449283488818782,
+      "motion_p95_deg": 0.13475357308717278,
+      "motion_max_deg": 0.13539260936924752,
+      "static_target_met": true,
+      "motion_target_met": true,
+      "stable": true,
+      "valid": true,
+      "contact_peak_N": 0.0,
+      "position_limit_violations": 0,
+      "velocity_limit_violations": 0,
+      "finite": true,
+      "drive_saturation": "UNKNOWN"
+    },
+    "baseline_heldout": {
+      "static_max_mm": 22.32866892371922,
+      "static_max_deg": 2.5551588284358866,
+      "motion_p95_mm": 22.321533519047346,
+      "motion_max_mm": 22.32866892371922,
+      "motion_p95_deg": 2.5545726177222434,
+      "motion_max_deg": 2.555366485657004,
+      "static_target_met": false,
+      "motion_target_met": false,
+      "stable": true,
+      "valid": true,
+      "contact_peak_N": 0.0,
+      "position_limit_violations": 0,
+      "velocity_limit_violations": 0,
+      "finite": true,
+      "drive_saturation": "UNKNOWN"
+    },
+    "best_heldout": {
+      "static_max_mm": 0.7730390989081856,
+      "static_max_deg": 0.10615902955178781,
+      "motion_p95_mm": 0.7726887664462921,
+      "motion_max_mm": 0.773823136427984,
+      "motion_p95_deg": 0.1068627159469479,
+      "motion_max_deg": 0.10725541404853496,
+      "static_target_met": true,
+      "motion_target_met": true,
+      "stable": true,
+      "valid": true,
+      "contact_peak_N": 0.0,
+      "position_limit_violations": 0,
+      "velocity_limit_violations": 0,
+      "finite": true,
+      "drive_saturation": "UNKNOWN"
+    }
+  },
+  "engineering_excursions": {
+    "baseline": {
+      "actual_speed_over_05_samples": 0,
+      "actual_acceleration_over_1_all_samples": 22,
+      "actual_acceleration_over_1_motion_samples": 0
+    },
+    "c1": {
+      "actual_speed_over_05_samples": 0,
+      "actual_acceleration_over_1_all_samples": 8,
+      "actual_acceleration_over_1_motion_samples": 0
+    },
+    "c2": {
+      "actual_speed_over_05_samples": 0,
+      "actual_acceleration_over_1_all_samples": 5,
+      "actual_acceleration_over_1_motion_samples": 0
+    },
+    "c3": {
+      "actual_speed_over_05_samples": 0,
+      "actual_acceleration_over_1_all_samples": 4,
+      "actual_acceleration_over_1_motion_samples": 0
+    },
+    "baseline_heldout": {
+      "actual_speed_over_05_samples": 0,
+      "actual_acceleration_over_1_all_samples": 22,
+      "actual_acceleration_over_1_motion_samples": 0
+    },
+    "best_heldout": {
+      "actual_speed_over_05_samples": 0,
+      "actual_acceleration_over_1_all_samples": 4,
+      "actual_acceleration_over_1_motion_samples": 0
+    }
+  }
+}

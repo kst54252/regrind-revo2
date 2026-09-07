@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "description": "Frozen before tuning: attached Revo2, no policy; all commands analytical quintics. Limits are engineering test bounds, not manufacturer ratings.",
+  "joint_names": ["base", "shoulder", "elbow", "wrist1", "wrist2", "wrist3"],
+  "physics_dt": 0.008333333333333333,
+  "reference": "outputs/isaac/dexycb/20200709_143747_left/rb3_revo2_reference_stable.h5",
+  "base_position": [0, 0, -0.02],
+  "base_quaternion_xyzw": [0, 0, 0, 1],
+  "poses": {
+    "A": [-0.378943432052465, -0.029246004979348178, 1.7220361164948876, 1.1828810838499995, 0.7714991270380727, -1.6689628094180518],
+    "B": [-0.10159344937712081, 0.07834751718879064, 1.4956663070251308, 0.9925831657448957, 0.6867563515053874, -1.4014848556514334],
+    "C": [0.31903652157001783, -0.19047076827436338, 1.9271780835131231, -0.18693110907949384, 0.19413532303314338, -0.09926469198274693],
+    "D_held_out": [-0.4847846460843322, 0.15664057084128633, 1.3515644064830403, 1.0973530108831222, 0.9995938554825708, -1.5425791425152784]
+  },
+  "initial_offset_from_A_rad": [-0.03, 0.03, -0.02, 0.02, 0, -0.02],
+  "initial_hold_s": 2.0,
+  "segment_duration_s": 6.0,
+  "hold_duration_s": 3.0,
+  "hold_window_s": 1.0,
+  "selection_sequence": ["A", "B", "C"],
+  "validation_sequence": ["D_held_out", "A"],
+  "hand_position_target_rad": 0.0,
+  "max_command_speed_rad_s": 0.5,
+  "max_command_acceleration_rad_s2": 1.0,
+  "static_position_target_m": 0.001,
+  "motion_p95_position_target_m": 0.002,
+  "rotation_target_deg": 0.5,
+  "stability_hold_peak_to_peak_rad": 0.0005,
+  "stability_hold_speed_rad_s": 0.005,
+  "contact_rejection_N": 0.01,
+  "baseline": {"kp": [300, 500, 500, 300, 200, 50], "kd": [20, 20, 20, 20, 20, 10]},
+  "candidate_limit_including_baseline": 12
+}

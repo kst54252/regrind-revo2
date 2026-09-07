@@ -1,5 +1,7 @@
 # Data pipeline and coordinate frames
 
+[Repository map](architecture.md) · [Current status](current-status.md)
+
 ## 단계별 출력
 
 ```text
@@ -11,7 +13,8 @@ dataset/<sequence>/
 ```
 
 `outputs/visualizations/dexycb/<sequence>/`에는 전처리 및 리타게팅 결과를 확인하는
-단일 HTML 파일이 생성됩니다. 결과물은 Git 대상이 아니며 원본과 코드로 재생성합니다.
+HTML이 생성됩니다. HTML page는 ignore되지만 일부 manifest는 추적될 수 있으므로
+visualization 디렉터리 전체를 일괄 삭제하지 않습니다.
 
 ## 핵심 배열
 
@@ -24,8 +27,9 @@ dataset/<sequence>/
 | `rb3_joints` | `(T, 6)` | RB3 strict-IK 결과 |
 | `reference_joints` | `(T, 12)` | RB3 다음 Revo2 순서 |
 
-Quaternion은 world 전처리와 최종 reference에서 `wxyz` convention을 메타데이터와
-함께 저장합니다. 로더가 Isaac API에 전달할 때 필요한 순서로 변환합니다.
+Quaternion order는 파일 메타데이터에 저장됩니다. Retargeted output은 `xyzw`,
+world trajectory는 `wxyz`, final RB3+Revo2 reference는 `xyzw`입니다. 로더는
+메타데이터를 읽고 필요한 API convention으로 변환합니다.
 
 ## 좌표계
 

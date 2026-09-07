@@ -516,6 +516,13 @@ class RB3Revo2ReferenceCommand(CommandTerm):
             root_velocity=root_velocity,
             env_ids=env_ids,
         )
+        # Isaac Lab resets actions before commands. The new RSI frame and XY
+        # placement must be selected and written before synchronizing online
+        # arm IK, otherwise its warm start belongs to the preceding episode.
+        if self.cfg.reset_wrist_ik_action is not None:
+            self._env.action_manager.get_term(
+                self.cfg.reset_wrist_ik_action
+            ).reset_from_reference(env_ids)
         if self.cfg.debug_output:
             print(f"[RSI] selected frame(s): {selected.detach().cpu().tolist()}")
             if self.cfg.randomize_object_xy:
@@ -561,6 +568,7 @@ class RB3Revo2ReferenceCommand(CommandTerm):
 @configclass
 class RB3Revo2ReferenceCommandCfg(CommandTermCfg):
     class_type: type = RB3Revo2ReferenceCommand
+    reset_wrist_ik_action: str | None = None
     trajectory_path: str = MISSING
     object_keypoints_path: str = MISSING
     robot_asset_name: str = "robot"

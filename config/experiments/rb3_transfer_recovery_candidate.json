@@ -1,0 +1,9 @@
+{
+  "status": "verified_old20_and_distinct_heldout20_simulation_only_not_default",
+  "arm_gains_key": "c3",
+  "arm_velocity_path": true,
+  "arm_response_physics": true,
+  "response_tau": 0.1,
+  "selection": "Frozen after 5/5 at tau=0.1 and tau=0.075; chose 0.1 for lower acceleration P95 and source-like lift. No held-out selection.",
+  "scope": "simulation only; frozen floating policy, six leader hand commands unchanged"
+}

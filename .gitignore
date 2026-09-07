@@ -10,7 +10,9 @@ Thumbs.db
 **/.idea/
 *.code-workspace
 **/browse.vc.db*
-/.agents/
+/.agents/*
+!/.agents/skills/
+!/.agents/skills/**
 /.codex/
 
 # -----------------------------------------------------------------------------
@@ -100,6 +102,7 @@ Thumbs.db
 # -----------------------------------------------------------------------------
 # Retain textured_simple.obj + textured_simple.usd + texture_map.png because
 # the GUI replay uses them. These heavier alternatives are not needed.
+/007_tuna_fish_can/object_points_50.png
 /007_tuna_fish_can/textured.obj
 /007_tuna_fish_can/textured.usd
 /007_tuna_fish_can/textured_simple.sdf

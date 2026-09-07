@@ -1,0 +1,4825 @@
+{
+  "trace": "/home/wanjunkim/ARSL/regrind-upload/outputs/diagnostics/arm_execution_random20_20260907.jsonl",
+  "metadata": {
+    "event": "metadata",
+    "wall_elapsed_s": 0.0033565789999556728,
+    "physics_step": 0,
+    "episode": 0,
+    "command_id": -1,
+    "joint_names": [
+      "base",
+      "shoulder",
+      "elbow",
+      "wrist1",
+      "wrist2",
+      "wrist3"
+    ],
+    "user_joint_names": [
+      "base",
+      "shoulder",
+      "elbow",
+      "wrist1",
+      "wrist2",
+      "wrist3",
+      "right_thumb_metacarpal_joint",
+      "right_index_proximal_joint",
+      "right_middle_proximal_joint",
+      "right_ring_proximal_joint",
+      "right_pinky_proximal_joint",
+      "right_thumb_proximal_joint",
+      "right_index_distal_joint",
+      "right_middle_distal_joint",
+      "right_ring_distal_joint",
+      "right_pinky_distal_joint",
+      "right_thumb_distal_joint"
+    ],
+    "backend_joint_names": [
+      "base",
+      "shoulder",
+      "elbow",
+      "wrist1",
+      "wrist2",
+      "wrist3",
+      "right_thumb_metacarpal_joint",
+      "right_index_proximal_joint",
+      "right_middle_proximal_joint",
+      "right_ring_proximal_joint",
+      "right_pinky_proximal_joint",
+      "right_thumb_proximal_joint",
+      "right_index_distal_joint",
+      "right_middle_distal_joint",
+      "right_ring_distal_joint",
+      "right_pinky_distal_joint",
+      "right_thumb_distal_joint"
+    ],
+    "user_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "backend_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "physics_dt": 0.008333333333333333,
+    "command_dt": 0.03333333333333333,
+    "decimation": 4,
+    "interpolation_substeps": 4,
+    "checkpoint": "/home/wanjunkim/ARSL/regrind-upload/logs/rsl_rl/floating_revo2_tuna/2026-09-05_16-46-54_floating_stable_ground_5000/model_4999.pt",
+    "reference": "/home/wanjunkim/ARSL/regrind-upload/outputs/isaac/dexycb/20200709_143747_left/rb3_revo2_reference_stable.h5",
+    "cli": {
+      "video": false,
+      "video_length": 270,
+      "disable_fabric": false,
+      "num_envs": 1,
+      "task": "Regrind-RB3-Revo2-TunaCan-Online-Play-v0",
+      "agent": "rsl_rl_cfg_entry_point",
+      "seed": null,
+      "zero_actions": false,
+      "auto_gravity_from_ckpt": false,
+      "real_time": false,
+      "max_steps": 0,
+      "eval_episodes": 20,
+      "rollout_path": null,
+      "rollout_frames": 0,
+      "arm_tracking_path": null,
+      "arm_tracking_max_lag": 8,
+      "arm_execution_trace": "outputs/diagnostics/arm_execution_random20_20260907.jsonl",
+      "rb3_stiffness_scale": 1.0,
+      "rb3_damping_scale": 1.0,
+      "rb3_effort_scale": 1.0,
+      "experiment_name": null,
+      "run_name": null,
+      "resume": false,
+      "load_run": null,
+      "checkpoint": "logs/rsl_rl/floating_revo2_tuna/2026-09-05_16-46-54_floating_stable_ground_5000/model_4999.pt",
+      "logger": null,
+      "log_project_name": null,
+      "xr": false,
+      "device": "cuda:0",
+      "visualizer": [],
+      "cpu": false,
+      "verbose": false,
+      "info": false,
+      "deterministic": false,
+      "kit_args": "",
+      "anim_recording_enabled": false,
+      "anim_recording_start_time": 0,
+      "anim_recording_stop_time": 10,
+      "headless": true,
+      "hide_ui": true,
+      "create_new_stage": false,
+      "physics_gpu": 0,
+      "active_gpu": 0
+    },
+    "hydra_overrides": [
+      "env.commands.reference.randomize_object_xy=true",
+      "env.commands.reference.trajectory_path=/home/wanjunkim/ARSL/regrind-upload/outputs/isaac/dexycb/20200709_143747_left/rb3_revo2_reference_stable.h5"
+    ],
+    "source_locations": {
+      "process_actions": {
+        "file": "/home/wanjunkim/ARSL/regrind-upload/regrind/source/regrind/regrind/tasks/manager_based/dexterous/mdp/rb3_revo2_actions.py",
+        "line": 307
+      },
+      "inverse": {
+        "file": "/home/wanjunkim/ARSL/regrind-upload/tools/rb3_revo2_ik/rb3_kinematics.py",
+        "line": 249
+      },
+      "apply_actions": {
+        "file": "/home/wanjunkim/ARSL/regrind-upload/regrind/source/regrind/regrind/tasks/manager_based/dexterous/mdp/rb3_revo2_actions.py",
+        "line": 385
+      },
+      "write_data_to_sim": {
+        "file": "/home/wanjunkim/IsaacLab/source/isaaclab_physx/isaaclab_physx/assets/articulation/articulation.py",
+        "line": 247
+      },
+      "backend_position_setter": {
+        "file": "/home/wanjunkim/IsaacLab/.venv/lib/python3.12/site-packages/isaacsim/extscache/omni.physics.tensors-110.1.13+110.1.2.lx64.r.cp312.u7f4/omni/physics/tensors/api.py",
+        "line": 1790
+      },
+      "physics_step": {
+        "file": "/home/wanjunkim/IsaacLab/source/isaaclab/isaaclab/sim/simulation_context.py",
+        "line": 660
+      },
+      "scene_update": {
+        "file": "/home/wanjunkim/IsaacLab/source/isaaclab/isaaclab/scene/interactive_scene.py",
+        "line": 527
+      },
+      "env_step": {
+        "file": "/home/wanjunkim/IsaacLab/source/isaaclab/isaaclab/envs/manager_based_rl_env.py",
+        "line": 183
+      },
+      "reference_update": {
+        "file": "/home/wanjunkim/ARSL/regrind-upload/regrind/source/regrind/regrind/tasks/manager_based/dexterous/mdp/rb3_revo2_commands.py",
+        "line": 532
+      },
+      "actuator_compute": {
+        "file": "/home/wanjunkim/IsaacLab/source/isaaclab/isaaclab/actuators/actuator_pd.py",
+        "line": 117
+      }
+    },
+    "seed": 42,
+    "base_position": [
+      0.0,
+      0.0,
+      -0.02
+    ],
+    "base_quaternion_xyzw": [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "model_config": "/home/wanjunkim/ARSL/regrind-upload/tools/rb3_revo2_ik/rb3_model.json",
+    "actuator_type": "isaaclab.actuators.actuator_pd.ImplicitActuator",
+    "actual_stiffness": [
+      300.0,
+      500.0,
+      500.0,
+      300.0,
+      200.0,
+      50.0
+    ],
+    "actual_damping": [
+      20.0,
+      20.0,
+      20.0,
+      20.0,
+      20.0,
+      10.0
+    ],
+    "actual_effort_limits": [
+      10.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      10.0
+    ],
+    "actual_velocity_limits": [
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0
+    ],
+    "actual_position_limits": [
+      [
+        -6.2831854820251465,
+        6.2831854820251465
+      ],
+      [
+        -6.2831854820251465,
+        6.2831854820251465
+      ],
+      [
+        -2.6179938316345215,
+        2.6179938316345215
+      ],
+      [
+        -6.2831854820251465,
+        6.2831854820251465
+      ],
+      [
+        -6.2831854820251465,
+        6.2831854820251465
+      ],
+      [
+        -6.2831854820251465,
+        6.2831854820251465
+      ]
+    ],
+    "reference_pose_source": "motion_target",
+    "scale_pos": 0.03333333333333333,
+    "scale_rot": 0.10666666666666667,
+    "raw_clip": [
+      -1.0,
+      1.0
+    ],
+    "quaternion_order": "xyzw",
+    "pose_frame": "world / right_hand_base_link",
+    "env_origin": [
+      -0.0,
+      0.0,
+      0.0
+    ],
+    "torque_note": "No torque measurement collected. ImplicitActuator computed/applied_effort are approximate PD estimates, not measured PhysX motor torque.",
+    "contact_note": "No new contact sensor; contact/grasp time unconfirmed. Can rise is only a kinematic proxy."
+  },
+  "samples": 2924,
+  "phase_definition": "Reset snapshots separate; first control interval = startup; remaining samples = work. No explicit warmup exists.",
+  "statistics": {
+    "startup_first_control_interval": {
+      "A_ik_position_m": {
+        "mean": 1.4881400761326925e-16,
+        "p95": 2.4136365895524896e-16,
+        "max": 5.755936923587804e-16,
+        "at": {
+          "episode": 11,
+          "time_s": 0.008333333333333333,
+          "physics_step": 1633,
+          "command_id": 408,
+          "reference_frame": 1,
+          "interpolation_step": 1
+        }
+      },
+      "A_ik_rotation_rad": {
+        "mean": 0.0,
+        "p95": 0.0,
+        "max": 0.0,
+        "at": {
+          "episode": 0,
+          "time_s": 0.008333333333333333,
+          "physics_step": 1,
+          "command_id": 0,
+          "reference_frame": 0,
+          "interpolation_step": 1
+        }
+      },
+      "B_command_position_m": {
+        "mean": 0.004511677325157961,
+        "p95": 0.009226715034065388,
+        "max": 0.009243318266423318,
+        "at": {
+          "episode": 11,
+          "time_s": 0.008333333333333333,
+          "physics_step": 1633,
+          "command_id": 408,
+          "reference_frame": 1,
+          "interpolation_step": 1
+        }
+      },
+      "B_command_rotation_rad": {
+        "mean": 0.014610354138252499,
+        "p95": 0.029739875415687775,
+        "max": 0.029808277895995234,
+        "at": {
+          "episode": 11,
+          "time_s": 0.008333333333333333,
+          "physics_step": 1633,
+          "command_id": 408,
+          "reference_frame": 1,
+          "interpolation_step": 1
+        }
+      },
+      "C_tracking_position_m": {
+        "mean": 0.005863878495250744,
+        "p95": 0.00898028565604172,
+        "max": 0.009197601552064089,
+        "at": {
+          "episode": 11,
+          "time_s": 0.03333333333333333,
+          "physics_step": 1636,
+          "command_id": 408,
+          "reference_frame": 1,
+          "interpolation_step": 4
+        }
+      },
+      "C_tracking_rotation_rad": {
+        "mean": 0.017858032594580568,
+        "p95": 0.027038912355404846,
+        "max": 0.027494587369245357,
+        "at": {
+          "episode": 12,
+          "time_s": 0.03333333333333333,
+          "physics_step": 1784,
+          "command_id": 445,
+          "reference_frame": 1,
+          "interpolation_step": 4
+        }
+      },
+      "total_position_m": {
+        "mean": 0.010343367045719365,
+        "p95": 0.012039363329600188,
+        "max": 0.01207650470570397,
+        "at": {
+          "episode": 11,
+          "time_s": 0.008333333333333333,
+          "physics_step": 1633,
+          "command_id": 408,
+          "reference_frame": 1,
+          "interpolation_step": 1
+        }
+      },
+      "total_rotation_rad": {
+        "mean": 0.032459717224050125,
+        "p95": 0.03844415035322877,
+        "max": 0.038657586250124984,
+        "at": {
+          "episode": 15,
+          "time_s": 0.008333333333333333,
+          "physics_step": 2225,
+          "command_id": 556,
+          "reference_frame": 1,
+          "interpolation_step": 1
+        }
+      },
+      "FK_runtime_consistency_position_m": {
+        "mean": 2.0403653130689317e-07,
+        "p95": 3.739648931396793e-07,
+        "max": 4.646996480195202e-07,
+        "at": {
+          "episode": 8,
+          "time_s": 0.008333333333333333,
+          "physics_step": 1189,
+          "command_id": 297,
+          "reference_frame": 1,
+          "interpolation_step": 1
+        }
+      },
+      "FK_runtime_consistency_rotation_rad": {
+        "mean": 6.112748908836078e-07,
+        "p95": 1.0145427635301687e-06,
+        "max": 1.1710454645388591e-06,
+        "at": {
+          "episode": 7,
+          "time_s": 0.016666666666666666,
+          "physics_step": 1042,
+          "command_id": 260,
+          "reference_frame": 1,
+          "interpolation_step": 2
+        }
+      }
+    },
+    "work": {
+      "A_ik_position_m": {
+        "mean": 3.428017696167089e-16,
+        "p95": 1.475033239684537e-15,
+        "max": 1.07411208800828e-14,
+        "at": {
+          "episode": 16,
+          "time_s": 1.175,
+          "physics_step": 2473,
+          "command_id": 618,
+          "reference_frame": 36,
+          "interpolation_step": 1
+        }
+      },
+      "A_ik_rotation_rad": {
+        "mean": 2.4819844984470217e-09,
+        "p95": 2.9802322387695312e-08,
+        "max": 4.2146848510894035e-08,
+        "at": {
+          "episode": 2,
+          "time_s": 0.375,
+          "physics_step": 345,
+          "command_id": 86,
+          "reference_frame": 12,
+          "interpolation_step": 1
+        }
+      },
+      "B_command_position_m": {
+        "mean": 0.003843571004454665,
+        "p95": 0.009741567633168432,
+        "max": 0.019671273337487565,
+        "at": {
+          "episode": 15,
+          "time_s": 0.5416666666666666,
+          "physics_step": 2289,
+          "command_id": 572,
+          "reference_frame": 17,
+          "interpolation_step": 1
+        }
+      },
+      "B_command_rotation_rad": {
+        "mean": 0.01177921560421674,
+        "p95": 0.03209746410518258,
+        "max": 0.048474433695255136,
+        "at": {
+          "episode": 19,
+          "time_s": 0.475,
+          "physics_step": 2833,
+          "command_id": 708,
+          "reference_frame": 15,
+          "interpolation_step": 1
+        }
+      },
+      "C_tracking_position_m": {
+        "mean": 0.01929922112226658,
+        "p95": 0.044119183962376254,
+        "max": 0.05614084471920026,
+        "at": {
+          "episode": 4,
+          "time_s": 0.6,
+          "physics_step": 668,
+          "command_id": 166,
+          "reference_frame": 18,
+          "interpolation_step": 4
+        }
+      },
+      "C_tracking_rotation_rad": {
+        "mean": 0.12832899989109747,
+        "p95": 0.3958391620264881,
+        "max": 0.8106650316759132,
+        "at": {
+          "episode": 19,
+          "time_s": 1.2083333333333333,
+          "physics_step": 2921,
+          "command_id": 730,
+          "reference_frame": 37,
+          "interpolation_step": 1
+        }
+      },
+      "total_position_m": {
+        "mean": 0.0228728818738763,
+        "p95": 0.05045319743241139,
+        "max": 0.06681995301980183,
+        "at": {
+          "episode": 4,
+          "time_s": 0.6083333333333333,
+          "physics_step": 669,
+          "command_id": 167,
+          "reference_frame": 19,
+          "interpolation_step": 1
+        }
+      },
+      "total_rotation_rad": {
+        "mean": 0.13644577773084185,
+        "p95": 0.39526836986116404,
+        "max": 0.8102032879687625,
+        "at": {
+          "episode": 19,
+          "time_s": 1.2,
+          "physics_step": 2920,
+          "command_id": 729,
+          "reference_frame": 36,
+          "interpolation_step": 4
+        }
+      },
+      "FK_runtime_consistency_position_m": {
+        "mean": 2.1983443765111667e-07,
+        "p95": 4.1554994068141596e-07,
+        "max": 6.282147456211708e-07,
+        "at": {
+          "episode": 14,
+          "time_s": 0.3333333333333333,
+          "physics_step": 2116,
+          "command_id": 528,
+          "reference_frame": 10,
+          "interpolation_step": 4
+        }
+      },
+      "FK_runtime_consistency_rotation_rad": {
+        "mean": 6.180499016526911e-07,
+        "p95": 1.070687535428469e-06,
+        "max": 1.7003001958842685e-06,
+        "at": {
+          "episode": 13,
+          "time_s": 0.9833333333333333,
+          "physics_step": 2046,
+          "command_id": 511,
+          "reference_frame": 30,
+          "interpolation_step": 2
+        }
+      }
+    },
+    "all": {
+      "A_ik_position_m": {
+        "mean": 3.3749430690799633e-16,
+        "p95": 1.1673851243905792e-15,
+        "max": 1.07411208800828e-14,
+        "at": {
+          "episode": 16,
+          "time_s": 1.175,
+          "physics_step": 2473,
+          "command_id": 618,
+          "reference_frame": 36,
+          "interpolation_step": 1
+        }
+      },
+      "A_ik_rotation_rad": {
+        "mean": 2.414077945821932e-09,
+        "p95": 2.9802322387695312e-08,
+        "max": 4.2146848510894035e-08,
+        "at": {
+          "episode": 2,
+          "time_s": 0.375,
+          "physics_step": 345,
+          "command_id": 86,
+          "reference_frame": 12,
+          "interpolation_step": 1
+        }
+      },
+      "B_command_position_m": {
+        "mean": 0.0038618502471551657,
+        "p95": 0.009735076838845724,
+        "max": 0.019671273337487565,
+        "at": {
+          "episode": 15,
+          "time_s": 0.5416666666666666,
+          "physics_step": 2289,
+          "command_id": 572,
+          "reference_frame": 17,
+          "interpolation_step": 1
+        }
+      },
+      "B_command_rotation_rad": {
+        "mean": 0.011856674934833314,
+        "p95": 0.032072080040390305,
+        "max": 0.048474433695255136,
+        "at": {
+          "episode": 19,
+          "time_s": 0.475,
+          "physics_step": 2833,
+          "command_id": 708,
+          "reference_frame": 15,
+          "interpolation_step": 1
+        }
+      },
+      "C_tracking_position_m": {
+        "mean": 0.018931633088695696,
+        "p95": 0.0439128102342005,
+        "max": 0.05614084471920026,
+        "at": {
+          "episode": 4,
+          "time_s": 0.6,
+          "physics_step": 668,
+          "command_id": 166,
+          "reference_frame": 18,
+          "interpolation_step": 4
+        }
+      },
+      "C_tracking_rotation_rad": {
+        "mean": 0.12530653840555667,
+        "p95": 0.3874796682260578,
+        "max": 0.8106650316759132,
+        "at": {
+          "episode": 19,
+          "time_s": 1.2083333333333333,
+          "physics_step": 2921,
+          "command_id": 730,
+          "reference_frame": 37,
+          "interpolation_step": 1
+        }
+      },
+      "total_position_m": {
+        "mean": 0.022530077090616187,
+        "p95": 0.05002338884085339,
+        "max": 0.06681995301980183,
+        "at": {
+          "episode": 4,
+          "time_s": 0.6083333333333333,
+          "physics_step": 669,
+          "command_id": 167,
+          "reference_frame": 19,
+          "interpolation_step": 1
+        }
+      },
+      "total_rotation_rad": {
+        "mean": 0.13360074187566287,
+        "p95": 0.39145483868911846,
+        "max": 0.8102032879687625,
+        "at": {
+          "episode": 19,
+          "time_s": 1.2,
+          "physics_step": 2920,
+          "command_id": 729,
+          "reference_frame": 36,
+          "interpolation_step": 4
+        }
+      },
+      "FK_runtime_consistency_position_m": {
+        "mean": 2.194022103913568e-07,
+        "p95": 4.154127679276258e-07,
+        "max": 6.282147456211708e-07,
+        "at": {
+          "episode": 14,
+          "time_s": 0.3333333333333333,
+          "physics_step": 2116,
+          "command_id": 528,
+          "reference_frame": 10,
+          "interpolation_step": 4
+        }
+      },
+      "FK_runtime_consistency_rotation_rad": {
+        "mean": 6.178645388409515e-07,
+        "p95": 1.068611672256022e-06,
+        "max": 1.7003001958842685e-06,
+        "at": {
+          "episode": 13,
+          "time_s": 0.9833333333333333,
+          "physics_step": 2046,
+          "command_id": 511,
+          "reference_frame": 30,
+          "interpolation_step": 2
+        }
+      }
+    }
+  },
+  "solver": {
+    "failed_command_ids": [],
+    "fallback_command_ids": [],
+    "optimizer_failure_ids": []
+  },
+  "delivery": {
+    "q_pre_send_max_delta_rad": 0.0,
+    "q_post_actuator_max_delta_rad": 0.0,
+    "q_pre_physics_buffer_max_delta_rad": 0.0,
+    "q_after_physics_buffer_max_delta_rad": 0.0,
+    "backend_position_calls_min_max": [
+      1,
+      1
+    ],
+    "backend_velocity_calls_min_max": [
+      1,
+      1
+    ],
+    "actual_backend_setter_max_delta_rad": 0.0,
+    "backend_overwrite_samples": [],
+    "velocity_target_max_abs_rad_s": 0.0
+  },
+  "initialization": [
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 0.003636059002019465,
+      "physics_step": 0,
+      "episode": 0,
+      "command_id": -1,
+      "q_actual": [
+        -0.7298250198364258,
+        0.03286467492580414,
+        2.2231266498565674,
+        1.5626410245895386,
+        0.996645450592041,
+        -2.4653501510620117
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.3241533637046814,
+        -0.1394520401954651,
+        0.14413824677467346
+      ],
+      "actual_base_quat_xyzw": [
+        -0.27268341183662415,
+        0.7746904492378235,
+        0.024138612672686577,
+        0.5700139403343201
+      ],
+      "object_pos": [
+        0.43264180421829224,
+        -0.07406100630760193,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    },
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 3.6941337880052743,
+      "physics_step": 152,
+      "episode": 1,
+      "command_id": 37,
+      "q_actual": [
+        -0.4080590307712555,
+        -0.15242652595043182,
+        2.3966050148010254,
+        1.7768877744674683,
+        0.7467928528785706,
+        -2.482367515563965
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.3273478150367737,
+        -0.046187546104192734,
+        0.1441384255886078
+      ],
+      "actual_base_quat_xyzw": [
+        -0.27268320322036743,
+        0.7746903896331787,
+        0.024138489738106728,
+        0.5700140595436096
+      ],
+      "object_pos": [
+        0.4358360469341278,
+        0.019203633069992065,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    },
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 7.188831642000878,
+      "physics_step": 300,
+      "episode": 2,
+      "command_id": 74,
+      "q_actual": [
+        -0.670906126499176,
+        0.07171113789081573,
+        2.1821022033691406,
+        1.5987095832824707,
+        0.95096755027771,
+        -2.4632632732391357
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.34397438168525696,
+        -0.13446764647960663,
+        0.1441384255886078
+      ],
+      "actual_base_quat_xyzw": [
+        -0.27268341183662415,
+        0.7746903896331787,
+        0.024138493463397026,
+        0.5700140595436096
+      ],
+      "object_pos": [
+        0.4524625837802887,
+        -0.06907656788825989,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    },
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 10.553663251004764,
+      "physics_step": 448,
+      "episode": 3,
+      "command_id": 111,
+      "q_actual": [
+        -0.8136162757873535,
+        0.06142979860305786,
+        2.1931169033050537,
+        1.5101200342178345,
+        1.0615665912628174,
+        -2.4662728309631348
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.31347861886024475,
+        -0.1617898941040039,
+        0.1441383808851242
+      ],
+      "actual_base_quat_xyzw": [
+        -0.27268335223197937,
+        0.7746904492378235,
+        0.024138374254107475,
+        0.5700139999389648
+      ],
+      "object_pos": [
+        0.4219668507575989,
+        -0.09639867395162582,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    },
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 13.949102972001128,
+      "physics_step": 596,
+      "episode": 4,
+      "command_id": 148,
+      "q_actual": [
+        -0.7969431281089783,
+        0.35564953088760376,
+        1.8354042768478394,
+        1.4839671850204468,
+        1.0530215501785278,
+        -2.392453670501709
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.3835592567920685,
+        -0.2267289012670517,
+        0.14413845539093018
+      ],
+      "actual_base_quat_xyzw": [
+        -0.27268290519714355,
+        0.7746905088424683,
+        0.024138296023011208,
+        0.5700141787528992
+      ],
+      "object_pos": [
+        0.49204766750335693,
+        -0.16133752465248108,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    },
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 17.482868556005997,
+      "physics_step": 744,
+      "episode": 5,
+      "command_id": 185,
+      "q_actual": [
+        -0.7015952467918396,
+        0.010001694783568382,
+        2.2465157508850098,
+        1.5808744430541992,
+        0.9747927188873291,
+        -2.4660065174102783
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.32431790232658386,
+        -0.12940432131290436,
+        0.1441384106874466
+      ],
+      "actual_base_quat_xyzw": [
+        -0.27268296480178833,
+        0.774690568447113,
+        0.024138323962688446,
+        0.5700141787528992
+      ],
+      "object_pos": [
+        0.4328061640262604,
+        -0.06401297450065613,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    },
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 20.7844408900055,
+      "physics_step": 892,
+      "episode": 6,
+      "command_id": 222,
+      "q_actual": [
+        -0.6275219321250916,
+        0.19492332637310028,
+        2.0414695739746094,
+        1.6138073205947876,
+        0.9164814352989197,
+        -2.4431049823760986
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.383015513420105,
+        -0.14739865064620972,
+        0.14413847029209137
+      ],
+      "actual_base_quat_xyzw": [
+        -0.2726832926273346,
+        0.7746903300285339,
+        0.024138303473591805,
+        0.5700140595436096
+      ],
+      "object_pos": [
+        0.4915037751197815,
+        -0.08200746029615402,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    },
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 24.205135343006987,
+      "physics_step": 1040,
+      "episode": 7,
+      "command_id": 259,
+      "q_actual": [
+        -0.8037901520729065,
+        0.2851039469242096,
+        1.9288330078125,
+        1.4931174516677856,
+        1.056648850440979,
+        -2.4191946983337402
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.3651513457298279,
+        -0.2113753706216812,
+        0.14413852989673615
+      ],
+      "actual_base_quat_xyzw": [
+        -0.2726832926273346,
+        0.7746903300285339,
+        0.024138344451785088,
+        0.5700141787528992
+      ],
+      "object_pos": [
+        0.47363972663879395,
+        -0.1459842324256897,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    },
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 27.726228410007025,
+      "physics_step": 1188,
+      "episode": 8,
+      "command_id": 296,
+      "q_actual": [
+        -0.8603131175041199,
+        0.2188480794429779,
+        2.0123608112335205,
+        1.4702017307281494,
+        1.099870204925537,
+        -2.4432504177093506
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.33572643995285034,
+        -0.20800244808197021,
+        0.14413845539093018
+      ],
+      "actual_base_quat_xyzw": [
+        -0.2726830244064331,
+        0.7746905088424683,
+        0.02413843385875225,
+        0.5700139999389648
+      ],
+      "object_pos": [
+        0.444214791059494,
+        -0.14261123538017273,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    },
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 31.155360520002432,
+      "physics_step": 1336,
+      "episode": 9,
+      "command_id": 333,
+      "q_actual": [
+        -0.25871050357818604,
+        -0.16566337645053864,
+        2.407614231109619,
+        1.90522038936615,
+        0.633604109287262,
+        -2.5279624462127686
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.33611488342285156,
+        -0.013876228593289852,
+        0.14413832128047943
+      ],
+      "actual_base_quat_xyzw": [
+        -0.2726830840110779,
+        0.7746905088424683,
+        0.02413840964436531,
+        0.5700139999389648
+      ],
+      "object_pos": [
+        0.44460323452949524,
+        0.05151502788066864,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    },
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 34.56323645400698,
+      "physics_step": 1484,
+      "episode": 10,
+      "command_id": 370,
+      "q_actual": [
+        -0.40688633918762207,
+        -0.06097561493515968,
+        2.315551996231079,
+        1.7887990474700928,
+        0.7480887770652771,
+        -2.4976041316986084
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.3492721617221832,
+        -0.05534781515598297,
+        0.14413829147815704
+      ],
+      "actual_base_quat_xyzw": [
+        -0.27268290519714355,
+        0.774690568447113,
+        0.024138640612363815,
+        0.5700139999389648
+      ],
+      "object_pos": [
+        0.4577605724334717,
+        0.010043531656265259,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    },
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 37.9815300160044,
+      "physics_step": 1632,
+      "episode": 11,
+      "command_id": 407,
+      "q_actual": [
+        -0.19352459907531738,
+        -0.3067849576473236,
+        2.5141685009002686,
+        1.9229353666305542,
+        0.5732488036155701,
+        -2.501317024230957
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.3083936870098114,
+        0.0062935492023825645,
+        0.14413826167583466
+      ],
+      "actual_base_quat_xyzw": [
+        -0.2726829946041107,
+        0.774690568447113,
+        0.024138621985912323,
+        0.5700138807296753
+      ],
+      "object_pos": [
+        0.41688212752342224,
+        0.07168479263782501,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    },
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 41.3383704920052,
+      "physics_step": 1780,
+      "episode": 12,
+      "command_id": 444,
+      "q_actual": [
+        -0.985211968421936,
+        0.2857262194156647,
+        1.9280287027359009,
+        1.3928265571594238,
+        1.200608253479004,
+        -2.4394452571868896
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.31427404284477234,
+        -0.2509748935699463,
+        0.14413858950138092
+      ],
+      "actual_base_quat_xyzw": [
+        -0.27268311381340027,
+        0.7746902704238892,
+        0.024138284847140312,
+        0.5700141191482544
+      ],
+      "object_pos": [
+        0.42276236414909363,
+        -0.18558362126350403,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    },
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 44.872992653006804,
+      "physics_step": 1928,
+      "episode": 13,
+      "command_id": 481,
+      "q_actual": [
+        -0.060031574219465256,
+        -0.11954160779714584,
+        2.3684701919555664,
+        2.1472063064575195,
+        0.4971117079257965,
+        -2.6668899059295654
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.35590875148773193,
+        0.028747670352458954,
+        0.1441381871700287
+      ],
+      "actual_base_quat_xyzw": [
+        -0.27268338203430176,
+        0.7746904492378235,
+        0.02413853071630001,
+        0.5700138807296753
+      ],
+      "object_pos": [
+        0.46439722180366516,
+        0.09413881599903107,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    },
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 48.291493052005535,
+      "physics_step": 2076,
+      "episode": 14,
+      "command_id": 518,
+      "q_actual": [
+        -0.9391219615936279,
+        0.25383830070495605,
+        1.9687745571136475,
+        1.4217560291290283,
+        1.1628937721252441,
+        -2.4424211978912354
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.32162606716156006,
+        -0.23326367139816284,
+        0.14413833618164062
+      ],
+      "actual_base_quat_xyzw": [
+        -0.2726829946041107,
+        0.7746906280517578,
+        0.024138450622558594,
+        0.5700139999389648
+      ],
+      "object_pos": [
+        0.43011441826820374,
+        -0.16787241399288177,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    },
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 51.761931908004044,
+      "physics_step": 2224,
+      "episode": 15,
+      "command_id": 555,
+      "q_actual": [
+        0.21072298288345337,
+        -0.13618983328342438,
+        2.3828539848327637,
+        2.6627848148345947,
+        0.35140085220336914,
+        -3.0440733432769775
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.3487541079521179,
+        0.09091779589653015,
+        0.14413811266422272
+      ],
+      "actual_base_quat_xyzw": [
+        -0.27268269658088684,
+        0.7746909260749817,
+        0.024138445034623146,
+        0.5700137615203857
+      ],
+      "object_pos": [
+        0.45724236965179443,
+        0.15630923211574554,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    },
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 54.04490298100427,
+      "physics_step": 2332,
+      "episode": 16,
+      "command_id": 582,
+      "q_actual": [
+        -0.9114243984222412,
+        0.3462664783000946,
+        1.8480870723724365,
+        1.4244205951690674,
+        1.14503812789917,
+        -2.4082727432250977
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.348383367061615,
+        -0.25217941403388977,
+        0.14413848519325256
+      ],
+      "actual_base_quat_xyzw": [
+        -0.2726832926273346,
+        0.7746904492378235,
+        0.024138523265719414,
+        0.5700140595436096
+      ],
+      "object_pos": [
+        0.4568716883659363,
+        -0.18678821623325348,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    },
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 57.6024838020021,
+      "physics_step": 2480,
+      "episode": 17,
+      "command_id": 619,
+      "q_actual": [
+        -0.04057082161307335,
+        -0.06414340436458588,
+        2.318507432937622,
+        2.1836421489715576,
+        0.48762959241867065,
+        -2.6943349838256836
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.370849072933197,
+        0.03269290179014206,
+        0.14413835108280182
+      ],
+      "actual_base_quat_xyzw": [
+        -0.27268296480178833,
+        0.7746904492378235,
+        0.024138620123267174,
+        0.5700141787528992
+      ],
+      "object_pos": [
+        0.4793374538421631,
+        0.09808413684368134,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    },
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 61.07278870200389,
+      "physics_step": 2628,
+      "episode": 18,
+      "command_id": 656,
+      "q_actual": [
+        -0.8254479169845581,
+        0.31810200214385986,
+        1.8856897354125977,
+        1.4754598140716553,
+        1.0748569965362549,
+        -2.4093637466430664
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.36697280406951904,
+        -0.22470898926258087,
+        0.14413847029209137
+      ],
+      "actual_base_quat_xyzw": [
+        -0.27268338203430176,
+        0.7746903300285339,
+        0.02413851208984852,
+        0.5700141191482544
+      ],
+      "object_pos": [
+        0.47546103596687317,
+        -0.15931791067123413,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    },
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 64.5628007070045,
+      "physics_step": 2776,
+      "episode": 19,
+      "command_id": 693,
+      "q_actual": [
+        0.006036535836756229,
+        -0.09418249130249023,
+        2.3460021018981934,
+        2.2517306804656982,
+        0.4572257697582245,
+        -2.7377841472625732
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.3633376955986023,
+        0.04421277344226837,
+        0.1441383808851242
+      ],
+      "actual_base_quat_xyzw": [
+        -0.27268290519714355,
+        0.7746905088424683,
+        0.024138571694493294,
+        0.5700139403343201
+      ],
+      "object_pos": [
+        0.4718260169029236,
+        0.10960410535335541,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    },
+    {
+      "event": "initialization",
+      "wall_elapsed_s": 67.97966868799995,
+      "physics_step": 2924,
+      "episode": 20,
+      "command_id": 730,
+      "q_actual": [
+        0.338855504989624,
+        -0.005242135841399431,
+        2.261798620223999,
+        3.0205509662628174,
+        0.33121776580810547,
+        -3.3378305435180664
+      ],
+      "q_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_base_pos": [
+        0.37476131319999695,
+        0.13112862408161163,
+        0.14413820207118988
+      ],
+      "actual_base_quat_xyzw": [
+        0.2726829946041107,
+        -0.7746906876564026,
+        -0.024138566106557846,
+        -0.5700137615203857
+      ],
+      "object_pos": [
+        0.4832497239112854,
+        0.19651992619037628,
+        0.012636000290513039
+      ],
+      "object_quat_xyzw": [
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22
+      ],
+      "reference_frame": 0
+    }
+  ],
+  "episodes": [
+    {
+      "episode": 0,
+      "start": [
+        0.43264180421829224,
+        -0.07406100630760193,
+        0.012636000290513039
+      ],
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": true,
+        "success": true,
+        "object_deviation": false,
+        "hand_far_from_object": false
+      },
+      "max_rise_m": 0.24132481776177883,
+      "final_rise_m": 0.24132481776177883,
+      "first_rise_over_2cm_s": 0.3416666666666667,
+      "contact_time": "unconfirmed",
+      "grasp_time": "unconfirmed",
+      "statistics": {
+        "A_ik_position_m": {
+          "mean": 2.070094762797484e-16,
+          "p95": 2.5178531266853796e-16,
+          "max": 3.202853923578809e-15,
+          "at": {
+            "episode": 0,
+            "time_s": 1.2416666666666667,
+            "physics_step": 149,
+            "command_id": 37,
+            "reference_frame": 37,
+            "interpolation_step": 1
+          }
+        },
+        "A_ik_rotation_rad": {
+          "mean": 1.568543283562911e-09,
+          "p95": 1.3411045074462552e-08,
+          "max": 2.9802322387695312e-08,
+          "at": {
+            "episode": 0,
+            "time_s": 0.5083333333333333,
+            "physics_step": 61,
+            "command_id": 15,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_position_m": {
+          "mean": 0.0037877825413445664,
+          "p95": 0.00972072519169568,
+          "max": 0.014569031172406856,
+          "at": {
+            "episode": 0,
+            "time_s": 0.5416666666666666,
+            "physics_step": 65,
+            "command_id": 16,
+            "reference_frame": 16,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_rotation_rad": {
+          "mean": 0.011478081445931609,
+          "p95": 0.03147865738115171,
+          "max": 0.04132598966708,
+          "at": {
+            "episode": 0,
+            "time_s": 0.5083333333333333,
+            "physics_step": 61,
+            "command_id": 15,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_position_m": {
+          "mean": 0.017934217927953956,
+          "p95": 0.041591796111610645,
+          "max": 0.04565451852129545,
+          "at": {
+            "episode": 0,
+            "time_s": 0.625,
+            "physics_step": 75,
+            "command_id": 18,
+            "reference_frame": 18,
+            "interpolation_step": 3
+          }
+        },
+        "C_tracking_rotation_rad": {
+          "mean": 0.1099992596032708,
+          "p95": 0.2093596522297248,
+          "max": 0.2119537771459116,
+          "at": {
+            "episode": 0,
+            "time_s": 1.1583333333333332,
+            "physics_step": 139,
+            "command_id": 34,
+            "reference_frame": 34,
+            "interpolation_step": 3
+          }
+        },
+        "total_position_m": {
+          "mean": 0.021445031672060966,
+          "p95": 0.04645420585004352,
+          "max": 0.05773006000514306,
+          "at": {
+            "episode": 0,
+            "time_s": 0.6083333333333333,
+            "physics_step": 73,
+            "command_id": 18,
+            "reference_frame": 18,
+            "interpolation_step": 1
+          }
+        },
+        "total_rotation_rad": {
+          "mean": 0.11709873142137922,
+          "p95": 0.20767351186245758,
+          "max": 0.21180773250633153,
+          "at": {
+            "episode": 0,
+            "time_s": 1.1666666666666667,
+            "physics_step": 140,
+            "command_id": 34,
+            "reference_frame": 34,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_position_m": {
+          "mean": 2.142287065815436e-07,
+          "p95": 3.616150074290869e-07,
+          "max": 4.861001558705103e-07,
+          "at": {
+            "episode": 0,
+            "time_s": 0.3333333333333333,
+            "physics_step": 40,
+            "command_id": 9,
+            "reference_frame": 9,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_rotation_rad": {
+          "mean": 5.808463891094332e-07,
+          "p95": 9.816636972503698e-07,
+          "max": 1.3440814356541507e-06,
+          "at": {
+            "episode": 0,
+            "time_s": 0.25,
+            "physics_step": 30,
+            "command_id": 7,
+            "reference_frame": 7,
+            "interpolation_step": 2
+          }
+        }
+      }
+    },
+    {
+      "episode": 1,
+      "start": [
+        0.4358360469341278,
+        0.019203633069992065,
+        0.012636000290513039
+      ],
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": true,
+        "success": true,
+        "object_deviation": false,
+        "hand_far_from_object": false
+      },
+      "max_rise_m": 0.23902643285691738,
+      "final_rise_m": 0.23902643285691738,
+      "first_rise_over_2cm_s": 0.30833333333333335,
+      "contact_time": "unconfirmed",
+      "grasp_time": "unconfirmed",
+      "statistics": {
+        "A_ik_position_m": {
+          "mean": 1.6627739098350867e-16,
+          "p95": 5.9531941993087e-16,
+          "max": 8.259615817642904e-16,
+          "at": {
+            "episode": 1,
+            "time_s": 0.9083333333333333,
+            "physics_step": 261,
+            "command_id": 65,
+            "reference_frame": 28,
+            "interpolation_step": 1
+          }
+        },
+        "A_ik_rotation_rad": {
+          "mean": 3.2218726905616556e-09,
+          "p95": 2.9802322387695312e-08,
+          "max": 2.9802322387695312e-08,
+          "at": {
+            "episode": 1,
+            "time_s": 0.275,
+            "physics_step": 185,
+            "command_id": 46,
+            "reference_frame": 9,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_position_m": {
+          "mean": 0.003882359165601698,
+          "p95": 0.009825112196446347,
+          "max": 0.014668331385666165,
+          "at": {
+            "episode": 1,
+            "time_s": 0.5083333333333333,
+            "physics_step": 213,
+            "command_id": 53,
+            "reference_frame": 16,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_rotation_rad": {
+          "mean": 0.011779867927794226,
+          "p95": 0.03160819551555472,
+          "max": 0.03940233643167646,
+          "at": {
+            "episode": 1,
+            "time_s": 0.475,
+            "physics_step": 209,
+            "command_id": 52,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_position_m": {
+          "mean": 0.017300688646144233,
+          "p95": 0.03875757582962739,
+          "max": 0.042941342636675504,
+          "at": {
+            "episode": 1,
+            "time_s": 0.5916666666666667,
+            "physics_step": 223,
+            "command_id": 55,
+            "reference_frame": 18,
+            "interpolation_step": 3
+          }
+        },
+        "C_tracking_rotation_rad": {
+          "mean": 0.16343742770565575,
+          "p95": 0.446763012846569,
+          "max": 0.4595415178566803,
+          "at": {
+            "episode": 1,
+            "time_s": 1.1416666666666666,
+            "physics_step": 289,
+            "command_id": 72,
+            "reference_frame": 35,
+            "interpolation_step": 1
+          }
+        },
+        "total_position_m": {
+          "mean": 0.02093997985049839,
+          "p95": 0.043505066507909494,
+          "max": 0.05546094609602899,
+          "at": {
+            "episode": 1,
+            "time_s": 0.575,
+            "physics_step": 221,
+            "command_id": 55,
+            "reference_frame": 18,
+            "interpolation_step": 1
+          }
+        },
+        "total_rotation_rad": {
+          "mean": 0.1703411171072271,
+          "p95": 0.4442088367443686,
+          "max": 0.4591004205394502,
+          "at": {
+            "episode": 1,
+            "time_s": 1.1333333333333333,
+            "physics_step": 288,
+            "command_id": 71,
+            "reference_frame": 34,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_position_m": {
+          "mean": 1.6011230091278806e-07,
+          "p95": 2.769888616537251e-07,
+          "max": 4.678170862706757e-07,
+          "at": {
+            "episode": 1,
+            "time_s": 0.36666666666666664,
+            "physics_step": 196,
+            "command_id": 48,
+            "reference_frame": 11,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_rotation_rad": {
+          "mean": 4.689863714662862e-07,
+          "p95": 8.30938187324664e-07,
+          "max": 9.721223372399956e-07,
+          "at": {
+            "episode": 1,
+            "time_s": 0.7,
+            "physics_step": 236,
+            "command_id": 58,
+            "reference_frame": 21,
+            "interpolation_step": 4
+          }
+        }
+      }
+    },
+    {
+      "episode": 2,
+      "start": [
+        0.4524625837802887,
+        -0.06907656788825989,
+        0.012636000290513039
+      ],
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": true,
+        "success": true,
+        "object_deviation": false,
+        "hand_far_from_object": false
+      },
+      "max_rise_m": 0.2446156796067953,
+      "final_rise_m": 0.2446156796067953,
+      "first_rise_over_2cm_s": 0.30833333333333335,
+      "contact_time": "unconfirmed",
+      "grasp_time": "unconfirmed",
+      "statistics": {
+        "A_ik_position_m": {
+          "mean": 1.357521787261205e-16,
+          "p95": 2.388617846822466e-16,
+          "max": 2.9634845277824204e-16,
+          "at": {
+            "episode": 2,
+            "time_s": 0.3416666666666667,
+            "physics_step": 341,
+            "command_id": 85,
+            "reference_frame": 11,
+            "interpolation_step": 1
+          }
+        },
+        "A_ik_rotation_rad": {
+          "mean": 1.1391040138079468e-09,
+          "p95": 0.0,
+          "max": 4.2146848510894035e-08,
+          "at": {
+            "episode": 2,
+            "time_s": 0.375,
+            "physics_step": 345,
+            "command_id": 86,
+            "reference_frame": 12,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_position_m": {
+          "mean": 0.0038986782445623743,
+          "p95": 0.009836672676984936,
+          "max": 0.014988474684174346,
+          "at": {
+            "episode": 2,
+            "time_s": 0.5083333333333333,
+            "physics_step": 361,
+            "command_id": 90,
+            "reference_frame": 16,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_rotation_rad": {
+          "mean": 0.011739635045630515,
+          "p95": 0.031724839059741064,
+          "max": 0.043385792378734925,
+          "at": {
+            "episode": 2,
+            "time_s": 0.475,
+            "physics_step": 357,
+            "command_id": 89,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_position_m": {
+          "mean": 0.018820534417433064,
+          "p95": 0.04340347198643949,
+          "max": 0.04766210905478291,
+          "at": {
+            "episode": 2,
+            "time_s": 0.5916666666666667,
+            "physics_step": 371,
+            "command_id": 92,
+            "reference_frame": 18,
+            "interpolation_step": 3
+          }
+        },
+        "C_tracking_rotation_rad": {
+          "mean": 0.11102288509651691,
+          "p95": 0.19760630480781605,
+          "max": 0.20006366631751124,
+          "at": {
+            "episode": 2,
+            "time_s": 1.175,
+            "physics_step": 441,
+            "command_id": 110,
+            "reference_frame": 36,
+            "interpolation_step": 1
+          }
+        },
+        "total_position_m": {
+          "mean": 0.022471006575706432,
+          "p95": 0.04855854074609658,
+          "max": 0.05959806664365402,
+          "at": {
+            "episode": 2,
+            "time_s": 0.575,
+            "physics_step": 369,
+            "command_id": 92,
+            "reference_frame": 18,
+            "interpolation_step": 1
+          }
+        },
+        "total_rotation_rad": {
+          "mean": 0.1184006955965376,
+          "p95": 0.19605749688685306,
+          "max": 0.2000482054539023,
+          "at": {
+            "episode": 2,
+            "time_s": 1.1666666666666667,
+            "physics_step": 440,
+            "command_id": 109,
+            "reference_frame": 35,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_position_m": {
+          "mean": 2.433526877435716e-07,
+          "p95": 4.7158243085493494e-07,
+          "max": 5.656745030356901e-07,
+          "at": {
+            "episode": 2,
+            "time_s": 0.1,
+            "physics_step": 312,
+            "command_id": 77,
+            "reference_frame": 3,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_rotation_rad": {
+          "mean": 6.168335415207251e-07,
+          "p95": 1.1291690771931715e-06,
+          "max": 1.421792559847452e-06,
+          "at": {
+            "episode": 2,
+            "time_s": 0.2916666666666667,
+            "physics_step": 335,
+            "command_id": 83,
+            "reference_frame": 9,
+            "interpolation_step": 3
+          }
+        }
+      }
+    },
+    {
+      "episode": 3,
+      "start": [
+        0.4219668507575989,
+        -0.09639867395162582,
+        0.012636000290513039
+      ],
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": true,
+        "success": true,
+        "object_deviation": false,
+        "hand_far_from_object": false
+      },
+      "max_rise_m": 0.24520752392709255,
+      "final_rise_m": 0.24520752392709255,
+      "first_rise_over_2cm_s": 0.30833333333333335,
+      "contact_time": "unconfirmed",
+      "grasp_time": "unconfirmed",
+      "statistics": {
+        "A_ik_position_m": {
+          "mean": 2.750790829231376e-16,
+          "p95": 8.729192963414219e-16,
+          "max": 4.549544405577167e-15,
+          "at": {
+            "episode": 3,
+            "time_s": 1.2083333333333333,
+            "physics_step": 593,
+            "command_id": 148,
+            "reference_frame": 37,
+            "interpolation_step": 1
+          }
+        },
+        "A_ik_rotation_rad": {
+          "mean": 5.3618842278722004e-09,
+          "p95": 4.2146848510894035e-08,
+          "max": 4.2146848510894035e-08,
+          "at": {
+            "episode": 3,
+            "time_s": 0.275,
+            "physics_step": 481,
+            "command_id": 120,
+            "reference_frame": 9,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_position_m": {
+          "mean": 0.003868981745173442,
+          "p95": 0.009630222318300989,
+          "max": 0.014566306005715245,
+          "at": {
+            "episode": 3,
+            "time_s": 0.5416666666666666,
+            "physics_step": 513,
+            "command_id": 128,
+            "reference_frame": 17,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_rotation_rad": {
+          "mean": 0.01184167719939977,
+          "p95": 0.03189849304942932,
+          "max": 0.04520913097403554,
+          "at": {
+            "episode": 3,
+            "time_s": 0.475,
+            "physics_step": 505,
+            "command_id": 126,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_position_m": {
+          "mean": 0.018395076529647413,
+          "p95": 0.042544276808144314,
+          "max": 0.04677330634373772,
+          "at": {
+            "episode": 3,
+            "time_s": 0.5916666666666667,
+            "physics_step": 519,
+            "command_id": 129,
+            "reference_frame": 18,
+            "interpolation_step": 3
+          }
+        },
+        "C_tracking_rotation_rad": {
+          "mean": 0.10353397459680909,
+          "p95": 0.17053497004140067,
+          "max": 0.1718701144415901,
+          "at": {
+            "episode": 3,
+            "time_s": 1.15,
+            "physics_step": 586,
+            "command_id": 146,
+            "reference_frame": 35,
+            "interpolation_step": 2
+          }
+        },
+        "total_position_m": {
+          "mean": 0.02202679348849081,
+          "p95": 0.04768431287111614,
+          "max": 0.05880426579846132,
+          "at": {
+            "episode": 3,
+            "time_s": 0.575,
+            "physics_step": 517,
+            "command_id": 129,
+            "reference_frame": 18,
+            "interpolation_step": 1
+          }
+        },
+        "total_rotation_rad": {
+          "mean": 0.11071941072773149,
+          "p95": 0.16808960650424426,
+          "max": 0.17163461929467957,
+          "at": {
+            "episode": 3,
+            "time_s": 1.1333333333333333,
+            "physics_step": 584,
+            "command_id": 145,
+            "reference_frame": 34,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_position_m": {
+          "mean": 2.1363697250469638e-07,
+          "p95": 3.779657164110132e-07,
+          "max": 4.543065551810226e-07,
+          "at": {
+            "episode": 3,
+            "time_s": 0.275,
+            "physics_step": 481,
+            "command_id": 120,
+            "reference_frame": 9,
+            "interpolation_step": 1
+          }
+        },
+        "FK_runtime_consistency_rotation_rad": {
+          "mean": 6.264262083715478e-07,
+          "p95": 1.019539059676103e-06,
+          "max": 1.3863686739937354e-06,
+          "at": {
+            "episode": 3,
+            "time_s": 0.16666666666666666,
+            "physics_step": 468,
+            "command_id": 116,
+            "reference_frame": 5,
+            "interpolation_step": 4
+          }
+        }
+      }
+    },
+    {
+      "episode": 4,
+      "start": [
+        0.49204766750335693,
+        -0.16133752465248108,
+        0.012636000290513039
+      ],
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": true,
+        "success": true,
+        "object_deviation": false,
+        "hand_far_from_object": false
+      },
+      "max_rise_m": 0.24107075296342373,
+      "final_rise_m": 0.24107075296342373,
+      "first_rise_over_2cm_s": 0.30833333333333335,
+      "contact_time": "unconfirmed",
+      "grasp_time": "unconfirmed",
+      "statistics": {
+        "A_ik_position_m": {
+          "mean": 4.770630603891603e-16,
+          "p95": 3.708059718501124e-15,
+          "max": 5.530050307269912e-15,
+          "at": {
+            "episode": 4,
+            "time_s": 1.2083333333333333,
+            "physics_step": 741,
+            "command_id": 185,
+            "reference_frame": 37,
+            "interpolation_step": 1
+          }
+        },
+        "A_ik_rotation_rad": {
+          "mean": 1.9445721864483607e-09,
+          "p95": 1.9371509552002123e-08,
+          "max": 4.2146848510894035e-08,
+          "at": {
+            "episode": 4,
+            "time_s": 0.575,
+            "physics_step": 665,
+            "command_id": 166,
+            "reference_frame": 18,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_position_m": {
+          "mean": 0.003885625976338122,
+          "p95": 0.009673033292397182,
+          "max": 0.015897909123021064,
+          "at": {
+            "episode": 4,
+            "time_s": 0.5083333333333333,
+            "physics_step": 657,
+            "command_id": 164,
+            "reference_frame": 16,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_rotation_rad": {
+          "mean": 0.011649684365071813,
+          "p95": 0.03175326413971888,
+          "max": 0.04367098624199413,
+          "at": {
+            "episode": 4,
+            "time_s": 0.475,
+            "physics_step": 653,
+            "command_id": 163,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_position_m": {
+          "mean": 0.023118340987436613,
+          "p95": 0.05173599650224018,
+          "max": 0.05614084471920026,
+          "at": {
+            "episode": 4,
+            "time_s": 0.6,
+            "physics_step": 668,
+            "command_id": 166,
+            "reference_frame": 18,
+            "interpolation_step": 4
+          }
+        },
+        "C_tracking_rotation_rad": {
+          "mean": 0.08691279327419153,
+          "p95": 0.14864490939532576,
+          "max": 0.1552550864914396,
+          "at": {
+            "episode": 4,
+            "time_s": 0.2833333333333333,
+            "physics_step": 630,
+            "command_id": 157,
+            "reference_frame": 9,
+            "interpolation_step": 2
+          }
+        },
+        "total_position_m": {
+          "mean": 0.02673790649185925,
+          "p95": 0.05580403697535965,
+          "max": 0.06681995301980183,
+          "at": {
+            "episode": 4,
+            "time_s": 0.6083333333333333,
+            "physics_step": 669,
+            "command_id": 167,
+            "reference_frame": 19,
+            "interpolation_step": 1
+          }
+        },
+        "total_rotation_rad": {
+          "mean": 0.09556521552446001,
+          "p95": 0.1624719004839569,
+          "max": 0.18011628911872365,
+          "at": {
+            "episode": 4,
+            "time_s": 0.275,
+            "physics_step": 629,
+            "command_id": 157,
+            "reference_frame": 9,
+            "interpolation_step": 1
+          }
+        },
+        "FK_runtime_consistency_position_m": {
+          "mean": 2.6434540228407273e-07,
+          "p95": 4.70107370394872e-07,
+          "max": 5.750523289915025e-07,
+          "at": {
+            "episode": 4,
+            "time_s": 0.3,
+            "physics_step": 632,
+            "command_id": 157,
+            "reference_frame": 9,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_rotation_rad": {
+          "mean": 6.135202062492806e-07,
+          "p95": 1.121031100106218e-06,
+          "max": 1.2679128280987146e-06,
+          "at": {
+            "episode": 4,
+            "time_s": 0.75,
+            "physics_step": 686,
+            "command_id": 171,
+            "reference_frame": 23,
+            "interpolation_step": 2
+          }
+        }
+      }
+    },
+    {
+      "episode": 5,
+      "start": [
+        0.4328061640262604,
+        -0.06401297450065613,
+        0.012636000290513039
+      ],
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": true,
+        "success": true,
+        "object_deviation": false,
+        "hand_far_from_object": false
+      },
+      "max_rise_m": 0.24481130205094814,
+      "final_rise_m": 0.24481130205094814,
+      "first_rise_over_2cm_s": 0.30833333333333335,
+      "contact_time": "unconfirmed",
+      "grasp_time": "unconfirmed",
+      "statistics": {
+        "A_ik_position_m": {
+          "mean": 1.1899075519930817e-16,
+          "p95": 2.2488719705665204e-16,
+          "max": 2.2591401799415137e-16,
+          "at": {
+            "episode": 5,
+            "time_s": 0.375,
+            "physics_step": 789,
+            "command_id": 197,
+            "reference_frame": 12,
+            "interpolation_step": 1
+          }
+        },
+        "A_ik_rotation_rad": {
+          "mean": 1.9445721864483607e-09,
+          "p95": 1.9371509552002123e-08,
+          "max": 4.2146848510894035e-08,
+          "at": {
+            "episode": 5,
+            "time_s": 0.7083333333333334,
+            "physics_step": 829,
+            "command_id": 207,
+            "reference_frame": 22,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_position_m": {
+          "mean": 0.0039010608052638777,
+          "p95": 0.009786700335184645,
+          "max": 0.015295883618850379,
+          "at": {
+            "episode": 5,
+            "time_s": 0.5416666666666666,
+            "physics_step": 809,
+            "command_id": 202,
+            "reference_frame": 17,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_rotation_rad": {
+          "mean": 0.011953433717633494,
+          "p95": 0.03182246243203388,
+          "max": 0.04719909577334833,
+          "at": {
+            "episode": 5,
+            "time_s": 0.475,
+            "physics_step": 801,
+            "command_id": 200,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_position_m": {
+          "mean": 0.018020396319209164,
+          "p95": 0.042217151171109364,
+          "max": 0.04689285457053095,
+          "at": {
+            "episode": 5,
+            "time_s": 0.5916666666666667,
+            "physics_step": 815,
+            "command_id": 203,
+            "reference_frame": 18,
+            "interpolation_step": 3
+          }
+        },
+        "C_tracking_rotation_rad": {
+          "mean": 0.11379949755522571,
+          "p95": 0.21695374323362185,
+          "max": 0.21994151180417942,
+          "at": {
+            "episode": 5,
+            "time_s": 1.1666666666666667,
+            "physics_step": 884,
+            "command_id": 220,
+            "reference_frame": 35,
+            "interpolation_step": 4
+          }
+        },
+        "total_position_m": {
+          "mean": 0.021670190921675072,
+          "p95": 0.04718726477277509,
+          "max": 0.059158473048646784,
+          "at": {
+            "episode": 5,
+            "time_s": 0.575,
+            "physics_step": 813,
+            "command_id": 203,
+            "reference_frame": 18,
+            "interpolation_step": 1
+          }
+        },
+        "total_rotation_rad": {
+          "mean": 0.12121561574567176,
+          "p95": 0.21631850720348678,
+          "max": 0.21994148481378875,
+          "at": {
+            "episode": 5,
+            "time_s": 1.1666666666666667,
+            "physics_step": 884,
+            "command_id": 220,
+            "reference_frame": 35,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_position_m": {
+          "mean": 2.1682182807874632e-07,
+          "p95": 4.182707213270311e-07,
+          "max": 4.946613054298267e-07,
+          "at": {
+            "episode": 5,
+            "time_s": 0.43333333333333335,
+            "physics_step": 796,
+            "command_id": 198,
+            "reference_frame": 13,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_rotation_rad": {
+          "mean": 6.144481973385206e-07,
+          "p95": 1.047837556416751e-06,
+          "max": 1.3991230242616823e-06,
+          "at": {
+            "episode": 5,
+            "time_s": 0.43333333333333335,
+            "physics_step": 796,
+            "command_id": 198,
+            "reference_frame": 13,
+            "interpolation_step": 4
+          }
+        }
+      }
+    },
+    {
+      "episode": 6,
+      "start": [
+        0.4915037751197815,
+        -0.08200746029615402,
+        0.012636000290513039
+      ],
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": true,
+        "success": true,
+        "object_deviation": false,
+        "hand_far_from_object": false
+      },
+      "max_rise_m": 0.23977929912507534,
+      "final_rise_m": 0.23977929912507534,
+      "first_rise_over_2cm_s": 0.3,
+      "contact_time": "unconfirmed",
+      "grasp_time": "unconfirmed",
+      "statistics": {
+        "A_ik_position_m": {
+          "mean": 3.463937401386358e-16,
+          "p95": 2.3820078509198e-16,
+          "max": 8.168631416903197e-15,
+          "at": {
+            "episode": 6,
+            "time_s": 1.2083333333333333,
+            "physics_step": 1037,
+            "command_id": 259,
+            "reference_frame": 37,
+            "interpolation_step": 1
+          }
+        },
+        "A_ik_rotation_rad": {
+          "mean": 8.054681726404139e-10,
+          "p95": 0.0,
+          "max": 2.9802322387695312e-08,
+          "at": {
+            "episode": 6,
+            "time_s": 1.075,
+            "physics_step": 1021,
+            "command_id": 255,
+            "reference_frame": 33,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_position_m": {
+          "mean": 0.0038980254145937455,
+          "p95": 0.009685505091068611,
+          "max": 0.01464568197640265,
+          "at": {
+            "episode": 6,
+            "time_s": 0.5083333333333333,
+            "physics_step": 953,
+            "command_id": 238,
+            "reference_frame": 16,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_rotation_rad": {
+          "mean": 0.011828010630863127,
+          "p95": 0.031033214193019305,
+          "max": 0.04493989041090012,
+          "at": {
+            "episode": 6,
+            "time_s": 0.475,
+            "physics_step": 949,
+            "command_id": 237,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_position_m": {
+          "mean": 0.02041585851953851,
+          "p95": 0.0471107246835781,
+          "max": 0.05163017504607191,
+          "at": {
+            "episode": 6,
+            "time_s": 0.6,
+            "physics_step": 964,
+            "command_id": 240,
+            "reference_frame": 18,
+            "interpolation_step": 4
+          }
+        },
+        "C_tracking_rotation_rad": {
+          "mean": 0.1062024190547895,
+          "p95": 0.19420381376257126,
+          "max": 0.19742003326876195,
+          "at": {
+            "episode": 6,
+            "time_s": 1.1833333333333333,
+            "physics_step": 1034,
+            "command_id": 258,
+            "reference_frame": 36,
+            "interpolation_step": 2
+          }
+        },
+        "total_position_m": {
+          "mean": 0.024055315404773923,
+          "p95": 0.05148000577861479,
+          "max": 0.0625699840933008,
+          "at": {
+            "episode": 6,
+            "time_s": 0.6083333333333333,
+            "physics_step": 965,
+            "command_id": 241,
+            "reference_frame": 19,
+            "interpolation_step": 1
+          }
+        },
+        "total_rotation_rad": {
+          "mean": 0.1146966371213488,
+          "p95": 0.19246811952789933,
+          "max": 0.19672930912528136,
+          "at": {
+            "episode": 6,
+            "time_s": 1.2,
+            "physics_step": 1036,
+            "command_id": 258,
+            "reference_frame": 36,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_position_m": {
+          "mean": 2.6977886033473786e-07,
+          "p95": 4.5359591540014344e-07,
+          "max": 5.398490906338638e-07,
+          "at": {
+            "episode": 6,
+            "time_s": 0.625,
+            "physics_step": 967,
+            "command_id": 241,
+            "reference_frame": 19,
+            "interpolation_step": 3
+          }
+        },
+        "FK_runtime_consistency_rotation_rad": {
+          "mean": 6.488722729452809e-07,
+          "p95": 1.0840187251964477e-06,
+          "max": 1.4298904580945267e-06,
+          "at": {
+            "episode": 6,
+            "time_s": 0.35833333333333334,
+            "physics_step": 935,
+            "command_id": 233,
+            "reference_frame": 11,
+            "interpolation_step": 3
+          }
+        }
+      }
+    },
+    {
+      "episode": 7,
+      "start": [
+        0.47363972663879395,
+        -0.1459842324256897,
+        0.012636000290513039
+      ],
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": true,
+        "success": true,
+        "object_deviation": false,
+        "hand_far_from_object": false
+      },
+      "max_rise_m": 0.2417485173791647,
+      "final_rise_m": 0.2417485173791647,
+      "first_rise_over_2cm_s": 0.325,
+      "contact_time": "unconfirmed",
+      "grasp_time": "unconfirmed",
+      "statistics": {
+        "A_ik_position_m": {
+          "mean": 3.7178201660171076e-16,
+          "p95": 2.8230143400704257e-15,
+          "max": 4.5574114245094995e-15,
+          "at": {
+            "episode": 7,
+            "time_s": 1.2083333333333333,
+            "physics_step": 1185,
+            "command_id": 296,
+            "reference_frame": 37,
+            "interpolation_step": 1
+          }
+        },
+        "A_ik_rotation_rad": {
+          "mean": 8.054681726404139e-10,
+          "p95": 0.0,
+          "max": 2.9802322387695312e-08,
+          "at": {
+            "episode": 7,
+            "time_s": 1.0083333333333333,
+            "physics_step": 1161,
+            "command_id": 290,
+            "reference_frame": 31,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_position_m": {
+          "mean": 0.0038730508462538377,
+          "p95": 0.009801195922986334,
+          "max": 0.015120634157994448,
+          "at": {
+            "episode": 7,
+            "time_s": 0.5083333333333333,
+            "physics_step": 1101,
+            "command_id": 275,
+            "reference_frame": 16,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_rotation_rad": {
+          "mean": 0.011565386503404013,
+          "p95": 0.031364448458150285,
+          "max": 0.04027263703290574,
+          "at": {
+            "episode": 7,
+            "time_s": 0.475,
+            "physics_step": 1097,
+            "command_id": 274,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_position_m": {
+          "mean": 0.021737686170288928,
+          "p95": 0.04882543109270426,
+          "max": 0.05294293450820349,
+          "at": {
+            "episode": 7,
+            "time_s": 0.6,
+            "physics_step": 1112,
+            "command_id": 277,
+            "reference_frame": 18,
+            "interpolation_step": 4
+          }
+        },
+        "C_tracking_rotation_rad": {
+          "mean": 0.08933662185394586,
+          "p95": 0.1464818883704696,
+          "max": 0.1510440824963513,
+          "at": {
+            "episode": 7,
+            "time_s": 0.2833333333333333,
+            "physics_step": 1074,
+            "command_id": 268,
+            "reference_frame": 9,
+            "interpolation_step": 2
+          }
+        },
+        "total_position_m": {
+          "mean": 0.025360059757427493,
+          "p95": 0.053459670344842676,
+          "max": 0.06371480178514131,
+          "at": {
+            "episode": 7,
+            "time_s": 0.575,
+            "physics_step": 1109,
+            "command_id": 277,
+            "reference_frame": 18,
+            "interpolation_step": 1
+          }
+        },
+        "total_rotation_rad": {
+          "mean": 0.09736851171508044,
+          "p95": 0.1590888264631369,
+          "max": 0.17699687120318056,
+          "at": {
+            "episode": 7,
+            "time_s": 0.275,
+            "physics_step": 1073,
+            "command_id": 268,
+            "reference_frame": 9,
+            "interpolation_step": 1
+          }
+        },
+        "FK_runtime_consistency_position_m": {
+          "mean": 2.561050979496192e-07,
+          "p95": 4.317715967601175e-07,
+          "max": 5.865143891067873e-07,
+          "at": {
+            "episode": 7,
+            "time_s": 0.225,
+            "physics_step": 1067,
+            "command_id": 266,
+            "reference_frame": 7,
+            "interpolation_step": 3
+          }
+        },
+        "FK_runtime_consistency_rotation_rad": {
+          "mean": 6.045918881679859e-07,
+          "p95": 1.0799517518525414e-06,
+          "max": 1.424912582383415e-06,
+          "at": {
+            "episode": 7,
+            "time_s": 0.225,
+            "physics_step": 1067,
+            "command_id": 266,
+            "reference_frame": 7,
+            "interpolation_step": 3
+          }
+        }
+      }
+    },
+    {
+      "episode": 8,
+      "start": [
+        0.444214791059494,
+        -0.14261123538017273,
+        0.012636000290513039
+      ],
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": true,
+        "success": true,
+        "object_deviation": false,
+        "hand_far_from_object": false
+      },
+      "max_rise_m": 0.24292302690446377,
+      "final_rise_m": 0.24292302690446377,
+      "first_rise_over_2cm_s": 0.30833333333333335,
+      "contact_time": "unconfirmed",
+      "grasp_time": "unconfirmed",
+      "statistics": {
+        "A_ik_position_m": {
+          "mean": 4.515399354888906e-16,
+          "p95": 3.177579485276459e-15,
+          "max": 4.3414192158499554e-15,
+          "at": {
+            "episode": 8,
+            "time_s": 0.041666666666666664,
+            "physics_step": 1193,
+            "command_id": 298,
+            "reference_frame": 2,
+            "interpolation_step": 1
+          }
+        },
+        "A_ik_rotation_rad": {
+          "mean": 3.555508531729188e-09,
+          "p95": 2.9802322387695312e-08,
+          "max": 4.2146848510894035e-08,
+          "at": {
+            "episode": 8,
+            "time_s": 0.5083333333333333,
+            "physics_step": 1249,
+            "command_id": 312,
+            "reference_frame": 16,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_position_m": {
+          "mean": 0.0038750003594404045,
+          "p95": 0.009608227211625566,
+          "max": 0.01481186963513939,
+          "at": {
+            "episode": 8,
+            "time_s": 0.5416666666666666,
+            "physics_step": 1253,
+            "command_id": 313,
+            "reference_frame": 17,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_rotation_rad": {
+          "mean": 0.011828857641305163,
+          "p95": 0.03165326341127464,
+          "max": 0.046207909517519324,
+          "at": {
+            "episode": 8,
+            "time_s": 0.475,
+            "physics_step": 1245,
+            "command_id": 311,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_position_m": {
+          "mean": 0.020421591107043658,
+          "p95": 0.04704483816257487,
+          "max": 0.05121744551207598,
+          "at": {
+            "episode": 8,
+            "time_s": 0.6,
+            "physics_step": 1260,
+            "command_id": 314,
+            "reference_frame": 18,
+            "interpolation_step": 4
+          }
+        },
+        "C_tracking_rotation_rad": {
+          "mean": 0.09076748504750262,
+          "p95": 0.1425491900710305,
+          "max": 0.14815110494651532,
+          "at": {
+            "episode": 8,
+            "time_s": 0.2833333333333333,
+            "physics_step": 1222,
+            "command_id": 305,
+            "reference_frame": 9,
+            "interpolation_step": 2
+          }
+        },
+        "total_position_m": {
+          "mean": 0.024044899413571883,
+          "p95": 0.05150470379412646,
+          "max": 0.06236612756258814,
+          "at": {
+            "episode": 8,
+            "time_s": 0.575,
+            "physics_step": 1257,
+            "command_id": 314,
+            "reference_frame": 18,
+            "interpolation_step": 1
+          }
+        },
+        "total_rotation_rad": {
+          "mean": 0.09871993327293484,
+          "p95": 0.15565343681077196,
+          "max": 0.1732752454686828,
+          "at": {
+            "episode": 8,
+            "time_s": 0.275,
+            "physics_step": 1221,
+            "command_id": 305,
+            "reference_frame": 9,
+            "interpolation_step": 1
+          }
+        },
+        "FK_runtime_consistency_position_m": {
+          "mean": 2.5420964202533557e-07,
+          "p95": 4.300362792459205e-07,
+          "max": 5.015202034252554e-07,
+          "at": {
+            "episode": 8,
+            "time_s": 0.20833333333333334,
+            "physics_step": 1213,
+            "command_id": 303,
+            "reference_frame": 7,
+            "interpolation_step": 1
+          }
+        },
+        "FK_runtime_consistency_rotation_rad": {
+          "mean": 6.674921245141217e-07,
+          "p95": 1.1311252140162015e-06,
+          "max": 1.3972172939457035e-06,
+          "at": {
+            "episode": 8,
+            "time_s": 0.1,
+            "physics_step": 1200,
+            "command_id": 299,
+            "reference_frame": 3,
+            "interpolation_step": 4
+          }
+        }
+      }
+    },
+    {
+      "episode": 9,
+      "start": [
+        0.44460323452949524,
+        0.05151502788066864,
+        0.012636000290513039
+      ],
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": true,
+        "success": true,
+        "object_deviation": false,
+        "hand_far_from_object": false
+      },
+      "max_rise_m": 0.23600687645375729,
+      "final_rise_m": 0.23600687645375729,
+      "first_rise_over_2cm_s": 0.3,
+      "contact_time": "unconfirmed",
+      "grasp_time": "unconfirmed",
+      "statistics": {
+        "A_ik_position_m": {
+          "mean": 4.2404502844051627e-16,
+          "p95": 3.687914164466091e-15,
+          "max": 3.9941035183565725e-15,
+          "at": {
+            "episode": 9,
+            "time_s": 1.1416666666666666,
+            "physics_step": 1473,
+            "command_id": 368,
+            "reference_frame": 35,
+            "interpolation_step": 1
+          }
+        },
+        "A_ik_rotation_rad": {
+          "mean": 1.6109363452808278e-09,
+          "p95": 1.9371509552002123e-08,
+          "max": 2.9802322387695312e-08,
+          "at": {
+            "episode": 9,
+            "time_s": 0.041666666666666664,
+            "physics_step": 1341,
+            "command_id": 335,
+            "reference_frame": 2,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_position_m": {
+          "mean": 0.0038942712689421107,
+          "p95": 0.009706440004728561,
+          "max": 0.015010548606517286,
+          "at": {
+            "episode": 9,
+            "time_s": 0.5083333333333333,
+            "physics_step": 1397,
+            "command_id": 349,
+            "reference_frame": 16,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_rotation_rad": {
+          "mean": 0.01199109887826846,
+          "p95": 0.031012862972035312,
+          "max": 0.04362497483235719,
+          "at": {
+            "episode": 9,
+            "time_s": 0.475,
+            "physics_step": 1393,
+            "command_id": 348,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_position_m": {
+          "mean": 0.017370854870949075,
+          "p95": 0.03948899719648116,
+          "max": 0.04426043575872657,
+          "at": {
+            "episode": 9,
+            "time_s": 0.5916666666666667,
+            "physics_step": 1407,
+            "command_id": 351,
+            "reference_frame": 18,
+            "interpolation_step": 3
+          }
+        },
+        "C_tracking_rotation_rad": {
+          "mean": 0.19958777852731677,
+          "p95": 0.6694235299036687,
+          "max": 0.697445627458207,
+          "at": {
+            "episode": 9,
+            "time_s": 1.125,
+            "physics_step": 1471,
+            "command_id": 367,
+            "reference_frame": 34,
+            "interpolation_step": 3
+          }
+        },
+        "total_position_m": {
+          "mean": 0.021014702966259406,
+          "p95": 0.04421240123497808,
+          "max": 0.05691025043676772,
+          "at": {
+            "episode": 9,
+            "time_s": 0.575,
+            "physics_step": 1405,
+            "command_id": 351,
+            "reference_frame": 18,
+            "interpolation_step": 1
+          }
+        },
+        "total_rotation_rad": {
+          "mean": 0.2072626477325512,
+          "p95": 0.6691652315383465,
+          "max": 0.6976236575335589,
+          "at": {
+            "episode": 9,
+            "time_s": 1.125,
+            "physics_step": 1471,
+            "command_id": 367,
+            "reference_frame": 34,
+            "interpolation_step": 3
+          }
+        },
+        "FK_runtime_consistency_position_m": {
+          "mean": 1.6415404606944382e-07,
+          "p95": 3.1520214254170034e-07,
+          "max": 4.4303137208449394e-07,
+          "at": {
+            "episode": 9,
+            "time_s": 0.375,
+            "physics_step": 1381,
+            "command_id": 345,
+            "reference_frame": 12,
+            "interpolation_step": 1
+          }
+        },
+        "FK_runtime_consistency_rotation_rad": {
+          "mean": 5.322128318893429e-07,
+          "p95": 9.509211096555382e-07,
+          "max": 1.1332722509999156e-06,
+          "at": {
+            "episode": 9,
+            "time_s": 0.7833333333333333,
+            "physics_step": 1430,
+            "command_id": 357,
+            "reference_frame": 24,
+            "interpolation_step": 2
+          }
+        }
+      }
+    },
+    {
+      "episode": 10,
+      "start": [
+        0.4577605724334717,
+        0.010043531656265259,
+        0.012636000290513039
+      ],
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": true,
+        "success": true,
+        "object_deviation": false,
+        "hand_far_from_object": false
+      },
+      "max_rise_m": 0.23877066932618618,
+      "final_rise_m": 0.23877066932618618,
+      "first_rise_over_2cm_s": 0.2916666666666667,
+      "contact_time": "unconfirmed",
+      "grasp_time": "unconfirmed",
+      "statistics": {
+        "A_ik_position_m": {
+          "mean": 3.8444518198401377e-16,
+          "p95": 2.8789985796640718e-15,
+          "max": 3.229389849043545e-15,
+          "at": {
+            "episode": 10,
+            "time_s": 0.475,
+            "physics_step": 1541,
+            "command_id": 385,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "A_ik_rotation_rad": {
+          "mean": 1.6109363452808278e-09,
+          "p95": 1.9371509552002123e-08,
+          "max": 2.9802322387695312e-08,
+          "at": {
+            "episode": 10,
+            "time_s": 0.24166666666666667,
+            "physics_step": 1513,
+            "command_id": 378,
+            "reference_frame": 8,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_position_m": {
+          "mean": 0.003908421249212525,
+          "p95": 0.009677406974080862,
+          "max": 0.015129630432925164,
+          "at": {
+            "episode": 10,
+            "time_s": 0.5416666666666666,
+            "physics_step": 1549,
+            "command_id": 387,
+            "reference_frame": 17,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_rotation_rad": {
+          "mean": 0.012041772756245149,
+          "p95": 0.031411927026900995,
+          "max": 0.046102333742184747,
+          "at": {
+            "episode": 10,
+            "time_s": 0.475,
+            "physics_step": 1541,
+            "command_id": 385,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_position_m": {
+          "mean": 0.017758038240323914,
+          "p95": 0.04148249242846271,
+          "max": 0.04639255359735005,
+          "at": {
+            "episode": 10,
+            "time_s": 0.5916666666666667,
+            "physics_step": 1555,
+            "command_id": 388,
+            "reference_frame": 18,
+            "interpolation_step": 3
+          }
+        },
+        "C_tracking_rotation_rad": {
+          "mean": 0.1495957681853963,
+          "p95": 0.4386131809113164,
+          "max": 0.4515968701882741,
+          "at": {
+            "episode": 10,
+            "time_s": 1.1666666666666667,
+            "physics_step": 1624,
+            "command_id": 405,
+            "reference_frame": 35,
+            "interpolation_step": 4
+          }
+        },
+        "total_position_m": {
+          "mean": 0.021417078133656273,
+          "p95": 0.04646116402768613,
+          "max": 0.05848690577663649,
+          "at": {
+            "episode": 10,
+            "time_s": 0.575,
+            "physics_step": 1553,
+            "command_id": 388,
+            "reference_frame": 18,
+            "interpolation_step": 1
+          }
+        },
+        "total_rotation_rad": {
+          "mean": 0.157708904920277,
+          "p95": 0.4386132020225791,
+          "max": 0.45159690275711484,
+          "at": {
+            "episode": 10,
+            "time_s": 1.1666666666666667,
+            "physics_step": 1624,
+            "command_id": 405,
+            "reference_frame": 35,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_position_m": {
+          "mean": 1.8406261276183996e-07,
+          "p95": 3.6907933807451815e-07,
+          "max": 4.5834680273237853e-07,
+          "at": {
+            "episode": 10,
+            "time_s": 0.5833333333333334,
+            "physics_step": 1554,
+            "command_id": 388,
+            "reference_frame": 18,
+            "interpolation_step": 2
+          }
+        },
+        "FK_runtime_consistency_rotation_rad": {
+          "mean": 5.390151221596724e-07,
+          "p95": 9.85271777061192e-07,
+          "max": 1.2776822513476837e-06,
+          "at": {
+            "episode": 10,
+            "time_s": 0.475,
+            "physics_step": 1541,
+            "command_id": 385,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        }
+      }
+    },
+    {
+      "episode": 11,
+      "start": [
+        0.41688212752342224,
+        0.07168479263782501,
+        0.012636000290513039
+      ],
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": true,
+        "success": true,
+        "object_deviation": false,
+        "hand_far_from_object": false
+      },
+      "max_rise_m": 0.23729305528104305,
+      "final_rise_m": 0.23729305528104305,
+      "first_rise_over_2cm_s": 0.3,
+      "contact_time": "unconfirmed",
+      "grasp_time": "unconfirmed",
+      "statistics": {
+        "A_ik_position_m": {
+          "mean": 2.3095597745724837e-16,
+          "p95": 6.510402894643036e-16,
+          "max": 2.8978336293716424e-15,
+          "at": {
+            "episode": 11,
+            "time_s": 0.3416666666666667,
+            "physics_step": 1673,
+            "command_id": 418,
+            "reference_frame": 11,
+            "interpolation_step": 1
+          }
+        },
+        "A_ik_rotation_rad": {
+          "mean": 5.5000807181775484e-09,
+          "p95": 3.7826264367774554e-08,
+          "max": 4.2146848510894035e-08,
+          "at": {
+            "episode": 11,
+            "time_s": 0.9416666666666667,
+            "physics_step": 1745,
+            "command_id": 436,
+            "reference_frame": 29,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_position_m": {
+          "mean": 0.003915683814796187,
+          "p95": 0.010050113999473228,
+          "max": 0.015470739807991012,
+          "at": {
+            "episode": 11,
+            "time_s": 0.5416666666666666,
+            "physics_step": 1697,
+            "command_id": 424,
+            "reference_frame": 17,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_rotation_rad": {
+          "mean": 0.012342052271992272,
+          "p95": 0.032258324976933136,
+          "max": 0.046356637721212485,
+          "at": {
+            "episode": 11,
+            "time_s": 0.475,
+            "physics_step": 1689,
+            "command_id": 422,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_position_m": {
+          "mean": 0.016755366747036697,
+          "p95": 0.037617157811625244,
+          "max": 0.042731585064388095,
+          "at": {
+            "episode": 11,
+            "time_s": 0.5833333333333334,
+            "physics_step": 1702,
+            "command_id": 425,
+            "reference_frame": 18,
+            "interpolation_step": 2
+          }
+        },
+        "C_tracking_rotation_rad": {
+          "mean": 0.1845548050906327,
+          "p95": 0.6118478389215488,
+          "max": 0.6415634072072913,
+          "at": {
+            "episode": 11,
+            "time_s": 1.1583333333333332,
+            "physics_step": 1771,
+            "command_id": 442,
+            "reference_frame": 35,
+            "interpolation_step": 3
+          }
+        },
+        "total_position_m": {
+          "mean": 0.02035657025424234,
+          "p95": 0.04304684522077116,
+          "max": 0.05586134706444221,
+          "at": {
+            "episode": 11,
+            "time_s": 0.575,
+            "physics_step": 1701,
+            "command_id": 425,
+            "reference_frame": 18,
+            "interpolation_step": 1
+          }
+        },
+        "total_rotation_rad": {
+          "mean": 0.1927828416334721,
+          "p95": 0.6119541123698906,
+          "max": 0.6407534653788544,
+          "at": {
+            "episode": 11,
+            "time_s": 1.1583333333333332,
+            "physics_step": 1771,
+            "command_id": 442,
+            "reference_frame": 35,
+            "interpolation_step": 3
+          }
+        },
+        "FK_runtime_consistency_position_m": {
+          "mean": 1.5253973436282543e-07,
+          "p95": 2.7441978642746524e-07,
+          "max": 4.147897959476504e-07,
+          "at": {
+            "episode": 11,
+            "time_s": 0.4666666666666667,
+            "physics_step": 1688,
+            "command_id": 421,
+            "reference_frame": 14,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_rotation_rad": {
+          "mean": 5.700377767260963e-07,
+          "p95": 9.463153732795915e-07,
+          "max": 1.2065340566633622e-06,
+          "at": {
+            "episode": 11,
+            "time_s": 1.05,
+            "physics_step": 1758,
+            "command_id": 439,
+            "reference_frame": 32,
+            "interpolation_step": 2
+          }
+        }
+      }
+    },
+    {
+      "episode": 12,
+      "start": [
+        0.42276236414909363,
+        -0.18558362126350403,
+        0.012636000290513039
+      ],
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": true,
+        "success": true,
+        "object_deviation": false,
+        "hand_far_from_object": false
+      },
+      "max_rise_m": 0.2428723331540823,
+      "final_rise_m": 0.2428723331540823,
+      "first_rise_over_2cm_s": 0.31666666666666665,
+      "contact_time": "unconfirmed",
+      "grasp_time": "unconfirmed",
+      "statistics": {
+        "A_ik_position_m": {
+          "mean": 5.623161434191005e-16,
+          "p95": 4.368901356565874e-15,
+          "max": 7.845750602111125e-15,
+          "at": {
+            "episode": 12,
+            "time_s": 1.175,
+            "physics_step": 1921,
+            "command_id": 480,
+            "reference_frame": 36,
+            "interpolation_step": 1
+          }
+        },
+        "A_ik_rotation_rad": {
+          "mean": 1.6109363452808278e-09,
+          "p95": 1.9371509552002123e-08,
+          "max": 2.9802322387695312e-08,
+          "at": {
+            "episode": 12,
+            "time_s": 0.041666666666666664,
+            "physics_step": 1785,
+            "command_id": 446,
+            "reference_frame": 2,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_position_m": {
+          "mean": 0.0038484756102140022,
+          "p95": 0.009697401801439614,
+          "max": 0.014036084190932779,
+          "at": {
+            "episode": 12,
+            "time_s": 0.5083333333333333,
+            "physics_step": 1841,
+            "command_id": 460,
+            "reference_frame": 16,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_rotation_rad": {
+          "mean": 0.01169412014113901,
+          "p95": 0.031066054743478247,
+          "max": 0.043384053417714855,
+          "at": {
+            "episode": 12,
+            "time_s": 0.475,
+            "physics_step": 1837,
+            "command_id": 459,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_position_m": {
+          "mean": 0.021233153796186937,
+          "p95": 0.047381794104500226,
+          "max": 0.05144004661265946,
+          "at": {
+            "episode": 12,
+            "time_s": 0.6,
+            "physics_step": 1852,
+            "command_id": 462,
+            "reference_frame": 18,
+            "interpolation_step": 4
+          }
+        },
+        "C_tracking_rotation_rad": {
+          "mean": 0.0828568686878796,
+          "p95": 0.14054971752175968,
+          "max": 0.1477778617895122,
+          "at": {
+            "episode": 12,
+            "time_s": 0.2833333333333333,
+            "physics_step": 1814,
+            "command_id": 453,
+            "reference_frame": 9,
+            "interpolation_step": 2
+          }
+        },
+        "total_position_m": {
+          "mean": 0.02484108441301989,
+          "p95": 0.051969784048308675,
+          "max": 0.06223061527298742,
+          "at": {
+            "episode": 12,
+            "time_s": 0.6083333333333333,
+            "physics_step": 1853,
+            "command_id": 463,
+            "reference_frame": 19,
+            "interpolation_step": 1
+          }
+        },
+        "total_rotation_rad": {
+          "mean": 0.09069973566571131,
+          "p95": 0.1550779154580797,
+          "max": 0.17286665360248785,
+          "at": {
+            "episode": 12,
+            "time_s": 0.275,
+            "physics_step": 1813,
+            "command_id": 453,
+            "reference_frame": 9,
+            "interpolation_step": 1
+          }
+        },
+        "FK_runtime_consistency_position_m": {
+          "mean": 2.3470278387392067e-07,
+          "p95": 3.8412262712553343e-07,
+          "max": 4.504976473784895e-07,
+          "at": {
+            "episode": 12,
+            "time_s": 0.4166666666666667,
+            "physics_step": 1830,
+            "command_id": 457,
+            "reference_frame": 13,
+            "interpolation_step": 2
+          }
+        },
+        "FK_runtime_consistency_rotation_rad": {
+          "mean": 5.988218124554098e-07,
+          "p95": 1.049364438126052e-06,
+          "max": 1.4180394713128291e-06,
+          "at": {
+            "episode": 12,
+            "time_s": 0.25,
+            "physics_step": 1810,
+            "command_id": 452,
+            "reference_frame": 8,
+            "interpolation_step": 2
+          }
+        }
+      }
+    },
+    {
+      "episode": 13,
+      "start": [
+        0.46439722180366516,
+        0.09413881599903107,
+        0.012636000290513039
+      ],
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": true,
+        "success": true,
+        "object_deviation": false,
+        "hand_far_from_object": false
+      },
+      "max_rise_m": 0.2675955053418875,
+      "final_rise_m": 0.2675955053418875,
+      "first_rise_over_2cm_s": 0.275,
+      "contact_time": "unconfirmed",
+      "grasp_time": "unconfirmed",
+      "statistics": {
+        "A_ik_position_m": {
+          "mean": 3.058178947409215e-16,
+          "p95": 1.921050015666935e-15,
+          "max": 2.6041568056522526e-15,
+          "at": {
+            "episode": 13,
+            "time_s": 0.375,
+            "physics_step": 1973,
+            "command_id": 493,
+            "reference_frame": 12,
+            "interpolation_step": 1
+          }
+        },
+        "A_ik_rotation_rad": {
+          "mean": 1.1391040138079468e-09,
+          "p95": 0.0,
+          "max": 4.2146848510894035e-08,
+          "at": {
+            "episode": 13,
+            "time_s": 0.20833333333333334,
+            "physics_step": 1953,
+            "command_id": 488,
+            "reference_frame": 7,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_position_m": {
+          "mean": 0.0037530490141695944,
+          "p95": 0.009352348359168377,
+          "max": 0.016414638663474878,
+          "at": {
+            "episode": 13,
+            "time_s": 0.5416666666666666,
+            "physics_step": 1993,
+            "command_id": 498,
+            "reference_frame": 17,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_rotation_rad": {
+          "mean": 0.011739293180946875,
+          "p95": 0.03164068399038278,
+          "max": 0.04747744762234359,
+          "at": {
+            "episode": 13,
+            "time_s": 0.475,
+            "physics_step": 1985,
+            "command_id": 496,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_position_m": {
+          "mean": 0.015235905381086903,
+          "p95": 0.041301165079374584,
+          "max": 0.04706474130090547,
+          "at": {
+            "episode": 13,
+            "time_s": 0.5916666666666667,
+            "physics_step": 1999,
+            "command_id": 499,
+            "reference_frame": 18,
+            "interpolation_step": 3
+          }
+        },
+        "C_tracking_rotation_rad": {
+          "mean": 0.15852326267804004,
+          "p95": 0.4511912640238127,
+          "max": 0.6227233122845677,
+          "at": {
+            "episode": 13,
+            "time_s": 1.2333333333333334,
+            "physics_step": 2076,
+            "command_id": 518,
+            "reference_frame": 37,
+            "interpolation_step": 4
+          }
+        },
+        "total_position_m": {
+          "mean": 0.018658111861274917,
+          "p95": 0.046397419939282314,
+          "max": 0.05899756293451253,
+          "at": {
+            "episode": 13,
+            "time_s": 0.575,
+            "physics_step": 1997,
+            "command_id": 499,
+            "reference_frame": 18,
+            "interpolation_step": 1
+          }
+        },
+        "total_rotation_rad": {
+          "mean": 0.16826351177127957,
+          "p95": 0.45351491857535836,
+          "max": 0.6227232488358935,
+          "at": {
+            "episode": 13,
+            "time_s": 1.2333333333333334,
+            "physics_step": 2076,
+            "command_id": 518,
+            "reference_frame": 37,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_position_m": {
+          "mean": 1.6610212802433362e-07,
+          "p95": 3.0004481054382264e-07,
+          "max": 3.9928405456697125e-07,
+          "at": {
+            "episode": 13,
+            "time_s": 0.9833333333333333,
+            "physics_step": 2046,
+            "command_id": 511,
+            "reference_frame": 30,
+            "interpolation_step": 2
+          }
+        },
+        "FK_runtime_consistency_rotation_rad": {
+          "mean": 6.374359579642205e-07,
+          "p95": 1.0824949933822807e-06,
+          "max": 1.7003001958842685e-06,
+          "at": {
+            "episode": 13,
+            "time_s": 0.9833333333333333,
+            "physics_step": 2046,
+            "command_id": 511,
+            "reference_frame": 30,
+            "interpolation_step": 2
+          }
+        }
+      }
+    },
+    {
+      "episode": 14,
+      "start": [
+        0.43011441826820374,
+        -0.16787241399288177,
+        0.012636000290513039
+      ],
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": true,
+        "success": true,
+        "object_deviation": false,
+        "hand_far_from_object": false
+      },
+      "max_rise_m": 0.2431358452886343,
+      "final_rise_m": 0.2431358452886343,
+      "first_rise_over_2cm_s": 0.325,
+      "contact_time": "unconfirmed",
+      "grasp_time": "unconfirmed",
+      "statistics": {
+        "A_ik_position_m": {
+          "mean": 3.2020136312950564e-16,
+          "p95": 1.960366201029518e-15,
+          "max": 4.487828537992952e-15,
+          "at": {
+            "episode": 14,
+            "time_s": 1.2083333333333333,
+            "physics_step": 2221,
+            "command_id": 555,
+            "reference_frame": 37,
+            "interpolation_step": 1
+          }
+        },
+        "A_ik_rotation_rad": {
+          "mean": 1.6109363452808278e-09,
+          "p95": 1.9371509552002123e-08,
+          "max": 2.9802322387695312e-08,
+          "at": {
+            "episode": 14,
+            "time_s": 0.20833333333333334,
+            "physics_step": 2101,
+            "command_id": 525,
+            "reference_frame": 7,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_position_m": {
+          "mean": 0.0038774952083384454,
+          "p95": 0.00957969200626179,
+          "max": 0.014897270959538779,
+          "at": {
+            "episode": 14,
+            "time_s": 0.5083333333333333,
+            "physics_step": 2137,
+            "command_id": 534,
+            "reference_frame": 16,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_rotation_rad": {
+          "mean": 0.011832498289819325,
+          "p95": 0.031309596297069205,
+          "max": 0.04650604430776256,
+          "at": {
+            "episode": 14,
+            "time_s": 0.475,
+            "physics_step": 2133,
+            "command_id": 533,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_position_m": {
+          "mean": 0.020848347070155326,
+          "p95": 0.04783272560934343,
+          "max": 0.051883647892741296,
+          "at": {
+            "episode": 14,
+            "time_s": 0.6,
+            "physics_step": 2148,
+            "command_id": 536,
+            "reference_frame": 18,
+            "interpolation_step": 4
+          }
+        },
+        "C_tracking_rotation_rad": {
+          "mean": 0.08581575373730277,
+          "p95": 0.1418553568762468,
+          "max": 0.1469522826890096,
+          "at": {
+            "episode": 14,
+            "time_s": 0.2833333333333333,
+            "physics_step": 2110,
+            "command_id": 527,
+            "reference_frame": 9,
+            "interpolation_step": 2
+          }
+        },
+        "total_position_m": {
+          "mean": 0.024476171614024662,
+          "p95": 0.0522559824463419,
+          "max": 0.06308692568452494,
+          "at": {
+            "episode": 14,
+            "time_s": 0.575,
+            "physics_step": 2145,
+            "command_id": 536,
+            "reference_frame": 18,
+            "interpolation_step": 1
+          }
+        },
+        "total_rotation_rad": {
+          "mean": 0.09387918180858235,
+          "p95": 0.1549457135844205,
+          "max": 0.172758717026287,
+          "at": {
+            "episode": 14,
+            "time_s": 0.275,
+            "physics_step": 2109,
+            "command_id": 527,
+            "reference_frame": 9,
+            "interpolation_step": 1
+          }
+        },
+        "FK_runtime_consistency_position_m": {
+          "mean": 2.407833128544853e-07,
+          "p95": 4.2260239884725826e-07,
+          "max": 6.282147456211708e-07,
+          "at": {
+            "episode": 14,
+            "time_s": 0.3333333333333333,
+            "physics_step": 2116,
+            "command_id": 528,
+            "reference_frame": 10,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_rotation_rad": {
+          "mean": 6.217266347345175e-07,
+          "p95": 1.0365440971458188e-06,
+          "max": 1.3984880693734056e-06,
+          "at": {
+            "episode": 14,
+            "time_s": 0.3333333333333333,
+            "physics_step": 2116,
+            "command_id": 528,
+            "reference_frame": 10,
+            "interpolation_step": 4
+          }
+        }
+      }
+    },
+    {
+      "episode": 15,
+      "start": [
+        0.45724236965179443,
+        0.15630923211574554,
+        0.012636000290513039
+      ],
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "max_rise_m": 0.023386353626847267,
+      "final_rise_m": -3.4458935260772705e-07,
+      "first_rise_over_2cm_s": 0.30833333333333335,
+      "contact_time": "unconfirmed",
+      "grasp_time": "unconfirmed",
+      "statistics": {
+        "A_ik_position_m": {
+          "mean": 3.7644641309225615e-16,
+          "p95": 3.6506759942727966e-16,
+          "max": 5.788634738642724e-15,
+          "at": {
+            "episode": 15,
+            "time_s": 0.175,
+            "physics_step": 2245,
+            "command_id": 561,
+            "reference_frame": 6,
+            "interpolation_step": 1
+          }
+        },
+        "A_ik_rotation_rad": {
+          "mean": 1.1037897180627893e-09,
+          "p95": 0.0,
+          "max": 2.9802322387695312e-08,
+          "at": {
+            "episode": 15,
+            "time_s": 0.4083333333333333,
+            "physics_step": 2273,
+            "command_id": 568,
+            "reference_frame": 13,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_position_m": {
+          "mean": 0.004068931450649742,
+          "p95": 0.010262129637337927,
+          "max": 0.019671273337487565,
+          "at": {
+            "episode": 15,
+            "time_s": 0.5416666666666666,
+            "physics_step": 2289,
+            "command_id": 572,
+            "reference_frame": 17,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_rotation_rad": {
+          "mean": 0.01298106369158221,
+          "p95": 0.033686662209813735,
+          "max": 0.0449683168393909,
+          "at": {
+            "episode": 15,
+            "time_s": 0.475,
+            "physics_step": 2281,
+            "command_id": 570,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_position_m": {
+          "mean": 0.016055730508417895,
+          "p95": 0.040515702940207246,
+          "max": 0.04460155266667005,
+          "at": {
+            "episode": 15,
+            "time_s": 0.575,
+            "physics_step": 2293,
+            "command_id": 573,
+            "reference_frame": 18,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_rotation_rad": {
+          "mean": 0.11824126604259606,
+          "p95": 0.2265053699002624,
+          "max": 0.34054835312889636,
+          "at": {
+            "episode": 15,
+            "time_s": 0.9,
+            "physics_step": 2332,
+            "command_id": 582,
+            "reference_frame": 27,
+            "interpolation_step": 4
+          }
+        },
+        "total_position_m": {
+          "mean": 0.019862699800474018,
+          "p95": 0.04736144397653951,
+          "max": 0.056653717742366286,
+          "at": {
+            "episode": 15,
+            "time_s": 0.575,
+            "physics_step": 2293,
+            "command_id": 573,
+            "reference_frame": 18,
+            "interpolation_step": 1
+          }
+        },
+        "total_rotation_rad": {
+          "mean": 0.12908194537146897,
+          "p95": 0.2326969494052411,
+          "max": 0.3405481980888955,
+          "at": {
+            "episode": 15,
+            "time_s": 0.9,
+            "physics_step": 2332,
+            "command_id": 582,
+            "reference_frame": 27,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_position_m": {
+          "mean": 2.374650612322828e-07,
+          "p95": 3.811070151620325e-07,
+          "max": 4.479632814454945e-07,
+          "at": {
+            "episode": 15,
+            "time_s": 0.3833333333333333,
+            "physics_step": 2270,
+            "command_id": 567,
+            "reference_frame": 12,
+            "interpolation_step": 2
+          }
+        },
+        "FK_runtime_consistency_rotation_rad": {
+          "mean": 8.470939145323887e-07,
+          "p95": 1.2028711516216123e-06,
+          "max": 1.5022853804980345e-06,
+          "at": {
+            "episode": 15,
+            "time_s": 0.5666666666666667,
+            "physics_step": 2292,
+            "command_id": 572,
+            "reference_frame": 17,
+            "interpolation_step": 4
+          }
+        }
+      }
+    },
+    {
+      "episode": 16,
+      "start": [
+        0.4568716883659363,
+        -0.18678821623325348,
+        0.012636000290513039
+      ],
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": true,
+        "success": true,
+        "object_deviation": false,
+        "hand_far_from_object": false
+      },
+      "max_rise_m": 0.24048522673547268,
+      "final_rise_m": 0.24048522673547268,
+      "first_rise_over_2cm_s": 0.31666666666666665,
+      "contact_time": "unconfirmed",
+      "grasp_time": "unconfirmed",
+      "statistics": {
+        "A_ik_position_m": {
+          "mean": 5.702960162061874e-16,
+          "p95": 3.0314450351481056e-15,
+          "max": 1.07411208800828e-14,
+          "at": {
+            "episode": 16,
+            "time_s": 1.175,
+            "physics_step": 2473,
+            "command_id": 618,
+            "reference_frame": 36,
+            "interpolation_step": 1
+          }
+        },
+        "A_ik_rotation_rad": {
+          "mean": 1.6109363452808278e-09,
+          "p95": 1.9371509552002123e-08,
+          "max": 2.9802322387695312e-08,
+          "at": {
+            "episode": 16,
+            "time_s": 0.5416666666666666,
+            "physics_step": 2397,
+            "command_id": 599,
+            "reference_frame": 17,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_position_m": {
+          "mean": 0.0038579735468067494,
+          "p95": 0.009537655185661983,
+          "max": 0.014993488411347193,
+          "at": {
+            "episode": 16,
+            "time_s": 0.5083333333333333,
+            "physics_step": 2393,
+            "command_id": 598,
+            "reference_frame": 16,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_rotation_rad": {
+          "mean": 0.011772379664929746,
+          "p95": 0.03187687499804681,
+          "max": 0.04492031225938227,
+          "at": {
+            "episode": 16,
+            "time_s": 0.475,
+            "physics_step": 2389,
+            "command_id": 597,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_position_m": {
+          "mean": 0.022430857229882986,
+          "p95": 0.05050773049588718,
+          "max": 0.05486350066881944,
+          "at": {
+            "episode": 16,
+            "time_s": 0.6,
+            "physics_step": 2404,
+            "command_id": 600,
+            "reference_frame": 18,
+            "interpolation_step": 4
+          }
+        },
+        "C_tracking_rotation_rad": {
+          "mean": 0.08277126028520897,
+          "p95": 0.14295469691609272,
+          "max": 0.14945598846579888,
+          "at": {
+            "episode": 16,
+            "time_s": 0.2833333333333333,
+            "physics_step": 2366,
+            "command_id": 591,
+            "reference_frame": 9,
+            "interpolation_step": 2
+          }
+        },
+        "total_position_m": {
+          "mean": 0.02603881429537915,
+          "p95": 0.05451847627823067,
+          "max": 0.06567563935168497,
+          "at": {
+            "episode": 16,
+            "time_s": 0.6083333333333333,
+            "physics_step": 2405,
+            "command_id": 601,
+            "reference_frame": 19,
+            "interpolation_step": 1
+          }
+        },
+        "total_rotation_rad": {
+          "mean": 0.09149588339519012,
+          "p95": 0.1567287206302942,
+          "max": 0.17419042801085,
+          "at": {
+            "episode": 16,
+            "time_s": 0.275,
+            "physics_step": 2365,
+            "command_id": 591,
+            "reference_frame": 9,
+            "interpolation_step": 1
+          }
+        },
+        "FK_runtime_consistency_position_m": {
+          "mean": 2.729899096821435e-07,
+          "p95": 4.5357490293058867e-07,
+          "max": 5.740522710085801e-07,
+          "at": {
+            "episode": 16,
+            "time_s": 0.4,
+            "physics_step": 2380,
+            "command_id": 594,
+            "reference_frame": 12,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_rotation_rad": {
+          "mean": 6.329435007494195e-07,
+          "p95": 1.0985892004920496e-06,
+          "max": 1.3546130868630086e-06,
+          "at": {
+            "episode": 16,
+            "time_s": 0.475,
+            "physics_step": 2389,
+            "command_id": 597,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        }
+      }
+    },
+    {
+      "episode": 17,
+      "start": [
+        0.4793374538421631,
+        0.09808413684368134,
+        0.012636000290513039
+      ],
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": true,
+        "success": true,
+        "object_deviation": false,
+        "hand_far_from_object": false
+      },
+      "max_rise_m": 0.26235747896134853,
+      "final_rise_m": 0.26235747896134853,
+      "first_rise_over_2cm_s": 0.2833333333333333,
+      "contact_time": "unconfirmed",
+      "grasp_time": "unconfirmed",
+      "statistics": {
+        "A_ik_position_m": {
+          "mean": 5.144798421239091e-16,
+          "p95": 2.296498963083275e-15,
+          "max": 7.483769982753249e-15,
+          "at": {
+            "episode": 17,
+            "time_s": 0.675,
+            "physics_step": 2561,
+            "command_id": 640,
+            "reference_frame": 21,
+            "interpolation_step": 1
+          }
+        },
+        "A_ik_rotation_rad": {
+          "mean": 6.6391847319854944e-09,
+          "p95": 4.2146848510894035e-08,
+          "max": 4.2146848510894035e-08,
+          "at": {
+            "episode": 17,
+            "time_s": 0.5416666666666666,
+            "physics_step": 2545,
+            "command_id": 636,
+            "reference_frame": 17,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_position_m": {
+          "mean": 0.0037445006088749518,
+          "p95": 0.009281904704582617,
+          "max": 0.015650577866047982,
+          "at": {
+            "episode": 17,
+            "time_s": 0.5416666666666666,
+            "physics_step": 2545,
+            "command_id": 636,
+            "reference_frame": 17,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_rotation_rad": {
+          "mean": 0.011777347659578148,
+          "p95": 0.031237748121185353,
+          "max": 0.045617543088615896,
+          "at": {
+            "episode": 17,
+            "time_s": 0.475,
+            "physics_step": 2537,
+            "command_id": 634,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_position_m": {
+          "mean": 0.015914962257422983,
+          "p95": 0.04233662046461414,
+          "max": 0.04760950617452033,
+          "at": {
+            "episode": 17,
+            "time_s": 0.5916666666666667,
+            "physics_step": 2551,
+            "command_id": 637,
+            "reference_frame": 18,
+            "interpolation_step": 3
+          }
+        },
+        "C_tracking_rotation_rad": {
+          "mean": 0.16270202923129212,
+          "p95": 0.4758991265704619,
+          "max": 0.6460233365751687,
+          "at": {
+            "episode": 17,
+            "time_s": 1.2333333333333334,
+            "physics_step": 2628,
+            "command_id": 656,
+            "reference_frame": 37,
+            "interpolation_step": 4
+          }
+        },
+        "total_position_m": {
+          "mean": 0.019333354403778657,
+          "p95": 0.047357518270854944,
+          "max": 0.05906157297582033,
+          "at": {
+            "episode": 17,
+            "time_s": 0.575,
+            "physics_step": 2549,
+            "command_id": 637,
+            "reference_frame": 18,
+            "interpolation_step": 1
+          }
+        },
+        "total_rotation_rad": {
+          "mean": 0.17295229854911942,
+          "p95": 0.47710391096433585,
+          "max": 0.6460236429102162,
+          "at": {
+            "episode": 17,
+            "time_s": 1.2333333333333334,
+            "physics_step": 2628,
+            "command_id": 656,
+            "reference_frame": 37,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_position_m": {
+          "mean": 1.9613217766182708e-07,
+          "p95": 3.7022426834314794e-07,
+          "max": 4.6593948846701214e-07,
+          "at": {
+            "episode": 17,
+            "time_s": 0.3333333333333333,
+            "physics_step": 2520,
+            "command_id": 629,
+            "reference_frame": 10,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_rotation_rad": {
+          "mean": 6.820540608555812e-07,
+          "p95": 1.103390423587834e-06,
+          "max": 1.4035596655984947e-06,
+          "at": {
+            "episode": 17,
+            "time_s": 0.9166666666666666,
+            "physics_step": 2590,
+            "command_id": 647,
+            "reference_frame": 28,
+            "interpolation_step": 2
+          }
+        }
+      }
+    },
+    {
+      "episode": 18,
+      "start": [
+        0.47546103596687317,
+        -0.15931791067123413,
+        0.012636000290513039
+      ],
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": true,
+        "success": true,
+        "object_deviation": false,
+        "hand_far_from_object": false
+      },
+      "max_rise_m": 0.24048245511949062,
+      "final_rise_m": 0.24048245511949062,
+      "first_rise_over_2cm_s": 0.30833333333333335,
+      "contact_time": "unconfirmed",
+      "grasp_time": "unconfirmed",
+      "statistics": {
+        "A_ik_position_m": {
+          "mean": 2.192186107413858e-16,
+          "p95": 5.019258793806744e-16,
+          "max": 3.2686830619505816e-15,
+          "at": {
+            "episode": 18,
+            "time_s": 1.1416666666666666,
+            "physics_step": 2765,
+            "command_id": 691,
+            "reference_frame": 35,
+            "interpolation_step": 1
+          }
+        },
+        "A_ik_rotation_rad": {
+          "mean": 2.4164045179212417e-09,
+          "p95": 2.9802322387695312e-08,
+          "max": 2.9802322387695312e-08,
+          "at": {
+            "episode": 18,
+            "time_s": 0.8416666666666667,
+            "physics_step": 2729,
+            "command_id": 682,
+            "reference_frame": 26,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_position_m": {
+          "mean": 0.0038792468071898764,
+          "p95": 0.009529631052396337,
+          "max": 0.015765834734776076,
+          "at": {
+            "episode": 18,
+            "time_s": 0.5416666666666666,
+            "physics_step": 2693,
+            "command_id": 673,
+            "reference_frame": 17,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_rotation_rad": {
+          "mean": 0.011859788607779892,
+          "p95": 0.03204725213539039,
+          "max": 0.047992923546656616,
+          "at": {
+            "episode": 18,
+            "time_s": 0.475,
+            "physics_step": 2685,
+            "command_id": 671,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_position_m": {
+          "mean": 0.022069106872523912,
+          "p95": 0.050701547310833664,
+          "max": 0.05560084526118128,
+          "at": {
+            "episode": 18,
+            "time_s": 0.6,
+            "physics_step": 2700,
+            "command_id": 674,
+            "reference_frame": 18,
+            "interpolation_step": 4
+          }
+        },
+        "C_tracking_rotation_rad": {
+          "mean": 0.08617392840632228,
+          "p95": 0.14478803305981938,
+          "max": 0.15137537108152588,
+          "at": {
+            "episode": 18,
+            "time_s": 0.26666666666666666,
+            "physics_step": 2660,
+            "command_id": 664,
+            "reference_frame": 8,
+            "interpolation_step": 4
+          }
+        },
+        "total_position_m": {
+          "mean": 0.025689858828142627,
+          "p95": 0.05484956997699075,
+          "max": 0.0663324417458786,
+          "at": {
+            "episode": 18,
+            "time_s": 0.6083333333333333,
+            "physics_step": 2701,
+            "command_id": 675,
+            "reference_frame": 19,
+            "interpolation_step": 1
+          }
+        },
+        "total_rotation_rad": {
+          "mean": 0.09487686687151316,
+          "p95": 0.158478030043346,
+          "max": 0.17512932599248598,
+          "at": {
+            "episode": 18,
+            "time_s": 0.275,
+            "physics_step": 2661,
+            "command_id": 665,
+            "reference_frame": 9,
+            "interpolation_step": 1
+          }
+        },
+        "FK_runtime_consistency_position_m": {
+          "mean": 2.633918006457061e-07,
+          "p95": 4.598113767208704e-07,
+          "max": 5.308006983254434e-07,
+          "at": {
+            "episode": 18,
+            "time_s": 0.5666666666666667,
+            "physics_step": 2696,
+            "command_id": 673,
+            "reference_frame": 17,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_rotation_rad": {
+          "mean": 6.188787542301306e-07,
+          "p95": 1.0228535493327426e-06,
+          "max": 1.3539572586537318e-06,
+          "at": {
+            "episode": 18,
+            "time_s": 0.14166666666666666,
+            "physics_step": 2645,
+            "command_id": 661,
+            "reference_frame": 5,
+            "interpolation_step": 1
+          }
+        }
+      }
+    },
+    {
+      "episode": 19,
+      "start": [
+        0.4718260169029236,
+        0.10960410535335541,
+        0.012636000290513039
+      ],
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": true,
+        "success": true,
+        "object_deviation": false,
+        "hand_far_from_object": false
+      },
+      "max_rise_m": 0.253835653886199,
+      "final_rise_m": 0.25351173244416714,
+      "first_rise_over_2cm_s": 0.2916666666666667,
+      "contact_time": "unconfirmed",
+      "grasp_time": "unconfirmed",
+      "statistics": {
+        "A_ik_position_m": {
+          "mean": 3.058302434046852e-16,
+          "p95": 1.079643405395292e-15,
+          "max": 3.3981103164577694e-15,
+          "at": {
+            "episode": 19,
+            "time_s": 0.375,
+            "physics_step": 2821,
+            "command_id": 705,
+            "reference_frame": 12,
+            "interpolation_step": 1
+          }
+        },
+        "A_ik_rotation_rad": {
+          "mean": 2.7500403590887742e-09,
+          "p95": 2.9802322387695312e-08,
+          "max": 4.2146848510894035e-08,
+          "at": {
+            "episode": 19,
+            "time_s": 1.1416666666666666,
+            "physics_step": 2913,
+            "command_id": 728,
+            "reference_frame": 35,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_position_m": {
+          "mean": 0.0036763609880602066,
+          "p95": 0.009276651360053102,
+          "max": 0.01668094639966948,
+          "at": {
+            "episode": 19,
+            "time_s": 0.5416666666666666,
+            "physics_step": 2841,
+            "command_id": 710,
+            "reference_frame": 17,
+            "interpolation_step": 1
+          }
+        },
+        "B_command_rotation_rad": {
+          "mean": 0.011751570186983617,
+          "p95": 0.03165604989777339,
+          "max": 0.048474433695255136,
+          "at": {
+            "episode": 19,
+            "time_s": 0.475,
+            "physics_step": 2833,
+            "command_id": 708,
+            "reference_frame": 15,
+            "interpolation_step": 1
+          }
+        },
+        "C_tracking_position_m": {
+          "mean": 0.016045634374095626,
+          "p95": 0.04195317760944074,
+          "max": 0.0479703136745598,
+          "at": {
+            "episode": 19,
+            "time_s": 0.5916666666666667,
+            "physics_step": 2847,
+            "command_id": 711,
+            "reference_frame": 18,
+            "interpolation_step": 3
+          }
+        },
+        "C_tracking_rotation_rad": {
+          "mean": 0.21879986061806714,
+          "p95": 0.7913158442020991,
+          "max": 0.8106650316759132,
+          "at": {
+            "episode": 19,
+            "time_s": 1.2083333333333333,
+            "physics_step": 2921,
+            "command_id": 730,
+            "reference_frame": 37,
+            "interpolation_step": 1
+          }
+        },
+        "total_position_m": {
+          "mean": 0.01947032443674098,
+          "p95": 0.047253550357201586,
+          "max": 0.059800889872353706,
+          "at": {
+            "episode": 19,
+            "time_s": 0.575,
+            "physics_step": 2845,
+            "command_id": 711,
+            "reference_frame": 18,
+            "interpolation_step": 1
+          }
+        },
+        "total_rotation_rad": {
+          "mean": 0.22810985549178445,
+          "p95": 0.7871438954226372,
+          "max": 0.8102032879687625,
+          "at": {
+            "episode": 19,
+            "time_s": 1.2,
+            "physics_step": 2920,
+            "command_id": 729,
+            "reference_frame": 36,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_position_m": {
+          "mean": 1.881508182491371e-07,
+          "p95": 3.8225072787430737e-07,
+          "max": 4.958689026835986e-07,
+          "at": {
+            "episode": 19,
+            "time_s": 0.4,
+            "physics_step": 2824,
+            "command_id": 705,
+            "reference_frame": 12,
+            "interpolation_step": 4
+          }
+        },
+        "FK_runtime_consistency_rotation_rad": {
+          "mean": 6.98007586694364e-07,
+          "p95": 1.150514862225006e-06,
+          "max": 1.3640871633703744e-06,
+          "at": {
+            "episode": 19,
+            "time_s": 0.4,
+            "physics_step": 2824,
+            "command_id": 705,
+            "reference_frame": 12,
+            "interpolation_step": 4
+          }
+        }
+      }
+    }
+  ],
+  "successes": 19,
+  "failed_episodes": [
+    15
+  ],
+  "last_substep_statistics": {
+    "A_ik_position_m": {
+      "mean": 3.3749430690799633e-16,
+      "p95": 1.1394975307586453e-15,
+      "max": 1.07411208800828e-14,
+      "at": {
+        "episode": 16,
+        "time_s": 1.2,
+        "physics_step": 2476,
+        "command_id": 618,
+        "reference_frame": 36,
+        "interpolation_step": 4
+      }
+    },
+    "A_ik_rotation_rad": {
+      "mean": 2.414077945821932e-09,
+      "p95": 2.9802322387695312e-08,
+      "max": 4.2146848510894035e-08,
+      "at": {
+        "episode": 2,
+        "time_s": 0.4,
+        "physics_step": 348,
+        "command_id": 86,
+        "reference_frame": 12,
+        "interpolation_step": 4
+      }
+    },
+    "B_command_position_m": {
+      "mean": 2.2849059115163818e-08,
+      "p95": 5.0913482311062846e-08,
+      "max": 6.17580410408922e-08,
+      "at": {
+        "episode": 9,
+        "time_s": 1.0666666666666667,
+        "physics_step": 1464,
+        "command_id": 365,
+        "reference_frame": 32,
+        "interpolation_step": 4
+      }
+    },
+    "B_command_rotation_rad": {
+      "mean": 8.500840284679401e-08,
+      "p95": 1.6989435100600737e-07,
+      "max": 3.9537248496477665e-07,
+      "at": {
+        "episode": 17,
+        "time_s": 1.0333333333333332,
+        "physics_step": 2604,
+        "command_id": 650,
+        "reference_frame": 31,
+        "interpolation_step": 4
+      }
+    },
+    "C_tracking_position_m": {
+      "mean": 0.019130373729097722,
+      "p95": 0.043940749511234264,
+      "max": 0.05614084471920026,
+      "at": {
+        "episode": 4,
+        "time_s": 0.6,
+        "physics_step": 668,
+        "command_id": 166,
+        "reference_frame": 18,
+        "interpolation_step": 4
+      }
+    },
+    "C_tracking_rotation_rad": {
+      "mean": 0.12841867650000047,
+      "p95": 0.39795367130802334,
+      "max": 0.8102035467169264,
+      "at": {
+        "episode": 19,
+        "time_s": 1.2,
+        "physics_step": 2920,
+        "command_id": 729,
+        "reference_frame": 36,
+        "interpolation_step": 4
+      }
+    },
+    "total_position_m": {
+      "mean": 0.019130374068690933,
+      "p95": 0.04394075428103063,
+      "max": 0.05614084911296109,
+      "at": {
+        "episode": 4,
+        "time_s": 0.6,
+        "physics_step": 668,
+        "command_id": 166,
+        "reference_frame": 18,
+        "interpolation_step": 4
+      }
+    },
+    "total_rotation_rad": {
+      "mean": 0.1284186729370833,
+      "p95": 0.3979536579976847,
+      "max": 0.8102032879687625,
+      "at": {
+        "episode": 19,
+        "time_s": 1.2,
+        "physics_step": 2920,
+        "command_id": 729,
+        "reference_frame": 36,
+        "interpolation_step": 4
+      }
+    },
+    "FK_runtime_consistency_position_m": {
+      "mean": 2.167642498232475e-07,
+      "p95": 4.1669913306346235e-07,
+      "max": 6.282147456211708e-07,
+      "at": {
+        "episode": 14,
+        "time_s": 0.3333333333333333,
+        "physics_step": 2116,
+        "command_id": 528,
+        "reference_frame": 10,
+        "interpolation_step": 4
+      }
+    },
+    "FK_runtime_consistency_rotation_rad": {
+      "mean": 6.088998045023876e-07,
+      "p95": 1.0388128855079252e-06,
+      "max": 1.5022853804980345e-06,
+      "at": {
+        "episode": 15,
+        "time_s": 0.5666666666666667,
+        "physics_step": 2292,
+        "command_id": 572,
+        "reference_frame": 17,
+        "interpolation_step": 4
+      }
+    }
+  }
+}

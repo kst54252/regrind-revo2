@@ -1,0 +1,104 @@
+{
+  "task": "Regrind-RB3-Revo2-TunaCan-Online-Play-v0",
+  "num_envs": 16,
+  "camera_eye": [
+    8.0,
+    8.0,
+    13.0
+  ],
+  "camera_lookat": [
+    0.4,
+    0.0,
+    0.15
+  ],
+  "env_spacing": 2.0,
+  "resolution": [
+    1920,
+    1080
+  ],
+  "reference": "/home/wanjunkim/ARSL/regrind-upload/outputs/isaac/dexycb/20200709_143747_left/rb3_revo2_reference_stable.h5",
+  "env_origins": [
+    [
+      3.0,
+      -3.0,
+      0.0
+    ],
+    [
+      3.0,
+      -1.0,
+      0.0
+    ],
+    [
+      3.0,
+      1.0,
+      0.0
+    ],
+    [
+      3.0,
+      3.0,
+      0.0
+    ],
+    [
+      1.0,
+      -3.0,
+      0.0
+    ],
+    [
+      1.0,
+      -1.0,
+      0.0
+    ],
+    [
+      1.0,
+      1.0,
+      0.0
+    ],
+    [
+      1.0,
+      3.0,
+      0.0
+    ],
+    [
+      -1.0,
+      -3.0,
+      0.0
+    ],
+    [
+      -1.0,
+      -1.0,
+      0.0
+    ],
+    [
+      -1.0,
+      1.0,
+      0.0
+    ],
+    [
+      -1.0,
+      3.0,
+      0.0
+    ],
+    [
+      -3.0,
+      -3.0,
+      0.0
+    ],
+    [
+      -3.0,
+      -1.0,
+      0.0
+    ],
+    [
+      -3.0,
+      1.0,
+      0.0
+    ],
+    [
+      -3.0,
+      3.0,
+      0.0
+    ]
+  ],
+  "description": "Actual Isaac render after reference reset; no policy inference or PPO update.",
+  "output": "/home/wanjunkim/ARSL/regrind-upload/outputs/visualizations/images/rb3_revo2_parallel16_20260907.png"
+}

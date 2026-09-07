@@ -1,0 +1,2342 @@
+{
+  "source": "/home/wanjunkim/ARSL/regrind-upload/outputs/diagnostics/minimal_interface_20260907/floating20",
+  "replay": "outputs/diagnostics/floating_actual_replay_20260907/replay20",
+  "closed_loop_policy_evaluation": false,
+  "effort_saturation": "UNKNOWN",
+  "episodes": [
+    {
+      "episode": 0,
+      "duration_s": 1.2666666666666666,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9333333333333333,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.427267074584961e-07,
+      "source_final_lift_m": 0.2250152137130499,
+      "contact_onset_s": 0.2833333333333333,
+      "source_contact_onset_s": 0.425,
+      "object_actual_path_error_m": {
+        "mean": 0.08280682558266945,
+        "p95": 0.21656790004242932,
+        "max": 0.22588611947904336
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 5.699984051724234e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.0006730956374667585,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 30,
+      "rate_limited_steps": 0,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.016789137972074587,
+            "p95": 0.03456272073090076,
+            "max": 0.03664412721991539
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.10846151482285948,
+            "p95": 0.2162800281609572,
+            "max": 0.2189515486706784
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.010254407120429295,
+            "p95": 0.03205772787332533,
+            "max": 0.14249473810195923
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.011966753211885913,
+            "p95": 0.03606837503612036,
+            "max": 0.15027037262916565
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.08680297939764876,
+            "p95": 0.22048837095499033,
+            "max": 0.22815237939357758
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.010072235376080216,
+            "p95": 0.015027300640940666,
+            "max": 0.01524433121085167
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.02484913713148623,
+            "p95": 0.060395856763089874,
+            "max": 0.06850058100140415
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.010047789205977225,
+            "p95": 0.027386647462844846,
+            "max": 0.031936854124069214
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.009184244337622218,
+            "p95": 0.024413356184959403,
+            "max": 0.02581523358821869
+          },
+          "object_keypoint_error_m": {
+            "mean": 3.802100140450365e-07,
+            "p95": 5.209462983657431e-07,
+            "max": 6.113426707088365e-07
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.018651808439871343,
+            "p95": 0.035366084426641464,
+            "max": 0.03664412721991539
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.1316481405692067,
+            "p95": 0.21718201765905584,
+            "max": 0.2189515486706784
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.010311704525277349,
+            "p95": 0.03736500050872566,
+            "max": 0.14249473810195923
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.012738373319875006,
+            "p95": 0.04530956670641886,
+            "max": 0.15027037262916565
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.11087428841606847,
+            "p95": 0.22335600852966309,
+            "max": 0.22815237939357758
+          }
+        }
+      }
+    },
+    {
+      "episode": 1,
+      "duration_s": 1.2333333333333334,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.371387720108032e-07,
+      "source_final_lift_m": 0.2250558491796255,
+      "contact_onset_s": 0.2583333333333333,
+      "source_contact_onset_s": 0.39166666666666666,
+      "object_actual_path_error_m": {
+        "mean": 0.08529472003037626,
+        "p95": 0.21634931245238123,
+        "max": 0.22550142768534961
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 6.410887011475397e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.00097420415841043,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 30,
+      "rate_limited_steps": 0,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.016052510162046167,
+            "p95": 0.03190039359033108,
+            "max": 0.03391178697347641
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.155846972848805,
+            "p95": 0.529547371931923,
+            "max": 0.5421142788747466
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.009537343060705515,
+            "p95": 0.03120438754558563,
+            "max": 0.09629334323108196
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.011014372608394163,
+            "p95": 0.03305750638246535,
+            "max": 0.09867270290851593
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.08924817389433391,
+            "p95": 0.22096909731626513,
+            "max": 0.22764426469802856
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.009611660617520102,
+            "p95": 0.013940701214596628,
+            "max": 0.01400221511721611
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.02290966771083395,
+            "p95": 0.05941785406591531,
+            "max": 0.06677107236276025
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.011681367856726865,
+            "p95": 0.028016509860754005,
+            "max": 0.03206658363342285
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.01045208919592066,
+            "p95": 0.024710275977849958,
+            "max": 0.02587924897670746
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.000535878716618754,
+            "p95": 0.000544654147233814,
+            "max": 0.000544654147233814
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.017690014283535845,
+            "p95": 0.03239996340125798,
+            "max": 0.03391178697347641
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.1896445927991366,
+            "p95": 0.5334706486297418,
+            "max": 0.5421142788747466
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.008992252010869579,
+            "p95": 0.0328431911766529,
+            "max": 0.09629334323108196
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.011157326018345053,
+            "p95": 0.037828244268894175,
+            "max": 0.09867270290851593
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.11180214724460048,
+            "p95": 0.2228088527917862,
+            "max": 0.22764426469802856
+          }
+        }
+      }
+    },
+    {
+      "episode": 2,
+      "duration_s": 1.2333333333333334,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.2782554626464844e-07,
+      "source_final_lift_m": 0.22496767900884151,
+      "contact_onset_s": 0.24166666666666667,
+      "source_contact_onset_s": 0.39166666666666666,
+      "object_actual_path_error_m": {
+        "mean": 0.08486607752280789,
+        "p95": 0.2164645769029297,
+        "max": 0.22561812873568604
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 5.4978315622655325e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.0009346754522994161,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 30,
+      "rate_limited_steps": 0,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.017328277773009864,
+            "p95": 0.03561003301292658,
+            "max": 0.03775433078408241
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.10834197731589838,
+            "p95": 0.22102931365565262,
+            "max": 0.22661721031784587
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.009190944572512424,
+            "p95": 0.029955968260765076,
+            "max": 0.09148919582366943
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010574538638652929,
+            "p95": 0.029715457558631884,
+            "max": 0.0935184471309185
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.08877328265599145,
+            "p95": 0.22102817147970202,
+            "max": 0.22772638499736786
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.010419218476662146,
+            "p95": 0.01537679173052311,
+            "max": 0.015552549622952938
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.024024956484265836,
+            "p95": 0.056280585937788605,
+            "max": 0.0634009643283307
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.01158873811939321,
+            "p95": 0.02754148915410042,
+            "max": 0.032024234533309937
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010429851240977379,
+            "p95": 0.02473449558019638,
+            "max": 0.02581879496574402
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.0005182007828677472,
+            "p95": 0.0005270209454465658,
+            "max": 0.000527026248164475
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.018940391608824332,
+            "p95": 0.03627623133361339,
+            "max": 0.03775433078408241
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.1280159488432793,
+            "p95": 0.22345074322876235,
+            "max": 0.22661721031784587
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.008631459411573575,
+            "p95": 0.030471155047416675,
+            "max": 0.09148919582366943
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.01060829903144389,
+            "p95": 0.03243833556771278,
+            "max": 0.0935184471309185
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.10936613509305365,
+            "p95": 0.22287291288375854,
+            "max": 0.22772638499736786
+          }
+        }
+      }
+    },
+    {
+      "episode": 3,
+      "duration_s": 1.2333333333333334,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.3527612686157227e-07,
+      "source_final_lift_m": 0.22500277124345303,
+      "contact_onset_s": 0.2583333333333333,
+      "source_contact_onset_s": 0.39166666666666666,
+      "object_actual_path_error_m": {
+        "mean": 0.08578786668103439,
+        "p95": 0.2170264441447361,
+        "max": 0.22617942456647946
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 5.289600268626849e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.0011016794014722109,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 29,
+      "rate_limited_steps": 0,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.01710660585829189,
+            "p95": 0.03435469586402178,
+            "max": 0.03630400449037552
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.10384464917184631,
+            "p95": 0.19038294416378282,
+            "max": 0.19226480573635363
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.009148925924812666,
+            "p95": 0.030302648246288297,
+            "max": 0.09649494104087353
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010521455443900915,
+            "p95": 0.028435680270194948,
+            "max": 0.09966479241847992
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.08972714353463694,
+            "p95": 0.22162324115633966,
+            "max": 0.2282898724079132
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.01034523814159911,
+            "p95": 0.015365335065871477,
+            "max": 0.015487979166209698
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.027987396739208633,
+            "p95": 0.06581986993913294,
+            "max": 0.07350083107113602
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.011670429099432214,
+            "p95": 0.027988487482070914,
+            "max": 0.03201943635940552
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010448213502265087,
+            "p95": 0.02470836862921715,
+            "max": 0.025805145502090454
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.0005109814199386164,
+            "p95": 0.0005190924479393288,
+            "max": 0.0005191590753383934
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.01882559765067141,
+            "p95": 0.034909526817500584,
+            "max": 0.03630400449037552
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.12313039131573725,
+            "p95": 0.19120176337148154,
+            "max": 0.19226480573635363
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.008507865795672103,
+            "p95": 0.030994094908237457,
+            "max": 0.09649494104087353
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010540076276520193,
+            "p95": 0.03146515265107154,
+            "max": 0.09966479241847992
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.1124092186485433,
+            "p95": 0.22345855832099915,
+            "max": 0.2282898724079132
+          }
+        }
+      }
+    },
+    {
+      "episode": 4,
+      "duration_s": 1.2333333333333334,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.4458935260772705e-07,
+      "source_final_lift_m": 0.22504240833222866,
+      "contact_onset_s": 0.175,
+      "source_contact_onset_s": 0.39166666666666666,
+      "object_actual_path_error_m": {
+        "mean": 0.0857125449448557,
+        "p95": 0.21693735683920032,
+        "max": 0.2260139653909553
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 3.762854990851658e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.0010275001404806972,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 29,
+      "rate_limited_steps": 0,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.02144759794464335,
+            "p95": 0.04315842781215906,
+            "max": 0.04570232331752777
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.09029162057132294,
+            "p95": 0.15806712885430707,
+            "max": 0.1632730730356064
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.009668288480278541,
+            "p95": 0.03047850281000137,
+            "max": 0.10744046047329903
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.011252237662050888,
+            "p95": 0.033044011890888215,
+            "max": 0.11072627827525139
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.08968076170886224,
+            "p95": 0.22154945582151417,
+            "max": 0.228197380900383
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.012122594646643847,
+            "p95": 0.019268061593174936,
+            "max": 0.019454985857009888
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.02003145935705982,
+            "p95": 0.027379734167914452,
+            "max": 0.028291059076091987
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.011007726216242493,
+            "p95": 0.024275881797075273,
+            "max": 0.02733895182609558
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010179573443019762,
+            "p95": 0.024737421423196793,
+            "max": 0.02578963339328766
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.0005259158759145066,
+            "p95": 0.0005388338380726054,
+            "max": 0.0005388690624386072
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.02290462970995577,
+            "p95": 0.043733261525630944,
+            "max": 0.04570232331752777
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.10126977076105156,
+            "p95": 0.15941800565607028,
+            "max": 0.1632730730356064
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.009459001334034175,
+            "p95": 0.031052564084529874,
+            "max": 0.10744046047329903
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.0114198414462745,
+            "p95": 0.03411480635404586,
+            "max": 0.11072627827525139
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.10361120637026033,
+            "p95": 0.2233806997537613,
+            "max": 0.228197380900383
+          }
+        }
+      }
+    },
+    {
+      "episode": 5,
+      "duration_s": 1.2333333333333334,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.4458935260772705e-07,
+      "source_final_lift_m": 0.22510827146470547,
+      "contact_onset_s": 0.2583333333333333,
+      "source_contact_onset_s": 0.39166666666666666,
+      "object_actual_path_error_m": {
+        "mean": 0.08573151432908488,
+        "p95": 0.21723419467236968,
+        "max": 0.2262954122874076
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 5.981445143730239e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.0007276111864484847,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 31,
+      "rate_limited_steps": 0,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.01685696105394871,
+            "p95": 0.0343486187979579,
+            "max": 0.03634903207421303
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.11394775224281807,
+            "p95": 0.23289081300451941,
+            "max": 0.23582488560514692
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.010606892193768038,
+            "p95": 0.03293916545808315,
+            "max": 0.13746340572834015
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.012336222289685214,
+            "p95": 0.03999069668352589,
+            "max": 0.1444377601146698
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.08978136596655335,
+            "p95": 0.2218517065048218,
+            "max": 0.22846488654613495
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.010157164160045796,
+            "p95": 0.015004663402214647,
+            "max": 0.015115035697817802
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.026859979084931658,
+            "p95": 0.06568162242619337,
+            "max": 0.07344090325664451
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.011675164851064639,
+            "p95": 0.028007331490516655,
+            "max": 0.032038718461990356
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010449931393401736,
+            "p95": 0.02472020536661148,
+            "max": 0.02582375705242157
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.0005209254818813254,
+            "p95": 0.0005293577443808318,
+            "max": 0.0005294823786243796
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.01856029924731386,
+            "p95": 0.035011922568082804,
+            "max": 0.03634903207421303
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.13608871152024685,
+            "p95": 0.23391956513688716,
+            "max": 0.23582488560514692
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.010335297450387545,
+            "p95": 0.04004351645708079,
+            "max": 0.13746340572834015
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.012815787771791182,
+            "p95": 0.05260117202997202,
+            "max": 0.1444377601146698
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.11247469829316488,
+            "p95": 0.22367365658283234,
+            "max": 0.22846488654613495
+          }
+        }
+      }
+    },
+    {
+      "episode": 6,
+      "duration_s": 1.2333333333333334,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.390014171600342e-07,
+      "source_final_lift_m": 0.2251050230115652,
+      "contact_onset_s": 0.20833333333333334,
+      "source_contact_onset_s": 0.39166666666666666,
+      "object_actual_path_error_m": {
+        "mean": 0.08513078108430219,
+        "p95": 0.21653809594415876,
+        "max": 0.2256547559509861
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 5.396429280919955e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.0008999326964840293,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 32,
+      "rate_limited_steps": 0,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.019098037100087135,
+            "p95": 0.039152038469910624,
+            "max": 0.041625089943408966
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.10436504681639858,
+            "p95": 0.19955669354214484,
+            "max": 0.20968914604358144
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.00971103236241673,
+            "p95": 0.030536022782325745,
+            "max": 0.10583253018558025
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.011245815692882955,
+            "p95": 0.03262592405080795,
+            "max": 0.10834470205008984
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.08911656686600386,
+            "p95": 0.22115466296672823,
+            "max": 0.22781449556350708
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.011236356967856409,
+            "p95": 0.016628317441791295,
+            "max": 0.016821490600705147
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.019866052629499257,
+            "p95": 0.03818090727178811,
+            "max": 0.043585136494329574
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.011365563372237375,
+            "p95": 0.025136734545230865,
+            "max": 0.030440866947174072
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010366248974363165,
+            "p95": 0.02471126616001129,
+            "max": 0.02580876648426056
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.0005477493444535261,
+            "p95": 0.0005588906409684568,
+            "max": 0.0005589295760728419
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.020619652609551144,
+            "p95": 0.04001082312315702,
+            "max": 0.041625089943408966
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.12071969085257263,
+            "p95": 0.2024672256569761,
+            "max": 0.20968914604358144
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.009390800554064346,
+            "p95": 0.031241831183433537,
+            "max": 0.10583253018558025
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.011416054412596462,
+            "p95": 0.034056608378887174,
+            "max": 0.10834470205008984
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.10625891864436844,
+            "p95": 0.2229902148246765,
+            "max": 0.22781449556350708
+          }
+        }
+      }
+    },
+    {
+      "episode": 7,
+      "duration_s": 1.2333333333333334,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.4831464290618896e-07,
+      "source_final_lift_m": 0.22500031255185604,
+      "contact_onset_s": 0.2,
+      "source_contact_onset_s": 0.39166666666666666,
+      "object_actual_path_error_m": {
+        "mean": 0.08690960151500464,
+        "p95": 0.2177562928859717,
+        "max": 0.2268712033275865
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 3.4744368159532086e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.0010983083629980683,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 29,
+      "rate_limited_steps": 0,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.020246475807161424,
+            "p95": 0.040066038444638255,
+            "max": 0.04256731644272804
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.09227807762635092,
+            "p95": 0.1593850067892487,
+            "max": 0.16622046864817208
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.010117467455136126,
+            "p95": 0.03163788914680481,
+            "max": 0.11600023042410612
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.011771617378344847,
+            "p95": 0.034361609071493125,
+            "max": 0.11820306815207005
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.09096412286001125,
+            "p95": 0.22249511107802394,
+            "max": 0.22913353145122528
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.011814861707693048,
+            "p95": 0.017802615091204642,
+            "max": 0.01800895854830742
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.02093565606560559,
+            "p95": 0.0332999032527361,
+            "max": 0.037272357119697175
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.01131345269116708,
+            "p95": 0.025024126470088958,
+            "max": 0.03032088279724121
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010355541435495505,
+            "p95": 0.02470128536224365,
+            "max": 0.025788232684135437
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.0005144189458603606,
+            "p95": 0.0005251889815554023,
+            "max": 0.0005253416020423174
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.021797892801463603,
+            "p95": 0.04085949584841728,
+            "max": 0.04256731644272804
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.10540508319352805,
+            "p95": 0.16077299370239878,
+            "max": 0.16622046864817208
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.009897406171706431,
+            "p95": 0.032771435379981985,
+            "max": 0.11600023042410612
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.012032175351829124,
+            "p95": 0.037839794158935486,
+            "max": 0.11820306815207005
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.10760686838021502,
+            "p95": 0.22432172000408174,
+            "max": 0.22913353145122528
+          }
+        }
+      }
+    },
+    {
+      "episode": 8,
+      "duration_s": 1.2333333333333334,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.259629011154175e-07,
+      "source_final_lift_m": 0.2249212171882391,
+      "contact_onset_s": 0.225,
+      "source_contact_onset_s": 0.39166666666666666,
+      "object_actual_path_error_m": {
+        "mean": 0.0855449654392202,
+        "p95": 0.2169347936176947,
+        "max": 0.22598050321387
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 5.3827722820977454e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.0008977425750344992,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 31,
+      "rate_limited_steps": 0,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.019217764275782503,
+            "p95": 0.038857556693255906,
+            "max": 0.0409780815243721
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.09452784394438701,
+            "p95": 0.16226885152984172,
+            "max": 0.16973053426064177
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.010518109319192675,
+            "p95": 0.033429494500160216,
+            "max": 0.11443297564983368
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.012282809346305499,
+            "p95": 0.04069917164742937,
+            "max": 0.11914810538291931
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.08964085565723409,
+            "p95": 0.22172230109572413,
+            "max": 0.22835023701190948
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.011282222469722351,
+            "p95": 0.016712752636522055,
+            "max": 0.016949113458395004
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.02372016774748949,
+            "p95": 0.045506520292699755,
+            "max": 0.05129862584086997
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.011509083506564658,
+            "p95": 0.025825917720794678,
+            "max": 0.03193730115890503
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010433228160344208,
+            "p95": 0.02470989227294922,
+            "max": 0.025786444544792175
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.0004761586370967472,
+            "p95": 0.00048480591067345813,
+            "max": 0.00048480674740858376
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.020908945316418272,
+            "p95": 0.039246405474841595,
+            "max": 0.0409780815243721
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.10961800444536515,
+            "p95": 0.16449904453202469,
+            "max": 0.16973053426064177
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.010306918098933072,
+            "p95": 0.03742103893309821,
+            "max": 0.11443297564983368
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.012676982385936595,
+            "p95": 0.052079962752759446,
+            "max": 0.11914810538291931
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.1086431681369355,
+            "p95": 0.2235482931137085,
+            "max": 0.22835023701190948
+          }
+        }
+      }
+    },
+    {
+      "episode": 9,
+      "duration_s": 1.2333333333333334,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.427267074584961e-07,
+      "source_final_lift_m": 0.22510992549359798,
+      "contact_onset_s": 0.25,
+      "source_contact_onset_s": 0.39166666666666666,
+      "object_actual_path_error_m": {
+        "mean": 0.0846384043996177,
+        "p95": 0.21623665589329294,
+        "max": 0.22540571501868958
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 6.197444068040917e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.0008296165615320206,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 31,
+      "rate_limited_steps": 26,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.015347770783173965,
+            "p95": 0.03248005602508784,
+            "max": 0.03465884178876877
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.169308812409879,
+            "p95": 0.6936667881500467,
+            "max": 0.7910732542352253
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.009447361671250818,
+            "p95": 0.03086038082838058,
+            "max": 0.08561623468995094
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010882529712095083,
+            "p95": 0.03378493934869764,
+            "max": 0.08915787190198898
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.08853353594934782,
+            "p95": 0.2207557573914528,
+            "max": 0.22746266424655914
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.009568419515211457,
+            "p95": 0.013756284303963185,
+            "max": 0.013825959526002407
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.020291581770880023,
+            "p95": 0.052131466222789836,
+            "max": 0.05898976638312871
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.011639435976419543,
+            "p95": 0.027728040516376493,
+            "max": 0.03207334876060486
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010445568473620244,
+            "p95": 0.024720603227615354,
+            "max": 0.025895729660987854
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.000532847666583056,
+            "p95": 0.0005418137880042195,
+            "max": 0.0005418155924417078
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.016756184117383315,
+            "p95": 0.03294693902134895,
+            "max": 0.03465884178876877
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.20562393584291236,
+            "p95": 0.7241622094552679,
+            "max": 0.7910732542352253
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.008913158689318945,
+            "p95": 0.032729798555374154,
+            "max": 0.08561623468995094
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010989016064328448,
+            "p95": 0.03656348586082457,
+            "max": 0.08915787190198898
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.10997908183338292,
+            "p95": 0.22260406613349915,
+            "max": 0.22746266424655914
+          }
+        }
+      }
+    },
+    {
+      "episode": 10,
+      "duration_s": 1.2333333333333334,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.46451997756958e-07,
+      "source_final_lift_m": 0.22506151162087917,
+      "contact_onset_s": 0.25,
+      "source_contact_onset_s": 0.39166666666666666,
+      "object_actual_path_error_m": {
+        "mean": 0.0848258083695246,
+        "p95": 0.21627740050941704,
+        "max": 0.22539903775919085
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 5.836519009191815e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.0008784341043792665,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 30,
+      "rate_limited_steps": 0,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.016458620351693605,
+            "p95": 0.0339094553142786,
+            "max": 0.03612259402871132
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.14088418906711014,
+            "p95": 0.4578427118674033,
+            "max": 0.47817615193860374
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.00926547639772256,
+            "p95": 0.029946471005678172,
+            "max": 0.087387440726161
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010646721370879244,
+            "p95": 0.02959525641053914,
+            "max": 0.09037517383694649
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.0887196001646304,
+            "p95": 0.22076810374855999,
+            "max": 0.22745944559574127
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.009957165151216283,
+            "p95": 0.014377925917506218,
+            "max": 0.014476681128144264
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.023117614586229844,
+            "p95": 0.05895718584758735,
+            "max": 0.06640856779930104
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.011640262966069003,
+            "p95": 0.02772611752152443,
+            "max": 0.03207218647003174
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010445607800020611,
+            "p95": 0.02471579909324646,
+            "max": 0.02586662769317627
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.0005334228265163457,
+            "p95": 0.0005422997637651861,
+            "max": 0.000542396679520607
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.018043008593826734,
+            "p95": 0.03468075059354305,
+            "max": 0.03612259402871132
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.16958360637757683,
+            "p95": 0.4677354133474504,
+            "max": 0.47817615193860374
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.008686746897873425,
+            "p95": 0.03029792755842209,
+            "max": 0.087387440726161
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.01069573224108849,
+            "p95": 0.031929215788841246,
+            "max": 0.09037517383694649
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.11021034926383466,
+            "p95": 0.22261227667331696,
+            "max": 0.22745944559574127
+          }
+        }
+      }
+    },
+    {
+      "episode": 11,
+      "duration_s": 1.2333333333333334,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.501772880554199e-07,
+      "source_final_lift_m": 0.22505936585366726,
+      "contact_onset_s": 0.2583333333333333,
+      "source_contact_onset_s": 0.39166666666666666,
+      "object_actual_path_error_m": {
+        "mean": 0.08474588109041604,
+        "p95": 0.21627171310418664,
+        "max": 0.22543798383813674
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 6.23966592585912e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.0008402093662880361,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 29,
+      "rate_limited_steps": 4,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.012216412726195051,
+            "p95": 0.030169976595789197,
+            "max": 0.03244287148118019
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.08621558883575826,
+            "p95": 0.14572813116957525,
+            "max": 0.15945351728469195
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.00960925543090228,
+            "p95": 0.031512774527072906,
+            "max": 0.08331781439483166
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.011149980317441867,
+            "p95": 0.03484556227922435,
+            "max": 0.08602547273039818
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.08866558263528261,
+            "p95": 0.2208533622324467,
+            "max": 0.22754856944084167
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.009344815321189042,
+            "p95": 0.013414544425904751,
+            "max": 0.013439996168017387
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.01685701841060165,
+            "p95": 0.04325102724729221,
+            "max": 0.04936312150782559
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.011676279647781484,
+            "p95": 0.027965533733367912,
+            "max": 0.03203451633453369
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.01045010799835533,
+            "p95": 0.02470807284116745,
+            "max": 0.025913283228874207
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.0005511805221127968,
+            "p95": 0.0005602327873930335,
+            "max": 0.000560335407499224
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.012946479863060986,
+            "p95": 0.031016163527965542,
+            "max": 0.03244287148118019
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.10384912368961165,
+            "p95": 0.1511917760551926,
+            "max": 0.15945351728469195
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.009083740799492313,
+            "p95": 0.03548167049884795,
+            "max": 0.08331781439483166
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.011327913957887596,
+            "p95": 0.046639679744839534,
+            "max": 0.08602547273039818
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.11106754927422409,
+            "p95": 0.2226983904838562,
+            "max": 0.22754856944084167
+          }
+        }
+      }
+    },
+    {
+      "episode": 12,
+      "duration_s": 1.2333333333333334,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.427267074584961e-07,
+      "source_final_lift_m": 0.22508812509477139,
+      "contact_onset_s": 0.225,
+      "source_contact_onset_s": 0.39166666666666666,
+      "object_actual_path_error_m": {
+        "mean": 0.08645803505473888,
+        "p95": 0.21753614469212462,
+        "max": 0.22661241956560088
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 5.2964111085053155e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.001225357293151319,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 29,
+      "rate_limited_steps": 0,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.019849634333670995,
+            "p95": 0.03924891203641892,
+            "max": 0.04145580157637596
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.08492460655838545,
+            "p95": 0.14881461209590605,
+            "max": 0.15410569443559136
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.009192220489995837,
+            "p95": 0.029751995205879213,
+            "max": 0.10125813074409962
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010651772884621392,
+            "p95": 0.027995193004608145,
+            "max": 0.10479899495840073
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.090375990730929,
+            "p95": 0.22205339893698695,
+            "max": 0.22869709134101868
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.011838927403844606,
+            "p95": 0.017489740159362555,
+            "max": 0.017704185098409653
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.025683853919425778,
+            "p95": 0.04484162386288149,
+            "max": 0.0500328298978465
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.011501324701851282,
+            "p95": 0.0257345512509346,
+            "max": 0.03188145160675049
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010431128703595067,
+            "p95": 0.02470032647252083,
+            "max": 0.02577616274356842
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.0005189190034378463,
+            "p95": 0.0005284676153678447,
+            "max": 0.0005285068764351308
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.02155683417117498,
+            "p95": 0.03999190796166658,
+            "max": 0.04145580157637596
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.09754968498963913,
+            "p95": 0.1498630211928604,
+            "max": 0.15410569443559136
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.008700116313698774,
+            "p95": 0.030194698646664617,
+            "max": 0.10125813074409962
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.01069879541500405,
+            "p95": 0.03067920207977292,
+            "max": 0.10479899495840073
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.10952585847613203,
+            "p95": 0.22388212382793427,
+            "max": 0.22869709134101868
+          }
+        }
+      }
+    },
+    {
+      "episode": 13,
+      "duration_s": 1.2333333333333334,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.4458935260772705e-07,
+      "source_final_lift_m": 0.22509773634374142,
+      "contact_onset_s": 0.23333333333333334,
+      "source_contact_onset_s": 0.39166666666666666,
+      "object_actual_path_error_m": {
+        "mean": 0.08414928822765066,
+        "p95": 0.21616741323037594,
+        "max": 0.22535722144947307
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 6.311594751088301e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.0008689991082064807,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 30,
+      "rate_limited_steps": 26,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.014997641345158824,
+            "p95": 0.034260955452919004,
+            "max": 0.03684531897306442
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.23054387965393697,
+            "p95": 0.8916661528017576,
+            "max": 0.9187128487230223
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.009696124025502108,
+            "p95": 0.03206935655325651,
+            "max": 0.08136554062366486
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.01125052079707864,
+            "p95": 0.03589872494339943,
+            "max": 0.08463070541620255
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.08796975928900694,
+            "p95": 0.22056058868765835,
+            "max": 0.22728663682937622
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.00978338147548062,
+            "p95": 0.013886373862624169,
+            "max": 0.014002040959894657
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.019146960112789466,
+            "p95": 0.04484318063828072,
+            "max": 0.05105565704463476
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.011601521028133891,
+            "p95": 0.02728627175092695,
+            "max": 0.032096534967422485
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.01047440407263046,
+            "p95": 0.024742904305458068,
+            "max": 0.025900498032569885
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.0005339835888999342,
+            "p95": 0.0005436934297904372,
+            "max": 0.0005436934297904372
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.016161153878062225,
+            "p95": 0.0352967195212841,
+            "max": 0.03684531897306442
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.27771509310526743,
+            "p95": 0.9016525504855951,
+            "max": 0.9187128487230223
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.009270952793509892,
+            "p95": 0.03499453701078892,
+            "max": 0.08136554062366486
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.011423703867823272,
+            "p95": 0.04469484239816665,
+            "max": 0.08463070541620255
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.10748022163531182,
+            "p95": 0.22241376340389252,
+            "max": 0.22728663682937622
+          }
+        }
+      }
+    },
+    {
+      "episode": 14,
+      "duration_s": 1.2333333333333334,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.501772880554199e-07,
+      "source_final_lift_m": 0.22509481571614742,
+      "contact_onset_s": 0.225,
+      "source_contact_onset_s": 0.39166666666666666,
+      "object_actual_path_error_m": {
+        "mean": 0.08584179012954193,
+        "p95": 0.2171863213339377,
+        "max": 0.22630396005665374
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 5.588215915547352e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.001185368513688445,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 32,
+      "rate_limited_steps": 0,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.01943138061127487,
+            "p95": 0.03865266852080822,
+            "max": 0.04082944989204407
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.08856969699581214,
+            "p95": 0.1502566913930459,
+            "max": 0.1552872355230034
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.009345622570595968,
+            "p95": 0.03040619194507599,
+            "max": 0.09502029418945312
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010776525609575054,
+            "p95": 0.029650277271866792,
+            "max": 0.09736301749944687
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.08971202487579855,
+            "p95": 0.22163606360554697,
+            "max": 0.2282966524362564
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.01151559250921799,
+            "p95": 0.017061213962733746,
+            "max": 0.017290933057665825
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.02483233586851493,
+            "p95": 0.045143840481824495,
+            "max": 0.05059140496624899
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.011503868021790344,
+            "p95": 0.02578684315085411,
+            "max": 0.031909048557281494
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.01043135160804153,
+            "p95": 0.024705425649881364,
+            "max": 0.02577926218509674
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.0005202502730893544,
+            "p95": 0.0005298337491694838,
+            "max": 0.0005298962933011353
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.02111835184613945,
+            "p95": 0.039488761872053135,
+            "max": 0.04082944989204407
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.1021530690393345,
+            "p95": 0.15133194427766802,
+            "max": 0.1552872355230034
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.008885668621980774,
+            "p95": 0.030927465856075274,
+            "max": 0.09502029418945312
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010850087282033018,
+            "p95": 0.030842491984367358,
+            "max": 0.09736301749944687
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.10872010798785134,
+            "p95": 0.22346976399421692,
+            "max": 0.2282966524362564
+          }
+        }
+      }
+    },
+    {
+      "episode": 15,
+      "duration_s": 1.2333333333333334,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.4458935260772705e-07,
+      "source_final_lift_m": 0.22511724196374416,
+      "contact_onset_s": 0.21666666666666667,
+      "source_contact_onset_s": 0.39166666666666666,
+      "object_actual_path_error_m": {
+        "mean": 0.08492370209465021,
+        "p95": 0.21620761805014901,
+        "max": 0.22541318299469645
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 6.135119286106754e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.0009403357980772853,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 30,
+      "rate_limited_steps": 0,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.01686530446514135,
+            "p95": 0.03474464099854231,
+            "max": 0.03739670664072037
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.22459370046183744,
+            "p95": 0.6011104272620837,
+            "max": 0.6108022116145851
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.009458268304736644,
+            "p95": 0.030789750814437855,
+            "max": 0.09980753064155579
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010908979024384183,
+            "p95": 0.031986311078071594,
+            "max": 0.10219855979084969
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.08878231324913055,
+            "p95": 0.22063337042927744,
+            "max": 0.22737178206443787
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.009984039487317204,
+            "p95": 0.014279542490839958,
+            "max": 0.014378572814166546
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.01951445934002807,
+            "p95": 0.03619285913229329,
+            "max": 0.0400834109423253
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.011473342567138995,
+            "p95": 0.025220363587141033,
+            "max": 0.030467599630355835
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010444895710796117,
+            "p95": 0.024798163771629335,
+            "max": 0.02589830756187439
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.0005310730962082744,
+            "p95": 0.0005414989311248064,
+            "max": 0.0005415016785264015
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.018263935558195037,
+            "p95": 0.03545563519001007,
+            "max": 0.03739670664072037
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.266276473047571,
+            "p95": 0.6037976057374986,
+            "max": 0.6108022116145851
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.009048700365223972,
+            "p95": 0.03178403303027153,
+            "max": 0.09980753064155579
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.011003304901129727,
+            "p95": 0.034477517008781426,
+            "max": 0.10219855979084969
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.10671955718265135,
+            "p95": 0.22248958051204681,
+            "max": 0.22737178206443787
+          }
+        }
+      }
+    },
+    {
+      "episode": 16,
+      "duration_s": 1.2333333333333334,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.520399332046509e-07,
+      "source_final_lift_m": 0.22500639222562313,
+      "contact_onset_s": 0.2,
+      "source_contact_onset_s": 0.39166666666666666,
+      "object_actual_path_error_m": {
+        "mean": 0.08658544852285621,
+        "p95": 0.21763450100173728,
+        "max": 0.2267628974486624
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 3.6800019897924726e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.0008199460571631789,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 30,
+      "rate_limited_steps": 0,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.021408374918030097,
+            "p95": 0.04143182206898928,
+            "max": 0.043911904096603394
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.08813444153766038,
+            "p95": 0.16913407961558632,
+            "max": 0.17614197095388953
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.011807080731027408,
+            "p95": 0.0358867824077606,
+            "max": 0.16725942492485046
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.013929114390393387,
+            "p95": 0.05264603942632665,
+            "max": 0.1796877384185791
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.09055700187152094,
+            "p95": 0.22223661839962008,
+            "max": 0.22890125215053558
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.01245869837610213,
+            "p95": 0.01885672714561224,
+            "max": 0.019041849300265312
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.0228683792423281,
+            "p95": 0.033737227756488505,
+            "max": 0.036925409347600247
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.011308271744528083,
+            "p95": 0.02492765635251999,
+            "max": 0.03021964430809021
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010354305224736099,
+            "p95": 0.024698302149772644,
+            "max": 0.02578122913837433
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.0005231084613352205,
+            "p95": 0.000534123252145946,
+            "max": 0.0005341744399629533
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.023055115401744843,
+            "p95": 0.04223912879824638,
+            "max": 0.043911904096603394
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.10014339700000151,
+            "p95": 0.17097728215846894,
+            "max": 0.17614197095388953
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.011898861584543284,
+            "p95": 0.04874026905745263,
+            "max": 0.16725942492485046
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.014586879276874328,
+            "p95": 0.06678851395845405,
+            "max": 0.1796877384185791
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.10712323825899511,
+            "p95": 0.22407004237174988,
+            "max": 0.22890125215053558
+          }
+        }
+      }
+    },
+    {
+      "episode": 17,
+      "duration_s": 1.2333333333333334,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.390014171600342e-07,
+      "source_final_lift_m": 0.2250324096530676,
+      "contact_onset_s": 0.225,
+      "source_contact_onset_s": 0.39166666666666666,
+      "object_actual_path_error_m": {
+        "mean": 0.08474284915031699,
+        "p95": 0.2161841904058505,
+        "max": 0.22534868072929115
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 6.095688417566881e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.000909927359316498,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 31,
+      "rate_limited_steps": 24,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.01587017618589311,
+            "p95": 0.0356918876990676,
+            "max": 0.03832540661096573
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.23042939255830114,
+            "p95": 0.8733005181697526,
+            "max": 0.8966583468569436
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.00942180472649549,
+            "p95": 0.030786195397377012,
+            "max": 0.09365659765899181
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010927086037454323,
+            "p95": 0.0323819726705551,
+            "max": 0.09568515792489052
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.08867836367662184,
+            "p95": 0.22075923606753353,
+            "max": 0.22745773196220398
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.010023793596281813,
+            "p95": 0.014188578585162759,
+            "max": 0.014313834719359875
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.019874338580459193,
+            "p95": 0.04468709894413696,
+            "max": 0.05072468236803503
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.011550854396400375,
+            "p95": 0.025788936764001846,
+            "max": 0.03211143612861633
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010466574659445681,
+            "p95": 0.02473679855465889,
+            "max": 0.025891363620758057
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.0005322802026057616,
+            "p95": 0.0005423780239652842,
+            "max": 0.0005423791008070111
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.01711612657384306,
+            "p95": 0.036400506459176536,
+            "max": 0.03832540661096573
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.275301781110956,
+            "p95": 0.8792238916266829,
+            "max": 0.8966583468569436
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.008968072829630514,
+            "p95": 0.03126485496759414,
+            "max": 0.09365659765899181
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.011025227806538132,
+            "p95": 0.03376674447208643,
+            "max": 0.09568515792489052
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.10746359458092035,
+            "p95": 0.22260531783103943,
+            "max": 0.22745773196220398
+          }
+        }
+      }
+    },
+    {
+      "episode": 18,
+      "duration_s": 1.2333333333333334,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.520399332046509e-07,
+      "source_final_lift_m": 0.22508994303643703,
+      "contact_onset_s": 0.19166666666666665,
+      "source_contact_onset_s": 0.39166666666666666,
+      "object_actual_path_error_m": {
+        "mean": 0.08438587279488932,
+        "p95": 0.21619100061314186,
+        "max": 0.2255252955393349
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 3.425982237948251e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.0006836024695076048,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 30,
+      "rate_limited_steps": 0,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.02076840969144738,
+            "p95": 0.039898503199219705,
+            "max": 0.042374301701784134
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.09230637718480153,
+            "p95": 0.17426189324949742,
+            "max": 0.18080683315334453
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.014366697069936683,
+            "p95": 0.05206421092152591,
+            "max": 0.2811708599328995
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.017617501658969317,
+            "p95": 0.07336301784962372,
+            "max": 0.32548360526561737
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.08825840032502152,
+            "p95": 0.22046591788530354,
+            "max": 0.2273106724023819
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.012013822046521289,
+            "p95": 0.018371463660150765,
+            "max": 0.018571360036730766
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.020845333416512183,
+            "p95": 0.030502327387348368,
+            "max": 0.03343094464155173
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.01122072503097694,
+            "p95": 0.024649412930011744,
+            "max": 0.030258595943450928
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010309644062495366,
+            "p95": 0.024705564975738524,
+            "max": 0.02578642964363098
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.0005223469422410496,
+            "p95": 0.0005338609364116565,
+            "max": 0.000533937884029001
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.022296988486593203,
+            "p95": 0.04064757749438286,
+            "max": 0.042374301701784134
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.10478370228720126,
+            "p95": 0.1763631855725249,
+            "max": 0.18080683315334453
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.014915993775151876,
+            "p95": 0.06958162412047386,
+            "max": 0.2811708599328995
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.018893476794861593,
+            "p95": 0.09165297877043475,
+            "max": 0.32548360526561737
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.1035773937728086,
+            "p95": 0.22234848141670227,
+            "max": 0.2273106724023819
+          }
+        }
+      }
+    },
+    {
+      "episode": 19,
+      "duration_s": 1.2333333333333334,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.390014171600342e-07,
+      "source_final_lift_m": 0.22510615549981594,
+      "contact_onset_s": 0.225,
+      "source_contact_onset_s": 0.39166666666666666,
+      "object_actual_path_error_m": {
+        "mean": 0.08522058131676373,
+        "p95": 0.21642108071552654,
+        "max": 0.22555419128052576
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 6.21658816642498e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.0009008232736960053,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 33,
+      "rate_limited_steps": 19,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.016135064058117505,
+            "p95": 0.03530381172895432,
+            "max": 0.03798091039061546
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.23781027973411684,
+            "p95": 0.8090615354453855,
+            "max": 0.8268317820799564
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.008958786459974308,
+            "p95": 0.029985612630844115,
+            "max": 0.07294688746333122
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010312373882947626,
+            "p95": 0.028159731626510618,
+            "max": 0.07601135224103928
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.0893220694820598,
+            "p95": 0.2210749760270119,
+            "max": 0.22774295508861542
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.009905190085051939,
+            "p95": 0.014038075460121036,
+            "max": 0.014159356243908405
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.019241115348553574,
+            "p95": 0.042315899814531495,
+            "max": 0.04802129315767933
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.011550707555635689,
+            "p95": 0.02579576149582863,
+            "max": 0.03210476040840149
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010468489363735829,
+            "p95": 0.024750902503728866,
+            "max": 0.02589733898639679
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.0005317570668501923,
+            "p95": 0.0005418015643954277,
+            "max": 0.0005418015643954277
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.017462742117951152,
+            "p95": 0.0362300332635641,
+            "max": 0.03798091039061546
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.2843905934556302,
+            "p95": 0.8120809699117556,
+            "max": 0.8268317820799564
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.00840640983303008,
+            "p95": 0.03051817417144775,
+            "max": 0.07294688746333122
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.010279103370648503,
+            "p95": 0.029204164631664753,
+            "max": 0.07601135224103928
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.10824459507874382,
+            "p95": 0.22291293740272522,
+            "max": 0.22774295508861542
+          }
+        }
+      }
+    }
+  ],
+  "completed_episodes": 20,
+  "successes": 0,
+  "lift_contact_count": 0,
+  "failed_episodes": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "pooled_metrics": {
+    "full_recording": {
+      "wrist_position_error_m": {
+        "mean": 0.017673412904716926,
+        "p95": 0.03609871454536915,
+        "max": 0.04570232331752777
+      },
+      "wrist_rotation_error_rad": {
+        "mean": 0.13224917553047158,
+        "p95": 0.474570525725364,
+        "max": 0.9187128487230223
+      },
+      "recorded_hand_error_rad": {
+        "mean": 0.009966494489492493,
+        "p95": 0.031096445024013514,
+        "max": 0.2811708599328995
+      }
+    },
+    "through_first_termination": {
+      "wrist_position_error_m": {
+        "mean": 0.018132766603479074,
+        "p95": 0.037332591600716114,
+        "max": 0.04570232331752777
+      },
+      "wrist_rotation_error_rad": {
+        "mean": 0.08592941270100145,
+        "p95": 0.16020350537727193,
+        "max": 0.30602171581548787
+      },
+      "recorded_hand_error_rad": {
+        "mean": 0.012690080370403279,
+        "p95": 0.033870047330856315,
+        "max": 0.2811708599328995
+      }
+    }
+  },
+  "max_target_leader_clamp_rad": 0.0005265392828732729,
+  "max_error_events": {
+    "wrist_position_error_m": {
+      "episode": 4,
+      "time_s": 0.6833333333333333,
+      "wrist_position_error_m": 0.04570232331752777
+    },
+    "wrist_rotation_error_rad": {
+      "episode": 13,
+      "time_s": 1.1833333333333333,
+      "wrist_rotation_error_rad": 0.9187128487230223
+    }
+  }
+}

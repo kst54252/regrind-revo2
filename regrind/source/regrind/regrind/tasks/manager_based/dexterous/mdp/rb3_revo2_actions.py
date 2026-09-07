@@ -133,14 +133,16 @@ class RB3WristIKAction(ClippedRelativeJointPositionAction):
     The policy-visible action is intentionally identical to
     :class:`SE3ImpedanceActionTerm`: three translation deltas followed by a
     rotation vector.  A bounded strict IK solve runs once per policy step and
-    the resulting arm target is held by the existing RB3 actuator during the
-    four physics substeps.
+    the resulting arm target is applied by the existing RB3 actuator, optionally
+    interpolated across physics substeps.
     """
 
     cfg: "RB3WristIKActionCfg"
 
     def __init__(self, cfg, env):
         super().__init__(cfg, env)
+        if cfg.velocity_target_mode not in ("zero", "v_path"):
+            raise ValueError("velocity_target_mode must be zero or v_path")
         if isinstance(self._joint_ids, slice):
             joint_ids = list(range(self._asset.num_joints))[self._joint_ids]
         else:
@@ -168,6 +170,9 @@ class RB3WristIKAction(ClippedRelativeJointPositionAction):
         self._last_joint_target = torch.zeros(
             (self.num_envs, len(joint_ids)), device=self.device
         )
+        self._applied_joint_target = torch.zeros_like(self._last_joint_target)
+        self._interpolation_start_target = torch.zeros_like(self._last_joint_target)
+        self._interpolation_step = 0
         self._warm_start_valid = torch.zeros(
             self.num_envs, dtype=torch.bool, device=self.device
         )
@@ -185,6 +190,12 @@ class RB3WristIKAction(ClippedRelativeJointPositionAction):
     @property
     def last_joint_target(self) -> torch.Tensor:
         return self._last_joint_target
+
+    @property
+    def applied_joint_target(self) -> torch.Tensor:
+        """Joint target sent on the most recent physics substep."""
+
+        return self._applied_joint_target
 
     @property
     def ik_success(self) -> torch.Tensor:
@@ -214,6 +225,20 @@ class RB3WristIKAction(ClippedRelativeJointPositionAction):
         self._ik_success[env_ids_tensor] = False
         self._ik_position_error[env_ids_tensor] = float("inf")
         self._ik_orientation_error[env_ids_tensor] = float("inf")
+        if self.cfg.velocity_target_mode == "v_path":
+            self._applied_joint_target[env_ids_tensor] = self._asset.data.joint_pos.torch[env_ids_tensor][:, self._joint_ids]
+            self._asset.set_joint_velocity_target_index(
+                target=torch.zeros_like(self._applied_joint_target[env_ids_tensor]),
+                joint_ids=self._joint_ids, env_ids=env_ids_tensor,
+            )
+
+    def reset_from_reference(self, env_ids) -> None:
+        """Synchronize arm state after the command selects its new RSI/placement.
+
+        ActionManager.reset precedes CommandManager.reset in Isaac Lab; solving
+        here from action.reset would use the previous episode's reference.
+        """
+        env_ids_tensor = torch.as_tensor(env_ids, dtype=torch.long, device=self.device)
 
         # The online task may sample a new rigid XY placement on every reset.
         # Put the arm directly at the corresponding first/reference wrist IK
@@ -252,6 +277,17 @@ class RB3WristIKAction(ClippedRelativeJointPositionAction):
             self._warm_start_valid[env_index] = True
 
         reset_target = self._last_joint_target[env_ids_tensor]
+        self._applied_joint_target[env_ids_tensor] = reset_target
+        self._interpolation_start_target[env_ids_tensor] = reset_target
+        # This reset target is the first finite-difference predecessor. Do not
+        # carry a velocity target (or position history) across episode resets.
+        if self.cfg.velocity_target_mode == "v_path":
+            self._asset.set_joint_velocity_target_index(
+                target=torch.zeros_like(reset_target), joint_ids=self._joint_ids,
+                env_ids=env_ids_tensor,
+            )
+        self.target_pos[env_ids_tensor] = base_pos[env_ids_tensor]
+        self.target_quat[env_ids_tensor] = base_quat[env_ids_tensor]
         self._asset.write_joint_state_to_sim(
             reset_target,
             torch.zeros_like(reset_target),
@@ -293,6 +329,14 @@ class RB3WristIKAction(ClippedRelativeJointPositionAction):
         self._raw_actions.copy_(actions)
         self._processed_actions[:, :3] = actions[:, :3] * self.cfg.scale_pos
         self._processed_actions[:, 3:] = actions[:, 3:] * self.cfg.scale_rot
+
+        # ``process_actions`` runs once per policy step while ``apply_actions``
+        # runs once per physics substep.  Preserve the target that was actually
+        # sent at the end of the previous step so the new 30 Hz IK command can
+        # be ramped at the 120 Hz physics rate instead of arriving as a joint-
+        # space step at contact.
+        self._interpolation_start_target.copy_(self._applied_joint_target)
+        self._interpolation_step = 0
 
         base_pos, base_quat = self.get_base_pose()
         self.target_pos.copy_(base_pos + self._processed_actions[:, :3])
@@ -354,10 +398,33 @@ class RB3WristIKAction(ClippedRelativeJointPositionAction):
             )
 
     def apply_actions(self):
+        if self.cfg.interpolation_substeps > 1:
+            self._interpolation_step = min(
+                self._interpolation_step + 1,
+                self.cfg.interpolation_substeps,
+            )
+            alpha = self._interpolation_step / self.cfg.interpolation_substeps
+            target = torch.lerp(
+                self._interpolation_start_target,
+                self._last_joint_target,
+                alpha,
+            )
+        else:
+            target = self._last_joint_target
+        velocity_target = None
+        if self.cfg.velocity_target_mode == "v_path":
+            # Final interpolated positions at physics rate, not policy/IK rate.
+            # Preserve raw joint winding and genuine command discontinuities.
+            velocity_target = (target - self._applied_joint_target) / self._env.physics_dt
+        self._applied_joint_target.copy_(target)
         self._asset.set_joint_position_target_index(
-            target=self._last_joint_target,
+            target=target,
             joint_ids=self._joint_ids,
         )
+        if velocity_target is not None:
+            self._asset.set_joint_velocity_target_index(
+                target=velocity_target, joint_ids=self._joint_ids,
+            )
 
 
 @configclass
@@ -377,5 +444,10 @@ class RB3WristIKActionCfg(ClippedRelativeJointPositionActionCfg):
     orientation_tolerance_rad: float = 1.0e-3
     position_weight: float = 10.0
     max_nfev: int = 300
+    # Number of physics substeps used to ramp each policy-rate IK target.
+    # Leave at one outside the online assembled-arm bridge.
+    interpolation_substeps: int = 1
+    # Opt-in online evaluation; zero preserves the original command path.
+    velocity_target_mode: str = "zero"
     debug_output: bool = False
     debug_interval: int = 10

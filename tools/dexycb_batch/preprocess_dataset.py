@@ -228,7 +228,7 @@ def main() -> None:
     parser.add_argument("--tuna-asset-dir", type=Path, default=DEFAULT_TUNA_DIR)
     parser.add_argument(
         "--camera-serial",
-        help="Use this camera in every sequence; default uses the first serial in meta.yml.",
+        help="Use this camera in every sequence; default uses the second serial in meta.yml.",
     )
     parser.add_argument("--sequence", action="append", help="Only process this sequence (repeatable).")
     args = parser.parse_args()

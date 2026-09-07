@@ -1,0 +1,36 @@
+{
+  "reference_frames": 38,
+  "joint_shape": [
+    38,
+    12
+  ],
+  "reference_finite": true,
+  "dt": 0.03333333333333333,
+  "joint_names": [
+    "base",
+    "shoulder",
+    "elbow",
+    "wrist1",
+    "wrist2",
+    "wrist3",
+    "right_thumb_metacarpal_joint",
+    "right_thumb_proximal_joint",
+    "right_index_proximal_joint",
+    "right_middle_proximal_joint",
+    "right_ring_proximal_joint",
+    "right_pinky_proximal_joint"
+  ],
+  "fk_shape": [
+    21,
+    3
+  ],
+  "fk_finite": true,
+  "tuna_layers": [
+    "/home/wanjunkim/ARSL/regrind-upload/007_tuna_fish_can/textured_simple.usd",
+    "USD/tuna_fish_can_rigid.usda"
+  ],
+  "tuna_assets": [
+    "/home/wanjunkim/ARSL/regrind-upload/007_tuna_fish_can/textures/texture_map.png"
+  ],
+  "tuna_unresolved": []
+}

@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "description": "Frozen low-height offline command comparison; not live RL smoothing. Same A orientation as previous precision benchmark. Contact-free validity must pass runtime reporter.",
+  "joint_names": ["base", "shoulder", "elbow", "wrist1", "wrist2", "wrist3"],
+  "physics_dt": 0.008333333333333333,
+  "reference": "outputs/isaac/dexycb/20200709_143747_left/rb3_revo2_reference_stable.h5",
+  "base_position": [0, 0, -0.02],
+  "base_quaternion_xyzw": [0, 0, 0, 1],
+  "poses": {
+    "A": [-0.5284041601265863,0.15347015739328684,2.0328563326531537,1.6349411755219017,0.8344225877904837,-2.3836121936803765],
+    "B": [-0.4214483860081839,0.27855305742560355,1.9524194809380648,1.7525416721609612,0.7545729911840804,-2.4603986119686003],
+    "C": [-0.3538152768246101,0.020226576584367103,2.1078190301844733,1.6842735938616105,0.6843875606033429,-2.318327094535835],
+    "D_held_out": [-0.5488246389300887,0.26134859195463206,1.9380327299335285,1.6337080454888704,0.8518136850008502,-2.399648051604529]
+  },
+  "pose_xyz_m": {"A":[0.40,-0.12,0.16],"B":[0.44,-0.10,0.14],"C":[0.40,-0.06,0.18],"D_held_out":[0.42,-0.14,0.15]},
+  "initial_offset_from_A_rad": [-0.03,0.03,-0.02,0.02,0,-0.02],
+  "initial_hold_s": 2.0,
+  "segment_duration_s": 6.0,
+  "hold_duration_s": 3.0,
+  "hold_window_s": 1.0,
+  "selection_sequence": ["A","B","C"],
+  "validation_sequence": ["D_held_out","A"],
+  "hand_position_target_rad": 0.0,
+  "max_command_speed_rad_s": 0.5,
+  "max_command_acceleration_rad_s2": 1.0,
+  "static_position_target_m": 0.001,
+  "motion_p95_position_target_m": 0.002,
+  "rotation_target_deg": 0.5,
+  "stability_hold_peak_to_peak_rad": 0.0005,
+  "stability_hold_speed_rad_s": 0.005,
+  "contact_rejection_N": 0.01
+}

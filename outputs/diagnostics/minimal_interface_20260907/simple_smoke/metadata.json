@@ -1,0 +1,738 @@
+{
+  "mode": "simple",
+  "stage": "grasp",
+  "checkpoint": "/home/wanjunkim/ARSL/regrind-upload/logs/rsl_rl/floating_revo2_tuna/2026-09-05_16-46-54_floating_stable_ground_5000/model_4999.pt",
+  "checkpoint_sha256": "10eeeff86c405b07595cdd692d3447e9385da43dc90c881dbe1807465f9c4721",
+  "reference": "/home/wanjunkim/ARSL/regrind-upload/outputs/isaac/dexycb/20200709_143747_left/rb3_revo2_reference_stable.h5",
+  "state_bank": "/home/wanjunkim/ARSL/regrind-upload/outputs/diagnostics/arm_policy_velocity_zero20_20260907.jsonl",
+  "initial_states": [
+    {
+      "wrist_pos": [
+        0.3241533637046814,
+        -0.1394520401954651,
+        0.14413824677467346
+      ],
+      "wrist_quat": [
+        -0.27268341183662415,
+        0.7746904492378235,
+        0.024138612672686577,
+        0.5700139403343201
+      ],
+      "wrist_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hand_q": [
+        0.10197404772043228,
+        0.1670140027999878,
+        0.002607588190585375,
+        0.00040789844933897257,
+        0.06353557854890823,
+        0.08512559533119202
+      ],
+      "hand_v": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "follower_q": [
+        0.1670140027999878,
+        0.003011764260008931,
+        0.0004711227084044367,
+        0.07338359206914902,
+        0.09832005947828293
+      ],
+      "follower_v": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "object_state": [
+        0.43264180421829224,
+        -0.07406100630760193,
+        0.012636000290513039,
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "all_q": [
+        -0.7298250198364258,
+        0.03286467492580414,
+        2.2231266498565674,
+        1.5626410245895386,
+        0.996645450592041,
+        -2.4653501510620117,
+        0.10197404772043228,
+        0.002607588190585375,
+        0.00040789844933897257,
+        0.06353557854890823,
+        0.08512559533119202,
+        0.1670140027999878,
+        0.003011764260008931,
+        0.0004711227084044367,
+        0.07338359206914902,
+        0.09832005947828293,
+        0.1670140027999878
+      ],
+      "all_v": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "robot_root": [
+        2.9103830456733704e-11,
+        -5.820766091346741e-10,
+        -0.02000000700354576,
+        -2.0566094660612322e-10,
+        1.4348690291487998e-10,
+        -1.3127127856948917e-11,
+        1.0000001192092896,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "phase": 0,
+      "episode": 0
+    },
+    {
+      "wrist_pos": [
+        0.3273478150367737,
+        -0.046187546104192734,
+        0.1441384255886078
+      ],
+      "wrist_quat": [
+        -0.27268320322036743,
+        0.7746903896331787,
+        0.024138489738106728,
+        0.5700140595436096
+      ],
+      "wrist_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hand_q": [
+        0.10197404772043228,
+        0.1670140027999878,
+        0.002607588190585375,
+        0.00040789844933897257,
+        0.06353557854890823,
+        0.08512559533119202
+      ],
+      "hand_v": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "follower_q": [
+        0.1670140027999878,
+        0.003011764260008931,
+        0.0004711227084044367,
+        0.07338359206914902,
+        0.09832005947828293
+      ],
+      "follower_v": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "object_state": [
+        0.4358360469341278,
+        0.019203633069992065,
+        0.012636000290513039,
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "all_q": [
+        -0.4080590307712555,
+        -0.15242652595043182,
+        2.3966050148010254,
+        1.7768877744674683,
+        0.7467928528785706,
+        -2.482367515563965,
+        0.10197404772043228,
+        0.002607588190585375,
+        0.00040789844933897257,
+        0.06353557854890823,
+        0.08512559533119202,
+        0.1670140027999878,
+        0.003011764260008931,
+        0.0004711227084044367,
+        0.07338359206914902,
+        0.09832005947828293,
+        0.1670140027999878
+      ],
+      "all_v": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "robot_root": [
+        2.9103830456733704e-11,
+        -5.820766091346741e-10,
+        -0.02000000700354576,
+        -2.0566094660612322e-10,
+        1.4348690291487998e-10,
+        -1.3127127856948917e-11,
+        1.0000001192092896,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "phase": 0,
+      "episode": 1
+    }
+  ],
+  "ends": [
+    {
+      "episode": 0,
+      "state": {
+        "wrist_pos": [
+          0.31647080183029175,
+          -0.09155546128749847,
+          0.33297038078308105
+        ],
+        "wrist_quat": [
+          -0.1756920963525772,
+          0.7737964987754822,
+          -0.05167180299758911,
+          0.6063839197158813
+        ],
+        "wrist_velocity": [
+          -0.01468617469072342,
+          0.015422437340021133,
+          0.13312256336212158,
+          0.3592458665370941,
+          0.11200171709060669,
+          -0.2115740031003952
+        ],
+        "hand_q": [
+          0.9189475178718567,
+          0.3278616964817047,
+          0.028118722140789032,
+          0.07058602571487427,
+          0.17755992710590363,
+          0.41615569591522217
+        ],
+        "hand_v": [
+          -0.12169022858142853,
+          -0.07163842767477036,
+          0.04506278410553932,
+          0.06031044200062752,
+          -0.10509444773197174,
+          -0.0039649223908782005
+        ],
+        "follower_q": [
+          0.3661688566207886,
+          0.032086558640003204,
+          0.0811648964881897,
+          0.20882859826087952,
+          0.4805799126625061
+        ],
+        "follower_v": [
+          -0.07284411787986755,
+          0.05261904001235962,
+          0.0709364041686058,
+          -0.12138418108224869,
+          -0.004579484928399324
+        ],
+        "object_state": [
+          0.3955669105052948,
+          -0.06777804344892502,
+          0.26029840111732483,
+          0.8792266249656677,
+          0.29455462098121643,
+          -0.277008593082428,
+          0.2519212067127228,
+          -0.021147487685084343,
+          0.014354768209159374,
+          0.13997875154018402,
+          0.24715043604373932,
+          -0.02258845418691635,
+          -0.1523958295583725
+        ],
+        "all_q": [
+          -0.5164272785186768,
+          -0.47860899567604065,
+          2.077197551727295,
+          1.1864384412765503,
+          0.687200129032135,
+          -1.5934538841247559,
+          0.9189475178718567,
+          0.028118722140789032,
+          0.07058602571487427,
+          0.17755992710590363,
+          0.41615569591522217,
+          0.3278616964817047,
+          0.032086558640003204,
+          0.0811648964881897,
+          0.20882859826087952,
+          0.4805799126625061,
+          0.3661688566207886
+        ],
+        "all_v": [
+          0.09262050688266754,
+          -0.12911318242549896,
+          -0.33179858326911926,
+          -0.7012493014335632,
+          0.0013548529241234064,
+          1.250450611114502,
+          -0.12169022858142853,
+          0.04506278410553932,
+          0.06031044200062752,
+          -0.10509444773197174,
+          -0.0039649223908782005,
+          -0.07163842767477036,
+          0.05261904001235962,
+          0.0709364041686058,
+          -0.12138418108224869,
+          -0.004579484928399324,
+          -0.07284411787986755
+        ],
+        "robot_root": [
+          2.9103830456733704e-11,
+          -5.820766091346741e-10,
+          -0.02000000700354576,
+          -2.0566094660612322e-10,
+          1.4348690291487998e-10,
+          -1.3127127856948917e-11,
+          1.0000001192092896,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "phase": 37
+      },
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": true,
+        "success": true,
+        "object_deviation": false,
+        "hand_far_from_object": false
+      }
+    }
+  ],
+  "observation_action_parity_checks": 38,
+  "frozen_policy_verified": true,
+  "physics_dt": 0.008333333333333333,
+  "control_dt": 0.03333333333333333,
+  "joint_names": [
+    "base",
+    "shoulder",
+    "elbow",
+    "wrist1",
+    "wrist2",
+    "wrist3",
+    "right_thumb_metacarpal_joint",
+    "right_index_proximal_joint",
+    "right_middle_proximal_joint",
+    "right_ring_proximal_joint",
+    "right_pinky_proximal_joint",
+    "right_thumb_proximal_joint",
+    "right_index_distal_joint",
+    "right_middle_distal_joint",
+    "right_ring_distal_joint",
+    "right_pinky_distal_joint",
+    "right_thumb_distal_joint"
+  ],
+  "arm_ids": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "hand_ids": [
+    6,
+    11,
+    7,
+    8,
+    9,
+    10
+  ],
+  "gains": {
+    "kp": [
+      300.0,
+      500.0,
+      500.0,
+      300.0,
+      200.0,
+      50.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0
+    ],
+    "kd": [
+      20.0,
+      20.0,
+      20.0,
+      20.0,
+      20.0,
+      10.0,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612
+    ]
+  },
+  "limits": {
+    "position": [
+      [
+        -6.2831854820251465,
+        6.2831854820251465
+      ],
+      [
+        -6.2831854820251465,
+        6.2831854820251465
+      ],
+      [
+        -2.6179938316345215,
+        2.6179938316345215
+      ],
+      [
+        -6.2831854820251465,
+        6.2831854820251465
+      ],
+      [
+        -6.2831854820251465,
+        6.2831854820251465
+      ],
+      [
+        -6.2831854820251465,
+        6.2831854820251465
+      ],
+      [
+        0.0,
+        1.5700000524520874
+      ],
+      [
+        0.0,
+        1.409999966621399
+      ],
+      [
+        0.0,
+        1.409999966621399
+      ],
+      [
+        0.0,
+        1.409999966621399
+      ],
+      [
+        0.0,
+        1.409999966621399
+      ],
+      [
+        0.0,
+        1.0299999713897705
+      ],
+      [
+        0.0,
+        1.6299999952316284
+      ],
+      [
+        0.0,
+        1.6299999952316284
+      ],
+      [
+        0.0,
+        1.6299999952316284
+      ],
+      [
+        0.0,
+        1.6299999952316284
+      ],
+      [
+        0.0,
+        1.0299999713897705
+      ]
+    ],
+    "velocity": [
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0
+    ],
+    "effort": [
+      10.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      10.0,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5
+    ]
+  },
+  "contact_filter": [
+    "/World/envs/env_0/Robot/rb3_730es_u/Geometry/link0",
+    "/World/envs/env_0/Robot/rb3_730es_u/Geometry/link0/link1",
+    "/World/envs/env_0/Robot/rb3_730es_u/Geometry/link0/link1/link2",
+    "/World/envs/env_0/Robot/rb3_730es_u/Geometry/link0/link1/link2/link3",
+    "/World/envs/env_0/Robot/rb3_730es_u/Geometry/link0/link1/link2/link3/link4",
+    "/World/envs/env_0/Robot/rb3_730es_u/Geometry/link0/link1/link2/link3/link4/link5",
+    "/World/envs/env_0/Robot/rb3_730es_u/Geometry/link0/link1/link2/link3/link4/link5/link6",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_thumb_metacarpal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_index_proximal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_middle_proximal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_ring_proximal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_pinky_proximal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_thumb_metacarpal_link/right_thumb_proximal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_index_proximal_link/right_index_distal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_middle_proximal_link/right_middle_distal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_ring_proximal_link/right_ring_distal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_pinky_proximal_link/right_pinky_distal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_thumb_metacarpal_link/right_thumb_proximal_link/right_thumb_distal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_index_proximal_link/right_index_distal_link/right_index_touch_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_middle_proximal_link/right_middle_distal_link/right_middle_touch_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_ring_proximal_link/right_ring_distal_link/right_ring_touch_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_pinky_proximal_link/right_pinky_distal_link/right_pinky_touch_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_thumb_metacarpal_link/right_thumb_proximal_link/right_thumb_distal_link/right_thumb_touch_link"
+  ],
+  "contact_bodies": [
+    "Object"
+  ],
+  "gravity": [
+    0.0,
+    0.0,
+    -9.81
+  ],
+  "robot_spawn": {
+    "func": "isaaclab.sim.spawners.from_files.from_files:spawn_from_usd",
+    "visible": true,
+    "semantic_tags": null,
+    "copy_from_source": true,
+    "spawn_path": "/World/envs/env_0/Robot",
+    "mass_props": null,
+    "deformable_props": null,
+    "rigid_props": {
+      "rigid_body_enabled": null,
+      "kinematic_enabled": null,
+      "disable_gravity": false,
+      "linear_damping": null,
+      "angular_damping": null,
+      "max_linear_velocity": null,
+      "max_angular_velocity": null,
+      "max_depenetration_velocity": 5.0,
+      "max_contact_impulse": null,
+      "enable_gyroscopic_forces": null,
+      "retain_accelerations": null,
+      "solver_position_iteration_count": null,
+      "solver_velocity_iteration_count": null,
+      "sleep_threshold": null,
+      "stabilization_threshold": null,
+      "_usd_applied_schema": "PhysxRigidBodyAPI",
+      "_usd_field_exceptions": {
+        "PhysxRigidBodyAPI": [
+          "physxRigidBody",
+          [
+            "disable_gravity"
+          ]
+        ]
+      },
+      "_usd_namespace": "physxRigidBody"
+    },
+    "collision_props": null,
+    "activate_contact_sensors": false,
+    "scale": null,
+    "articulation_props": {
+      "articulation_enabled": null,
+      "fix_root_link": false,
+      "enabled_self_collisions": false,
+      "solver_position_iteration_count": 32,
+      "solver_velocity_iteration_count": 2,
+      "sleep_threshold": 0.005,
+      "stabilization_threshold": 0.0005,
+      "_usd_applied_schema": "PhysxArticulationAPI",
+      "_usd_field_exceptions": {
+        "PhysxArticulationAPI": [
+          "physxArticulation",
+          [
+            "articulation_enabled"
+          ]
+        ]
+      },
+      "_usd_namespace": "physxArticulation"
+    },
+    "fix_root_link": null,
+    "fixed_tendons_props": null,
+    "spatial_tendons_props": null,
+    "joint_drive_props": {
+      "drive_type": "force",
+      "max_force": null,
+      "max_effort": null,
+      "stiffness": null,
+      "damping": null,
+      "ensure_drives_exist": false,
+      "max_joint_velocity": 1000.0,
+      "max_velocity": null,
+      "_usd_applied_schema": "PhysxJointAPI",
+      "_usd_field_exceptions": {
+        "PhysxJointAPI": [
+          "physxJoint",
+          [
+            "max_joint_velocity"
+          ]
+        ]
+      },
+      "_usd_namespace": "physxJoint"
+    },
+    "ensure_drives_exist": false,
+    "visual_material_path": "material",
+    "visual_material": null,
+    "physics_material_path": "material",
+    "physics_material": null,
+    "usd_path": "/home/wanjunkim/ARSL/regrind-upload/USD/rb3_revo2_vertical.usda",
+    "variants": null
+  },
+  "observation_terms": [
+    "object_pos",
+    "object_ori",
+    "hand_wrist_pos",
+    "hand_wrist_rot6d",
+    "hand_joint_pos",
+    "actions",
+    "command",
+    "action_base_wrist_pos_and_rot6d",
+    "action_base_hand_joint_pos"
+  ],
+  "observation_dimensions": [
+    [
+      3
+    ],
+    [
+      6
+    ],
+    [
+      6
+    ],
+    [
+      12
+    ],
+    [
+      12
+    ],
+    [
+      12
+    ],
+    [
+      1
+    ],
+    [
+      9
+    ],
+    [
+      6
+    ]
+  ],
+  "arm_target_mode": "hold with per-physics target slew <= runtime velocity limit; zero velocity target",
+  "effort_provenance": "No verified drive-only torque; saturation UNKNOWN",
+  "timestamp": "command before first physics substep; actual state after scene.update; no post-hoc time shift"
+}

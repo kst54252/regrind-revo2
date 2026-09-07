@@ -256,6 +256,7 @@ class RB3730Kinematics:
         orientation_tolerance_rad: float = 1.0e-3,
         position_weight: float = 10.0,
         max_nfev: int = 800,
+        jacobian=None,
     ) -> IKResult:
         """Solve bounded pose IK and prefer the solution nearest ``initial_q``."""
         target_position = np.asarray(target_position, dtype=float)
@@ -278,6 +279,7 @@ class RB3730Kinematics:
                 args=(target_position, target_rotation, position_weight),
                 bounds=(self.joint_lower, self.joint_upper),
                 method="trf",
+                jac="2-point" if jacobian is None else jacobian,
                 ftol=1.0e-12,
                 xtol=1.0e-12,
                 gtol=1.0e-12,

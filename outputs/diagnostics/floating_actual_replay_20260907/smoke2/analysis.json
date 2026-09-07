@@ -1,0 +1,127 @@
+{
+  "source": "/home/wanjunkim/ARSL/regrind-upload/outputs/diagnostics/minimal_interface_20260907/floating20",
+  "replay": "outputs/diagnostics/floating_actual_replay_20260907/smoke2",
+  "closed_loop_policy_evaluation": false,
+  "effort_saturation": "UNKNOWN",
+  "episodes": [
+    {
+      "episode": 0,
+      "duration_s": 1.2666666666666666,
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": false
+      },
+      "first_termination_time_s": 0.9333333333333333,
+      "success_without_earlier_failure": false,
+      "lift_contact_proxy": false,
+      "final_lift_m": -3.427267074584961e-07,
+      "source_final_lift_m": 0.2250152137130499,
+      "contact_onset_s": 0.2833333333333333,
+      "source_contact_onset_s": 0.425,
+      "object_actual_path_error_m": {
+        "mean": 0.08280682558266945,
+        "p95": 0.21656790004242932,
+        "max": 0.22588611947904336
+      },
+      "ik_failed_steps": 0,
+      "max_ik_position_error_m": 5.699984051724234e-08,
+      "arm_position_violation_steps": 0,
+      "max_joint_limit_excursion_rad": 0.0006730956374667585,
+      "velocity_limit_steps": 0,
+      "recorded_hand_clipped_steps": 30,
+      "rate_limited_steps": 0,
+      "metrics": {
+        "all": {
+          "wrist_position_error_m": {
+            "mean": 0.016789137972074587,
+            "p95": 0.03456272073090076,
+            "max": 0.03664412721991539
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.10846151482285948,
+            "p95": 0.2162800281609572,
+            "max": 0.2189515486706784
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.010254407120429295,
+            "p95": 0.03205772787332533,
+            "max": 0.14249473810195923
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.011966753211885913,
+            "p95": 0.03606837503612036,
+            "max": 0.15027037262916565
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.08680297939764876,
+            "p95": 0.22048837095499033,
+            "max": 0.22815237939357758
+          }
+        },
+        "before_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.010072235376080216,
+            "p95": 0.015027300640940666,
+            "max": 0.01524433121085167
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.02484913713148623,
+            "p95": 0.060395856763089874,
+            "max": 0.06850058100140415
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.010047789205977225,
+            "p95": 0.027386647462844846,
+            "max": 0.031936854124069214
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.009184244337622218,
+            "p95": 0.024413356184959403,
+            "max": 0.02581523358821869
+          },
+          "object_keypoint_error_m": {
+            "mean": 3.802100140450365e-07,
+            "p95": 5.209462983657431e-07,
+            "max": 6.113426707088365e-07
+          }
+        },
+        "after_contact": {
+          "wrist_position_error_m": {
+            "mean": 0.018651808439871343,
+            "p95": 0.035366084426641464,
+            "max": 0.03664412721991539
+          },
+          "wrist_rotation_error_rad": {
+            "mean": 0.1316481405692067,
+            "p95": 0.21718201765905584,
+            "max": 0.2189515486706784
+          },
+          "recorded_hand_error_rad": {
+            "mean": 0.010311704525277349,
+            "p95": 0.03736500050872566,
+            "max": 0.14249473810195923
+          },
+          "recorded_follower_error_rad": {
+            "mean": 0.012738373319875006,
+            "p95": 0.04530956670641886,
+            "max": 0.15027037262916565
+          },
+          "object_keypoint_error_m": {
+            "mean": 0.11087428841606847,
+            "p95": 0.22335600852966309,
+            "max": 0.22815237939357758
+          }
+        }
+      }
+    }
+  ],
+  "completed_episodes": 1,
+  "successes": 0,
+  "lift_contact_count": 0,
+  "failed_episodes": [
+    0
+  ]
+}

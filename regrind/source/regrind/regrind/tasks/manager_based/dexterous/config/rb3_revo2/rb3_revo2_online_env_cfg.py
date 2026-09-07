@@ -1,6 +1,5 @@
 """Online floating-policy deployment on the assembled RB3+Revo2 workcell.
 
-This environment is deliberately an evaluation bridge, not a new RL task.
 It preserves the floating checkpoint's 67-D actor observation and 12-D action
 contract, then maps the Cartesian wrist action through strict bounded RB3 IK.
 """
@@ -62,11 +61,16 @@ class RB3Revo2TunaOnlineEnvCfg(RB3Revo2TunaEnvCfg):
 
     def __post_init__(self):
         super().__post_init__()
+        # Strict IK currently runs once per environment on CPU.  Keep the
+        # default online-training batch practical; callers can still override
+        # it with ``--num_envs`` after Hydra config creation.
+        self.scene.num_envs = 64
         control_dt = self.sim.dt * self.decimation
 
         # Exactly match the action normalization used by floating training.
         self.actions.root_pose.scale_pos = 1.0 * control_dt
         self.actions.root_pose.scale_rot = 3.2 * control_dt
+        self.actions.root_pose.interpolation_substeps = self.decimation
         self.actions.joint_pos.scale = {
             key: value * control_dt for key, value in REVO2_RELATIVE_ACTION_SCALE.items()
         }
@@ -76,6 +80,7 @@ class RB3Revo2TunaOnlineEnvCfg(RB3Revo2TunaEnvCfg):
         self.commands.reference.joint_reference = "combined"
         self.commands.reference.expose_revo2_as_hand = True
         self.commands.reference.reset_floating_root = False
+        self.commands.reference.reset_wrist_ik_action = "root_pose"
         # At every episode reset, translate the can and complete wrist/object
         # reference together inside the prevalidated strict-IK table region.
         # Canonical observations keep the floating checkpoint invariant to
@@ -84,6 +89,30 @@ class RB3Revo2TunaOnlineEnvCfg(RB3Revo2TunaEnvCfg):
         self.commands.reference.object_start_x_range = (0.40, 0.50)
         self.commands.reference.object_start_y_range = (-0.20, 0.20)
         self.commands.reference.canonicalize_translation_observations = True
+
+
+@configclass
+class RB3Revo2TunaOnlineEnvCfg_SMOKE(RB3Revo2TunaOnlineEnvCfg):
+    """Full-gravity, deterministic transfer-learning smoke configuration."""
+
+    def __post_init__(self):
+        super().__post_init__()
+        self.scene.num_envs = 16
+        self.scene.env_spacing = 2.0
+        self.events = DeterministicEventsCfg()
+        self.sim.gravity = (0.0, 0.0, -9.81)
+        self.commands.reference.randomize_object_xy = False
+        self.commands.reference.enable_reset_perturbation = False
+        for term_name in (
+            "object_pos",
+            "object_ori",
+            "hand_wrist_pos",
+            "hand_wrist_rot6d",
+            "hand_joint_pos",
+        ):
+            term = getattr(self.observations.policy, term_name)
+            term.params["delay_key"] = None
+            term.params["apply_noise"] = False
 
 
 @configclass
@@ -99,6 +128,10 @@ class RB3Revo2TunaOnlineEnvCfg_PLAY(RB3Revo2TunaOnlineEnvCfg):
         self.commands.reference.rsi_enabled = False
         self.commands.reference.debug_output = True
         self.commands.reference.enable_reset_perturbation = False
+        # Match deterministic floating-hand play.  Random placement remains
+        # available only through the explicit ``--random-placement`` launcher
+        # option, which applies a Hydra override after this config is created.
+        self.commands.reference.randomize_object_xy = False
         self.actions.root_pose.debug_output = True
         for term_name in (
             "object_pos",

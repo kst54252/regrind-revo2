@@ -20,6 +20,8 @@ import cli_args  # isort: skip
 parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
 parser.add_argument("--video", action="store_true", default=False, help="Record videos during training.")
 parser.add_argument("--video_length", type=int, default=270, help="Length of the recorded video (in steps).")
+parser.add_argument("--video-output-dir", default=None,
+                    help="Optional fresh recording directory; existing directories are rejected to preserve videos.")
 parser.add_argument(
     "--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations."
 )
@@ -86,6 +88,23 @@ parser.add_argument(
     default=8,
     help="Maximum causal control-step lag considered by arm tracking analysis.",
 )
+parser.add_argument("--arm-execution-trace", default=None,
+                    help="Optional read-only physics-substep JSONL trace of the online arm path.")
+parser.add_argument("--arm-execution-full-state", action="store_true",
+                    help="Also record all arm/hand targets and reset states for paired contact replay.")
+parser.add_argument("--arm-contact-replay", default=None,
+                    help="Replay one episode's recorded arm/hand substep commands from a full-state trace.")
+parser.add_argument("--arm-contact-episode", type=int, default=15)
+parser.add_argument("--arm-contact-condition", choices=("present", "absent"), default="present")
+parser.add_argument("--arm-contact-output", default=None)
+parser.add_argument("--arm-actuator-diagnostic", action="store_true",
+                    help="Read-only arm drive/effort observations during deterministic contact replay.")
+parser.add_argument("--arm-velocity-path-trace", default=None,
+                    help="Recorded replay only: use same-step v_path from a prior actuator trace with the same contact condition.")
+parser.add_argument("--arm-velocity-target", choices=("zero", "v_path"), default="zero",
+                    help="Online RB3 only: velocity from final interpolated position commands at physics dt (default: existing zero targets).")
+parser.add_argument("--arm-evaluation-states", default=None,
+                    help="Online paired evaluation only: restore named initial placements/states from a prior full-state execution trace.")
 parser.add_argument(
     "--rb3-stiffness-scale",
     type=float,
@@ -421,6 +440,11 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         if inferred_gravity is not None:
             env_cfg.sim.gravity = inferred_gravity
 
+    if args_cli.arm_velocity_target != "zero":
+        if not hasattr(env_cfg.actions.root_pose, "velocity_target_mode") or args_cli.arm_contact_replay:
+            raise ValueError("--arm-velocity-target is only for live online RB3 evaluation")
+        env_cfg.actions.root_pose.velocity_target_mode = args_cli.arm_velocity_target
+
     # create isaac environment
     env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
 
@@ -430,8 +454,13 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # wrap for video recording
     if args_cli.video:
+        video_folder = os.path.join(log_dir, "videos", "play")
+        if args_cli.video_output_dir:
+            video_folder = os.path.abspath(os.path.expanduser(args_cli.video_output_dir))
+            if os.path.exists(video_folder):
+                raise FileExistsError(video_folder)
         video_kwargs = {
-            "video_folder": os.path.join(log_dir, "videos", "play"),
+            "video_folder": video_folder,
             "step_trigger": lambda step: step == 0,
             "video_length": args_cli.video_length,
             "disable_logger": True,
@@ -464,6 +493,15 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     dt = env.unwrapped.step_dt
 
+    if args_cli.arm_evaluation_states:
+        if args_cli.arm_contact_replay or not args_cli.arm_execution_full_state or env.num_envs != 1:
+            raise ValueError("Paired initial states require num_envs=1 and live full-state tracing")
+        state_path = Path(__file__).resolve().parents[3] / "tools/rb3_revo2_ik/paired_arm_states.py"
+        state_spec = importlib.util.spec_from_file_location("regrind_paired_arm_states", state_path)
+        state_module = importlib.util.module_from_spec(state_spec)
+        state_spec.loader.exec_module(state_module)
+        paired_states = state_module.PairedArmStates(env.unwrapped, args_cli.arm_evaluation_states, args_cli.eval_episodes)
+
     # reset environment
     obs, _ = env.reset()
     timestep = 0
@@ -479,6 +517,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     online_command = None
     online_ik_action = None
     online_object_positions: list[np.ndarray] = []
+    online_episode_positions: list[np.ndarray] = []
     online_wrist_position_errors: list[float] = []
     online_arm_tracking_errors: list[float] = []
     online_ik_failures: list[int] = []
@@ -493,6 +532,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             online_command = candidate_command
             online_ik_action = candidate_action
             online_object_positions.append(_tensor_row(online_command.current_object_pos))
+            online_episode_positions.append(_tensor_row(online_command.current_object_pos))
             print(
                 "[ONLINE] closed-loop floating policy -> strict RB3 IK diagnostics enabled"
             )
@@ -501,6 +541,38 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     if capture_arm_tracking and online_command is None:
         raise RuntimeError(
             "--arm-tracking-path requires the online assembled task; use ./scripts/rl.sh play-arm"
+        )
+    if args_cli.arm_velocity_path_trace and (
+        not args_cli.arm_contact_replay or not args_cli.arm_actuator_diagnostic
+    ):
+        raise ValueError("--arm-velocity-path-trace requires contact replay and --arm-actuator-diagnostic")
+    if args_cli.arm_actuator_diagnostic and not args_cli.arm_contact_replay:
+        raise ValueError("--arm-actuator-diagnostic requires --arm-contact-replay")
+    if args_cli.arm_contact_replay:
+        if online_command is None or env.num_envs != 1 or not args_cli.arm_contact_output:
+            raise ValueError("contact replay requires online num_envs=1 and --arm-contact-output")
+        if args_cli.arm_execution_trace or args_cli.zero_actions:
+            raise ValueError("contact replay cannot combine normal tracing or zero-actions")
+        test_path = Path(__file__).resolve().parents[3] / "tools/rb3_revo2_ik/replay_arm_contact.py"
+        spec = importlib.util.spec_from_file_location("regrind_contact_replay", test_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        module.run(env, obs, policy, args_cli, resume_path)
+        env.close()
+        return
+    if args_cli.arm_execution_full_state and not args_cli.arm_execution_trace:
+        raise ValueError("--arm-execution-full-state requires --arm-execution-trace")
+    execution_trace = None
+    if args_cli.arm_execution_trace:
+        if online_command is None or env.num_envs != 1:
+            raise ValueError("--arm-execution-trace requires play-arm with num_envs=1")
+        trace_path = Path(__file__).resolve().parents[3] / "tools/rb3_revo2_ik/trace_arm_execution.py"
+        spec = importlib.util.spec_from_file_location("regrind_execution_trace", trace_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        execution_trace = module.ArmExecutionTrace(
+            env.unwrapped, args_cli.arm_execution_trace, resume_path,
+            vars(args_cli), hydra_args, full_state=args_cli.arm_execution_full_state,
         )
     if args_cli.rollout_path is not None:
         if env.num_envs != 1:
@@ -548,9 +620,12 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             if args_cli.zero_actions:
                 actions.zero_()
             obs, rewards, dones, extras = env.step(actions)
+            if execution_trace is not None:
+                execution_trace.after_env_step(dones)
 
         if online_command is not None and not bool(dones[0].item()):
             online_object_positions.append(_tensor_row(online_command.current_object_pos))
+            online_episode_positions.append(_tensor_row(online_command.current_object_pos))
             online_wrist_position_errors.append(
                 float(
                     torch.linalg.vector_norm(
@@ -604,6 +679,16 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 )
         if online_command is not None and capture_arm_tracking and bool(dones[0].item()):
             capture_arm_tracking = False
+        if online_command is not None and bool(dones[0].item()):
+            # Autoreset replaces terminal state before step returns. Report
+            # the last observed pre-reset sample explicitly, per episode;
+            # never interpret randomized episode placement as object motion.
+            positions = np.asarray(online_episode_positions)
+            print(f"[arm episode env=0] start={positions[0].tolist()} "
+                  f"last_pre_reset={positions[-1].tolist()} "
+                  f"last_lift={positions[-1, 2] - positions[0, 2]:.6f} m "
+                  f"max_lift={positions[:, 2].max() - positions[0, 2]:.6f} m")
+            online_episode_positions = [_tensor_row(online_command.current_object_pos)]
 
         reward_sum += float(rewards.detach().sum().cpu())
         reward_samples += int(rewards.numel())
@@ -689,6 +774,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             - online_command.reference.object_pos[0]
         )
         print("\n[online RB3+Revo2 physical diagnostics]")
+        if completed_episodes > 1:
+            print("  XYZ below spans episodes; use per-episode lift above for grasp validation.")
         print(f"  object start xyz:       {object_positions[0].tolist()}")
         print(f"  object final xyz:       {object_positions[-1].tolist()}")
         print(f"  object delta xyz:       {object_delta.tolist()}")
@@ -721,6 +808,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         )
 
     # close the simulator
+    if execution_trace is not None:
+        execution_trace.close()
     env.close()
 
 

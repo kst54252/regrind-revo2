@@ -1,0 +1,61 @@
+{
+  "hand_input": {
+    "initial_states_verified": true,
+    "identical_replay_inputs_verified": false,
+    "old_success": 0,
+    "new_success": 0,
+    "success_to_failure": [],
+    "failure_to_success": []
+  },
+  "arm_control": {
+    "initial_states_verified": true,
+    "identical_replay_inputs_verified": true,
+    "old_success": 0,
+    "new_success": 20,
+    "success_to_failure": [],
+    "failure_to_success": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ]
+  },
+  "live_old20": {
+    "initial_states_verified": true,
+    "identical_replay_inputs_verified": false,
+    "old_success": 19,
+    "new_success": 20,
+    "success_to_failure": [],
+    "failure_to_success": [
+      15
+    ]
+  },
+  "live_new20": {
+    "initial_states_verified": true,
+    "identical_replay_inputs_verified": false,
+    "old_success": 17,
+    "new_success": 20,
+    "success_to_failure": [],
+    "failure_to_success": [
+      6,
+      15,
+      16
+    ]
+  }
+}

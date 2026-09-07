@@ -1,0 +1,904 @@
+{
+  "mode": "simple",
+  "stage": "recovery",
+  "checkpoint": "/home/wanjunkim/ARSL/regrind-upload/logs/rsl_rl/floating_revo2_tuna/2026-09-05_16-46-54_floating_stable_ground_5000/model_4999.pt",
+  "response_tau_s": 0.0,
+  "recovery_kind": "R1",
+  "recovery_no_can": true,
+  "recovery_speed": 4,
+  "recovery_holds": false,
+  "arm_gains_key": "baseline",
+  "recovery_runtime": {
+    "drive_type": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "kp": [
+      300.0,
+      500.0,
+      500.0,
+      300.0,
+      200.0,
+      50.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0
+    ],
+    "kd": [
+      20.0,
+      20.0,
+      20.0,
+      20.0,
+      20.0,
+      10.0,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612
+    ],
+    "effort_limit": [
+      10.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      10.0,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5
+    ],
+    "velocity_limit": [
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0
+    ],
+    "position_limit": [
+      [
+        -6.2831854820251465,
+        6.2831854820251465
+      ],
+      [
+        -6.2831854820251465,
+        6.2831854820251465
+      ],
+      [
+        -2.6179938316345215,
+        2.6179938316345215
+      ],
+      [
+        -6.2831854820251465,
+        6.2831854820251465
+      ],
+      [
+        -6.2831854820251465,
+        6.2831854820251465
+      ],
+      [
+        -6.2831854820251465,
+        6.2831854820251465
+      ],
+      [
+        0.0,
+        1.5700000524520874
+      ],
+      [
+        0.0,
+        1.409999966621399
+      ],
+      [
+        0.0,
+        1.409999966621399
+      ],
+      [
+        0.0,
+        1.409999966621399
+      ],
+      [
+        0.0,
+        1.409999966621399
+      ],
+      [
+        0.0,
+        1.0299999713897705
+      ],
+      [
+        0.0,
+        1.6299999952316284
+      ],
+      [
+        0.0,
+        1.6299999952316284
+      ],
+      [
+        0.0,
+        1.6299999952316284
+      ],
+      [
+        0.0,
+        1.6299999952316284
+      ],
+      [
+        0.0,
+        1.0299999713897705
+      ]
+    ],
+    "disable_gravity": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "actuators": {
+      "rb3_arm": {
+        "class_name": "isaaclab.actuators.actuator_pd.ImplicitActuator",
+        "implicit": true
+      },
+      "revo2_hand": {
+        "class_name": "isaaclab.actuators.actuator_pd.ImplicitActuator",
+        "implicit": true
+      }
+    },
+    "versions": {
+      "isaacsim": "6.0.1.0",
+      "isaaclab": "13.3.0",
+      "isaaclab_physx": "3.1.1"
+    },
+    "wrist_controller": {
+      "kp_pos": 300.0,
+      "kd_pos": 30.0,
+      "kp_rot": 300.0,
+      "kd_rot": 30.0
+    }
+  },
+  "checkpoint_sha256": "10eeeff86c405b07595cdd692d3447e9385da43dc90c881dbe1807465f9c4721",
+  "reference": "/home/wanjunkim/ARSL/regrind-upload/outputs/isaac/dexycb/20200709_143747_left/rb3_revo2_reference_stable.h5",
+  "state_bank": "/home/wanjunkim/ARSL/regrind-upload/outputs/diagnostics/arm_policy_velocity_zero20_20260907.jsonl",
+  "initial_states": [
+    {
+      "wrist_pos": [
+        0.3241533637046814,
+        -0.1394520401954651,
+        0.14413824677467346
+      ],
+      "wrist_quat": [
+        -0.27268341183662415,
+        0.7746904492378235,
+        0.024138612672686577,
+        0.5700139403343201
+      ],
+      "fingertips": [
+        [
+          0.3295021653175354,
+          -0.051814835518598557,
+          0.07925822585821152
+        ],
+        [
+          0.4211113452911377,
+          -0.07429423183202744,
+          0.06989873200654984
+        ],
+        [
+          0.441527396440506,
+          -0.08755993098020554,
+          0.07174012809991837
+        ],
+        [
+          0.44473209977149963,
+          -0.10995969921350479,
+          0.07631432265043259
+        ],
+        [
+          0.4389630854129791,
+          -0.1324417144060135,
+          0.08753089606761932
+        ]
+      ],
+      "wrist_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hand_q": [
+        0.10197404772043228,
+        0.1670140027999878,
+        0.002607588190585375,
+        0.00040789844933897257,
+        0.06353557854890823,
+        0.08512559533119202
+      ],
+      "hand_v": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "follower_q": [
+        0.1670140027999878,
+        0.003011764260008931,
+        0.0004711227084044367,
+        0.07338359206914902,
+        0.09832005947828293
+      ],
+      "follower_v": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "object_state": [
+        10.432641983032227,
+        -0.07406100630760193,
+        0.012636000290513039,
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "all_q": [
+        -0.7298250198364258,
+        0.03286467492580414,
+        2.2231266498565674,
+        1.5626410245895386,
+        0.996645450592041,
+        -2.4653501510620117,
+        0.10197404772043228,
+        0.002607588190585375,
+        0.00040789844933897257,
+        0.06353557854890823,
+        0.08512559533119202,
+        0.1670140027999878,
+        0.003011764260008931,
+        0.0004711227084044367,
+        0.07338359206914902,
+        0.09832005947828293,
+        0.1670140027999878
+      ],
+      "all_v": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "robot_root": [
+        2.9103830456733704e-11,
+        -5.820766091346741e-10,
+        -0.02000000700354576,
+        -2.0566094660612322e-10,
+        1.4348690291487998e-10,
+        -1.3127127856948917e-11,
+        1.0000001192092896,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "phase": 0,
+      "episode": 0
+    }
+  ],
+  "ends": [
+    {
+      "episode": 0,
+      "state": {
+        "wrist_pos": [
+          0.33035537600517273,
+          -0.08595139533281326,
+          0.3098086416721344
+        ],
+        "wrist_quat": [
+          -0.1085873395204544,
+          0.7989843487739563,
+          -0.016676228493452072,
+          0.5912315249443054
+        ],
+        "fingertips": [
+          [
+            0.3733188211917877,
+            -0.04487743601202965,
+            0.22494445741176605
+          ],
+          [
+            0.4448739290237427,
+            -0.04568776488304138,
+            0.24420692026615143
+          ],
+          [
+            0.4549546539783478,
+            -0.06658507138490677,
+            0.23991087079048157
+          ],
+          [
+            0.44081804156303406,
+            -0.08967018872499466,
+            0.2378663271665573
+          ],
+          [
+            0.4183560609817505,
+            -0.10805224627256393,
+            0.24724337458610535
+          ]
+        ],
+        "wrist_velocity": [
+          -0.002746948041021824,
+          0.010383418761193752,
+          0.03606896474957466,
+          0.08227868378162384,
+          0.025340227410197258,
+          -0.005470322910696268
+        ],
+        "hand_q": [
+          0.9028502702713013,
+          0.39610162377357483,
+          0.015174984000623226,
+          0.08094650506973267,
+          0.25819873809814453,
+          0.4393767714500427
+        ],
+        "hand_v": [
+          -0.002264969749376178,
+          0.0011645251652225852,
+          -0.001472128671593964,
+          -0.0010085917310789227,
+          -0.0012934744590893388,
+          -0.0005200559971854091
+        ],
+        "follower_q": [
+          0.396227091550827,
+          0.01734013296663761,
+          0.09332555532455444,
+          0.2981039583683014,
+          0.507397472858429
+        ],
+        "follower_v": [
+          0.0011644959449768066,
+          -0.0017003034008666873,
+          -0.0011649231892079115,
+          -0.0014939629472792149,
+          -0.0006006647017784417
+        ],
+        "object_state": [
+          10.432641983032227,
+          -0.07406100630760193,
+          -125.90926361083984,
+          0.8511201739311218,
+          0.5249708890914917,
+          0.0,
+          -3.999396047370798e-22,
+          0.0,
+          0.0,
+          -49.70828628540039,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_q": [
+          -0.4431453347206116,
+          -0.44125276803970337,
+          2.1042110919952393,
+          1.1481692790985107,
+          0.5783916711807251,
+          -1.4233049154281616,
+          0.9028502702713013,
+          0.015174984000623226,
+          0.08094650506973267,
+          0.25819873809814453,
+          0.4393767714500427,
+          0.39610162377357483,
+          0.01734013296663761,
+          0.09332555532455444,
+          0.2981039583683014,
+          0.507397472858429,
+          0.396227091550827
+        ],
+        "all_v": [
+          0.027850648388266563,
+          -0.0346141941845417,
+          -0.08948616683483124,
+          -0.20548196136951447,
+          0.04987886920571327,
+          0.324540913105011,
+          -0.002264969749376178,
+          -0.001472128671593964,
+          -0.0010085917310789227,
+          -0.0012934744590893388,
+          -0.0005200559971854091,
+          0.0011645251652225852,
+          -0.0017003034008666873,
+          -0.0011649231892079115,
+          -0.0014939629472792149,
+          -0.0006006647017784417,
+          0.0011644959449768066
+        ],
+        "robot_root": [
+          2.9103830456733704e-11,
+          -5.820766091346741e-10,
+          -0.02000000700354576,
+          -2.0566094660612322e-10,
+          1.4348690291487998e-10,
+          -1.3127127856948917e-11,
+          1.0000001192092896,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "phase": 37
+      },
+      "termination": {
+        "time_out": false,
+        "demo_end_reached": false,
+        "success": false,
+        "object_deviation": true,
+        "hand_far_from_object": true
+      },
+      "first_termination_time_s": 0.03333333333333333,
+      "full_recording_replayed": true
+    }
+  ],
+  "observation_action_parity_checks": 0,
+  "frozen_policy_verified": false,
+  "policy_loaded": false,
+  "actual_motion_source": "/home/wanjunkim/ARSL/regrind-upload/outputs/diagnostics/arm_transfer_recovery/F0",
+  "actual_motion_timing": null,
+  "target_update_dt": 0.03333333333333333,
+  "env_origins": [
+    [
+      -0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "physics_dt": 0.008333333333333333,
+  "control_dt": 0.03333333333333333,
+  "joint_names": [
+    "base",
+    "shoulder",
+    "elbow",
+    "wrist1",
+    "wrist2",
+    "wrist3",
+    "right_thumb_metacarpal_joint",
+    "right_index_proximal_joint",
+    "right_middle_proximal_joint",
+    "right_ring_proximal_joint",
+    "right_pinky_proximal_joint",
+    "right_thumb_proximal_joint",
+    "right_index_distal_joint",
+    "right_middle_distal_joint",
+    "right_ring_distal_joint",
+    "right_pinky_distal_joint",
+    "right_thumb_distal_joint"
+  ],
+  "arm_ids": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "hand_ids": [
+    6,
+    11,
+    7,
+    8,
+    9,
+    10
+  ],
+  "gains": {
+    "kp": [
+      300.0,
+      500.0,
+      500.0,
+      300.0,
+      200.0,
+      50.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0
+    ],
+    "kd": [
+      20.0,
+      20.0,
+      20.0,
+      20.0,
+      20.0,
+      10.0,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612
+    ]
+  },
+  "limits": {
+    "position": [
+      [
+        -6.2831854820251465,
+        6.2831854820251465
+      ],
+      [
+        -6.2831854820251465,
+        6.2831854820251465
+      ],
+      [
+        -2.6179938316345215,
+        2.6179938316345215
+      ],
+      [
+        -6.2831854820251465,
+        6.2831854820251465
+      ],
+      [
+        -6.2831854820251465,
+        6.2831854820251465
+      ],
+      [
+        -6.2831854820251465,
+        6.2831854820251465
+      ],
+      [
+        0.0,
+        1.5700000524520874
+      ],
+      [
+        0.0,
+        1.409999966621399
+      ],
+      [
+        0.0,
+        1.409999966621399
+      ],
+      [
+        0.0,
+        1.409999966621399
+      ],
+      [
+        0.0,
+        1.409999966621399
+      ],
+      [
+        0.0,
+        1.0299999713897705
+      ],
+      [
+        0.0,
+        1.6299999952316284
+      ],
+      [
+        0.0,
+        1.6299999952316284
+      ],
+      [
+        0.0,
+        1.6299999952316284
+      ],
+      [
+        0.0,
+        1.6299999952316284
+      ],
+      [
+        0.0,
+        1.0299999713897705
+      ]
+    ],
+    "velocity": [
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0
+    ],
+    "effort": [
+      10.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      10.0,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5
+    ]
+  },
+  "contact_filter": [
+    "/World/envs/env_0/Robot/rb3_730es_u/Geometry/link0",
+    "/World/envs/env_0/Robot/rb3_730es_u/Geometry/link0/link1",
+    "/World/envs/env_0/Robot/rb3_730es_u/Geometry/link0/link1/link2",
+    "/World/envs/env_0/Robot/rb3_730es_u/Geometry/link0/link1/link2/link3",
+    "/World/envs/env_0/Robot/rb3_730es_u/Geometry/link0/link1/link2/link3/link4",
+    "/World/envs/env_0/Robot/rb3_730es_u/Geometry/link0/link1/link2/link3/link4/link5",
+    "/World/envs/env_0/Robot/rb3_730es_u/Geometry/link0/link1/link2/link3/link4/link5/link6",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_thumb_metacarpal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_index_proximal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_middle_proximal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_ring_proximal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_pinky_proximal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_thumb_metacarpal_link/right_thumb_proximal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_index_proximal_link/right_index_distal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_middle_proximal_link/right_middle_distal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_ring_proximal_link/right_ring_distal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_pinky_proximal_link/right_pinky_distal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_thumb_metacarpal_link/right_thumb_proximal_link/right_thumb_distal_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_index_proximal_link/right_index_distal_link/right_index_touch_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_middle_proximal_link/right_middle_distal_link/right_middle_touch_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_ring_proximal_link/right_ring_distal_link/right_ring_touch_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_pinky_proximal_link/right_pinky_distal_link/right_pinky_touch_link",
+    "/World/envs/env_0/Robot/revo2_right/Geometry/world/right_hand_base_link/right_thumb_metacarpal_link/right_thumb_proximal_link/right_thumb_distal_link/right_thumb_touch_link"
+  ],
+  "contact_bodies": [
+    "Object"
+  ],
+  "gravity": [
+    0.0,
+    0.0,
+    -9.81
+  ],
+  "robot_spawn": {
+    "func": "isaaclab.sim.spawners.from_files.from_files:spawn_from_usd",
+    "visible": true,
+    "semantic_tags": null,
+    "copy_from_source": true,
+    "spawn_path": "/World/envs/env_0/Robot",
+    "mass_props": null,
+    "deformable_props": null,
+    "rigid_props": {
+      "rigid_body_enabled": null,
+      "kinematic_enabled": null,
+      "disable_gravity": false,
+      "linear_damping": null,
+      "angular_damping": null,
+      "max_linear_velocity": null,
+      "max_angular_velocity": null,
+      "max_depenetration_velocity": 5.0,
+      "max_contact_impulse": null,
+      "enable_gyroscopic_forces": null,
+      "retain_accelerations": null,
+      "solver_position_iteration_count": null,
+      "solver_velocity_iteration_count": null,
+      "sleep_threshold": null,
+      "stabilization_threshold": null,
+      "_usd_applied_schema": "PhysxRigidBodyAPI",
+      "_usd_field_exceptions": {
+        "PhysxRigidBodyAPI": [
+          "physxRigidBody",
+          [
+            "disable_gravity"
+          ]
+        ]
+      },
+      "_usd_namespace": "physxRigidBody"
+    },
+    "collision_props": null,
+    "activate_contact_sensors": false,
+    "scale": null,
+    "articulation_props": {
+      "articulation_enabled": null,
+      "fix_root_link": false,
+      "enabled_self_collisions": false,
+      "solver_position_iteration_count": 32,
+      "solver_velocity_iteration_count": 2,
+      "sleep_threshold": 0.005,
+      "stabilization_threshold": 0.0005,
+      "_usd_applied_schema": "PhysxArticulationAPI",
+      "_usd_field_exceptions": {
+        "PhysxArticulationAPI": [
+          "physxArticulation",
+          [
+            "articulation_enabled"
+          ]
+        ]
+      },
+      "_usd_namespace": "physxArticulation"
+    },
+    "fix_root_link": null,
+    "fixed_tendons_props": null,
+    "spatial_tendons_props": null,
+    "joint_drive_props": {
+      "drive_type": "force",
+      "max_force": null,
+      "max_effort": null,
+      "stiffness": null,
+      "damping": null,
+      "ensure_drives_exist": false,
+      "max_joint_velocity": 1000.0,
+      "max_velocity": null,
+      "_usd_applied_schema": "PhysxJointAPI",
+      "_usd_field_exceptions": {
+        "PhysxJointAPI": [
+          "physxJoint",
+          [
+            "max_joint_velocity"
+          ]
+        ]
+      },
+      "_usd_namespace": "physxJoint"
+    },
+    "ensure_drives_exist": false,
+    "visual_material_path": "material",
+    "visual_material": null,
+    "physics_material_path": "material",
+    "physics_material": null,
+    "usd_path": "/home/wanjunkim/ARSL/regrind-upload/USD/rb3_revo2_vertical.usda",
+    "variants": null
+  },
+  "observation_terms": [
+    "object_pos",
+    "object_ori",
+    "hand_wrist_pos",
+    "hand_wrist_rot6d",
+    "hand_joint_pos",
+    "actions",
+    "command",
+    "action_base_wrist_pos_and_rot6d",
+    "action_base_hand_joint_pos"
+  ],
+  "observation_dimensions": [
+    [
+      3
+    ],
+    [
+      6
+    ],
+    [
+      6
+    ],
+    [
+      12
+    ],
+    [
+      12
+    ],
+    [
+      12
+    ],
+    [
+      1
+    ],
+    [
+      9
+    ],
+    [
+      6
+    ]
+  ],
+  "arm_target_mode": "optional causal wrist response -> IK -> hold with per-physics target slew <= runtime velocity limit; zero velocity target",
+  "effort_provenance": "No verified drive-only torque; saturation UNKNOWN",
+  "timestamp": "command before first physics substep; actual state after scene.update; no post-hoc time shift"
+}

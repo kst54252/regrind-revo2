@@ -47,3 +47,18 @@ class RB3Revo2TunaPPORunnerCfg(RslRlOnPolicyRunnerCfg):
         max_grad_norm=1.0,
     )
 
+
+@configclass
+class RB3Revo2TunaTransferPPORunnerCfg(RB3Revo2TunaPPORunnerCfg):
+    """Conservative fine-tuning of a converged floating-hand checkpoint.
+
+    The policy/critic architecture and PPO objective remain identical to the
+    public baseline. Only the optimizer step is reduced so a small online-IK
+    batch cannot immediately destroy the already useful grasp policy.
+    """
+
+    experiment_name = "rb3_revo2_tuna_transfer"
+    save_interval = 25
+
+    def __post_init__(self):
+        self.algorithm.learning_rate = 0.0001

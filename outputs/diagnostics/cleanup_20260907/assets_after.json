@@ -1,0 +1,47 @@
+{
+  "USD/rb3_revo2_vertical.usda": {
+    "layers": [
+      "/home/wanjunkim/ARSL/regrind-upload/USD/rb3_730es_u/payloads/Physics/mujoco.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/rb3_730es_u/payloads/Physics/physics.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/rb3_730es_u/payloads/Physics/physx.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/rb3_730es_u/payloads/base.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/rb3_730es_u/payloads/geometries.usd",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/rb3_730es_u/payloads/instances.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/rb3_730es_u/payloads/materials.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/rb3_730es_u/payloads/robot.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/rb3_730es_u/rb3_730es_u.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/rb3_revo2.usd",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/revo2_right/payloads/Physics/mujoco.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/revo2_right/payloads/Physics/physics.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/revo2_right/payloads/Physics/physx.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/revo2_right/payloads/base.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/revo2_right/payloads/geometries.usd",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/revo2_right/payloads/instances.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/revo2_right/payloads/materials.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/revo2_right/payloads/robot.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/revo2_right/revo2_right.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/revo2_vertical_adapter/revo2_vertical_adapter.usd",
+      "USD/rb3_revo2_vertical.usda"
+    ],
+    "assets": [],
+    "unresolved": [
+      "OmniPBR.mdl"
+    ]
+  },
+  "USD/revo2_floating.usda": {
+    "layers": [
+      "/home/wanjunkim/ARSL/regrind-upload/USD/revo2_right/payloads/Physics/mujoco.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/revo2_right/payloads/Physics/physics.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/revo2_right/payloads/Physics/physx.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/revo2_right/payloads/base.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/revo2_right/payloads/geometries.usd",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/revo2_right/payloads/instances.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/revo2_right/payloads/materials.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/revo2_right/payloads/robot.usda",
+      "/home/wanjunkim/ARSL/regrind-upload/USD/revo2_right/revo2_right.usda",
+      "USD/revo2_floating.usda"
+    ],
+    "assets": [],
+    "unresolved": []
+  }
+}

@@ -1,0 +1,1997 @@
+{
+  "threshold": 0.95,
+  "large_step_threshold_rad": 0.1,
+  "drive_saturation": "UNKNOWN",
+  "actual_drive_effort_available": false,
+  "projected_effort_compared_to_limit": false,
+  "conditions": {
+    "present": {
+      "metadata": {
+        "versions": {
+          "isaacsim": "6.0.1.0",
+          "isaaclab": "13.3.0",
+          "isaaclab_physx": "3.1.1",
+          "isaacsim-kernel": "6.0.1.0",
+          "lab_checkout_VERSION": "3.0.0"
+        },
+        "backend": "isaaclab_physx.assets.articulation.articulation",
+        "device": "cuda:0",
+        "actuator_class": "isaaclab.actuators.actuator_pd.ImplicitActuator",
+        "implicit": true,
+        "joint_names": [
+          "base",
+          "shoulder",
+          "elbow",
+          "wrist1",
+          "wrist2",
+          "wrist3"
+        ],
+        "user_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "backend_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "actuator_group_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "runtime": {
+          "drive_types": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "dof_types": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "stiffness": [
+            300.0,
+            500.0,
+            500.0,
+            300.0,
+            200.0,
+            50.0
+          ],
+          "damping": [
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            10.0
+          ],
+          "effort_limits": [
+            10.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            10.0
+          ],
+          "velocity_limits": [
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0
+          ],
+          "position_limits": [
+            [
+              -6.2831854820251465,
+              6.2831854820251465
+            ],
+            [
+              -6.2831854820251465,
+              6.2831854820251465
+            ],
+            [
+              -2.6179938316345215,
+              2.6179938316345215
+            ],
+            [
+              -6.2831854820251465,
+              6.2831854820251465
+            ],
+            [
+              -6.2831854820251465,
+              6.2831854820251465
+            ],
+            [
+              -6.2831854820251465,
+              6.2831854820251465
+            ]
+          ],
+          "drive_model": [
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "config": {
+          "stiffness": {
+            "base": 300.0,
+            "shoulder": 500.0,
+            "elbow": 500.0,
+            "wrist1": 300.0,
+            "wrist2": 200.0,
+            "wrist3": 50.0
+          },
+          "damping": {
+            "base": 20.0,
+            "shoulder": 20.0,
+            "elbow": 20.0,
+            "wrist1": 20.0,
+            "wrist2": 20.0,
+            "wrist3": 10.0
+          },
+          "effort_limit_sim": {
+            "base": 10.0,
+            "shoulder": 100.0,
+            "elbow": 100.0,
+            "wrist1": 100.0,
+            "wrist2": 100.0,
+            "wrist3": 10.0
+          },
+          "velocity_limit_sim": 10.0,
+          "effort_limit": {
+            "base": 10.0,
+            "shoulder": 100.0,
+            "elbow": 100.0,
+            "wrist1": 100.0,
+            "wrist2": 100.0,
+            "wrist3": 10.0
+          },
+          "velocity_limit": 10.0
+        },
+        "config_source": "regrind/source/regrind/regrind/robots/rb3_revo2.py",
+        "cli_scales": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "gravity_config": [
+          0.0,
+          0.0,
+          -9.81
+        ],
+        "auto_gravity_from_checkpoint": false,
+        "stage_meters_per_unit": 1.0,
+        "self_collision_config": false,
+        "link_gravity_disabled": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "body_names": [
+          "link0",
+          "link1",
+          "link2",
+          "link3",
+          "link4",
+          "link5",
+          "link6",
+          "right_hand_base_link",
+          "right_thumb_metacarpal_link",
+          "right_index_proximal_link",
+          "right_middle_proximal_link",
+          "right_ring_proximal_link",
+          "right_pinky_proximal_link",
+          "right_thumb_proximal_link",
+          "right_index_distal_link",
+          "right_middle_distal_link",
+          "right_ring_distal_link",
+          "right_pinky_distal_link",
+          "right_thumb_distal_link",
+          "right_index_touch_link",
+          "right_middle_touch_link",
+          "right_ring_touch_link",
+          "right_pinky_touch_link",
+          "right_thumb_touch_link"
+        ],
+        "source_locations": {
+          "implicit_compute": {
+            "file": "/home/wanjunkim/IsaacLab/source/isaaclab/isaaclab/actuators/actuator_pd.py",
+            "line": 117
+          },
+          "approximate_clip": {
+            "file": "/home/wanjunkim/IsaacLab/source/isaaclab/isaaclab/actuators/actuator_base.py",
+            "line": 376
+          },
+          "write_data_to_sim": {
+            "file": "/home/wanjunkim/IsaacLab/source/isaaclab_physx/isaaclab_physx/assets/articulation/articulation.py",
+            "line": 247
+          },
+          "submit_feedforward": {
+            "file": "/home/wanjunkim/IsaacLab/.venv/lib/python3.12/site-packages/isaacsim/extscache/omni.physics.tensors-110.1.13+110.1.2.lx64.r.cp312.u7f4/omni/physics/tensors/api.py",
+            "line": 1759
+          },
+          "submit_velocity": {
+            "file": "/home/wanjunkim/IsaacLab/.venv/lib/python3.12/site-packages/isaacsim/extscache/omni.physics.tensors-110.1.13+110.1.2.lx64.r.cp312.u7f4/omni/physics/tensors/api.py",
+            "line": 1823
+          },
+          "projected_joint_effort": {
+            "file": "/home/wanjunkim/IsaacLab/.venv/lib/python3.12/site-packages/isaacsim/extscache/omni.physics.tensors-110.1.13+110.1.2.lx64.r.cp312.u7f4/omni/physics/tensors/api.py",
+            "line": 1991
+          }
+        },
+        "drive_effort_status": "UNAVAILABLE: no verified drive-only measurement in inspected APIs",
+        "saturation_status": "UNKNOWN",
+        "differentiation": "Raw unwrapped-coordinate backward difference, no modulo; first predecessor is recorded previous_accepted_q at reset",
+        "previous_q_cmd_seed": [
+          0.21072298288345337,
+          -0.13618983328342438,
+          2.3828539848327637,
+          2.6627848148345947,
+          0.35140085220336914,
+          -3.0440733432769775
+        ],
+        "timing": "q_pre/PD before physics k; native setters before k; q_post/projected effort after physics k. Timestamp is end of k.",
+        "provenance": {
+          "pd_p_pre_Nm": "approximate force-PD P, not solved implicit-drive torque",
+          "pd_d_pre_Nm": "approximate force-PD D, not solved implicit-drive torque",
+          "computed_effort_approx": "ImplicitActuator.compute approximate P+D+feedforward at pre-step state",
+          "applied_effort_approx": "ActuatorBase._clip_effort clipped approximation; NOT the implicit drive effort submitted to PhysX",
+          "submitted_effort_Nm": "explicitly submitted actuation/feedforward effort, intercepted native setter; positive along positive joint coordinate",
+          "projected_joint_effort_Nm": "post-step joint-reaction projection along DOF motion; NOT verified drive-only; never compared to drive maxForce"
+        }
+      },
+      "reproduction_max_deltas": {
+        "all_joint_pos": 0.0,
+        "all_joint_vel": 0.0,
+        "actual_base_pos": 0.0,
+        "actual_base_quat_xyzw": 0.0,
+        "object_root_state": 0.0,
+        "all_position_targets": 0.0,
+        "all_velocity_targets": 0.0,
+        "all_effort_targets": 0.0
+      },
+      "joints": {
+        "base": {
+          "tracking_error_rad": {
+            "mean": 0.02052542249913569,
+            "p95": 0.04953228533267975,
+            "max": 0.050418704748153687,
+            "max_time_s": 0.8666666666666667
+          },
+          "path_speed_rad_s": {
+            "mean": 0.42661862240897286,
+            "p95": 0.932478278875351,
+            "max": 0.9430897235870361,
+            "max_time_s": 0.6583333333333333
+          },
+          "actual_speed_rad_s": {
+            "mean": 0.3320104015249483,
+            "p95": 0.7685087740421295,
+            "max": 0.7873155474662781,
+            "max_time_s": 0.875
+          },
+          "submitted_velocity_rad_s": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "submitted_effort_Nm": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "approximation_Nm": {
+            "mean": 1.3435189835727215,
+            "p95": 3.472895145416259,
+            "max": 3.774552345275879,
+            "max_time_s": 0.6583333333333333
+          },
+          "actual_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "path_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "velocity_target_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "submitted_effort_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_near_limit_NOT_drive": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_clipped_NOT_drive": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "max_command_step_rad": 0.007859081029891968,
+          "large_step_times_s": [],
+          "drive_effort_proximity": null,
+          "confirmed_drive_clipping": "UNKNOWN"
+        },
+        "shoulder": {
+          "tracking_error_rad": {
+            "mean": 0.04382289379955856,
+            "p95": 0.11805071476846929,
+            "max": 0.1280001550912857,
+            "max_time_s": 0.575
+          },
+          "path_speed_rad_s": {
+            "mean": 1.0890313155121274,
+            "p95": 2.4264223873615265,
+            "max": 3.3960722386837006,
+            "max_time_s": 0.5583333333333333
+          },
+          "actual_speed_rad_s": {
+            "mean": 1.0062238774952237,
+            "p95": 2.543389701843261,
+            "max": 2.68064284324646,
+            "max_time_s": 0.6083333333333333
+          },
+          "submitted_velocity_rad_s": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "submitted_effort_Nm": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "approximation_Nm": {
+            "mean": 7.582458050162704,
+            "p95": 26.28849544525144,
+            "max": 35.75428771972656,
+            "max_time_s": 0.5666666666666667
+          },
+          "actual_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "path_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "velocity_target_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "submitted_effort_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_near_limit_NOT_drive": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_clipped_NOT_drive": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "max_command_step_rad": 0.028300601989030838,
+          "large_step_times_s": [],
+          "drive_effort_proximity": null,
+          "confirmed_drive_clipping": "UNKNOWN"
+        },
+        "elbow": {
+          "tracking_error_rad": {
+            "mean": 0.032040668858422175,
+            "p95": 0.05366040468215941,
+            "max": 0.057593584060668945,
+            "max_time_s": 0.5083333333333333
+          },
+          "path_speed_rad_s": {
+            "mean": 0.6469911999172635,
+            "p95": 1.1874961853027344,
+            "max": 1.2610530853271484,
+            "max_time_s": 0.5083333333333333
+          },
+          "actual_speed_rad_s": {
+            "mean": 0.6263915892362732,
+            "p95": 1.5007533013820646,
+            "max": 1.6695739030838013,
+            "max_time_s": 0.5583333333333333
+          },
+          "submitted_velocity_rad_s": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "submitted_effort_Nm": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "approximation_Nm": {
+            "mean": 9.695605269184819,
+            "p95": 14.607335710525513,
+            "max": 15.817071914672852,
+            "max_time_s": 0.475
+          },
+          "actual_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "path_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "velocity_target_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "submitted_effort_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_near_limit_NOT_drive": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_clipped_NOT_drive": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "max_command_step_rad": 0.01050877571105957,
+          "large_step_times_s": [],
+          "drive_effort_proximity": null,
+          "confirmed_drive_clipping": "UNKNOWN"
+        },
+        "wrist1": {
+          "tracking_error_rad": {
+            "mean": 0.0710758611007973,
+            "p95": 0.29807958602905255,
+            "max": 0.4117269515991211,
+            "max_time_s": 0.9
+          },
+          "path_speed_rad_s": {
+            "mean": 1.7053381601969402,
+            "p95": 7.477827072143555,
+            "max": 8.626699447631836,
+            "max_time_s": 0.875
+          },
+          "actual_speed_rad_s": {
+            "mean": 1.0535414085930421,
+            "p95": 4.460621857643124,
+            "max": 6.184111595153809,
+            "max_time_s": 0.9
+          },
+          "submitted_velocity_rad_s": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "submitted_effort_Nm": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "approximation_Nm": {
+            "mean": 4.512783235973782,
+            "p95": 18.9980899810791,
+            "max": 21.67205810546875,
+            "max_time_s": 0.875
+          },
+          "actual_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "path_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "velocity_target_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "submitted_effort_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_near_limit_NOT_drive": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_clipped_NOT_drive": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "max_command_step_rad": 0.07188916206359863,
+          "large_step_times_s": [],
+          "drive_effort_proximity": null,
+          "confirmed_drive_clipping": "UNKNOWN"
+        },
+        "wrist2": {
+          "tracking_error_rad": {
+            "mean": 0.07995443391027274,
+            "p95": 0.14355685263872145,
+            "max": 0.14835381507873535,
+            "max_time_s": 0.5
+          },
+          "path_speed_rad_s": {
+            "mean": 1.3433481752872467,
+            "p95": 2.3460817337036133,
+            "max": 2.6152467727661133,
+            "max_time_s": 0.44166666666666665
+          },
+          "actual_speed_rad_s": {
+            "mean": 0.9268644363964321,
+            "p95": 1.8207859039306633,
+            "max": 1.9953749179840088,
+            "max_time_s": 0.4666666666666667
+          },
+          "submitted_velocity_rad_s": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "submitted_effort_Nm": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "approximation_Nm": {
+            "mean": 2.1548461985808833,
+            "p95": 5.604943561553953,
+            "max": 9.70063304901123,
+            "max_time_s": 0.13333333333333333
+          },
+          "actual_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "path_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "velocity_target_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "submitted_effort_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_near_limit_NOT_drive": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_clipped_NOT_drive": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "max_command_step_rad": 0.021793723106384277,
+          "large_step_times_s": [],
+          "drive_effort_proximity": null,
+          "confirmed_drive_clipping": "UNKNOWN"
+        },
+        "wrist3": {
+          "tracking_error_rad": {
+            "mean": 0.13589004234031396,
+            "p95": 0.5001458287239071,
+            "max": 0.7347304821014404,
+            "max_time_s": 0.9
+          },
+          "path_speed_rad_s": {
+            "mean": 1.704256534576416,
+            "p95": 7.698183059692383,
+            "max": 8.82608413696289,
+            "max_time_s": 0.8833333333333333
+          },
+          "actual_speed_rad_s": {
+            "mean": 0.8118430079102162,
+            "p95": 2.5249491930007917,
+            "max": 3.6935887336730957,
+            "max_time_s": 0.9
+          },
+          "submitted_velocity_rad_s": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "submitted_effort_Nm": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "approximation_Nm": {
+            "mean": 2.0951649245840533,
+            "p95": 5.940374684333799,
+            "max": 15.45354175567627,
+            "max_time_s": 0.13333333333333333
+          },
+          "actual_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "path_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "velocity_target_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "submitted_effort_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_near_limit_NOT_drive": {
+            "fraction": 0.009259259259259259,
+            "longest_s": 0.008333333333333333,
+            "start_s": 0.125,
+            "end_s": 0.13333333333333333
+          },
+          "approximation_clipped_NOT_drive": {
+            "fraction": 0.009259259259259259,
+            "longest_s": 0.008333333333333333,
+            "start_s": 0.125,
+            "end_s": 0.13333333333333333
+          },
+          "max_command_step_rad": 0.07355070114135742,
+          "large_step_times_s": [],
+          "drive_effort_proximity": null,
+          "confirmed_drive_clipping": "UNKNOWN"
+        }
+      },
+      "approximate_pd_identity_max_delta": 1.9073486328125e-06,
+      "effort_model": "symmetric static configured limit; no native envelope coefficients",
+      "C": {
+        "all": {
+          "position_m": {
+            "mean": 0.016055730508417895,
+            "p95": 0.040515702940207246,
+            "max": 0.04460155266667005,
+            "max_time_s": 0.575
+          },
+          "rotation_rad": {
+            "mean": 0.11824126604259606,
+            "p95": 0.2265053699002624,
+            "max": 0.34054835312889636,
+            "max_time_s": 0.9
+          }
+        },
+        "startup": {
+          "position_m": {
+            "mean": 0.005995874972472113,
+            "p95": 0.008516288711541888,
+            "max": 0.008750362376966072,
+            "max_time_s": 0.03333333333333333
+          },
+          "rotation_rad": {
+            "mean": 0.018693279188232784,
+            "p95": 0.026514148697214468,
+            "max": 0.027255028505064414,
+            "max_time_s": 0.03333333333333333
+          }
+        },
+        "work": {
+          "position_m": {
+            "mean": 0.016442648029031195,
+            "p95": 0.04052427549110966,
+            "max": 0.04460155266667005,
+            "max_time_s": 0.575
+          },
+          "rotation_rad": {
+            "mean": 0.12207003476776389,
+            "p95": 0.2301750083388067,
+            "max": 0.34054835312889636,
+            "max_time_s": 0.9
+          }
+        }
+      },
+      "peaks": {
+        "0.575": {
+          "time_s": 0.575,
+          "reference_frame": 18,
+          "tracking_error_rad": [
+            -0.01237022876739502,
+            -0.1280001550912857,
+            0.024280309677124023,
+            0.014937877655029297,
+            0.029172837734222412,
+            0.01035928726196289
+          ],
+          "signals": {
+            "v_path": [
+              0.05879044160246849,
+              -2.426422357559204,
+              0.5182170867919922,
+              -0.23108480870723724,
+              -1.8589638471603394,
+              0.27176856994628906
+            ],
+            "velocity_actual": [
+              -0.10044575482606888,
+              -2.337153673171997,
+              1.5057380199432373,
+              0.11999688297510147,
+              0.14999361336231232,
+              -0.01883024536073208
+            ],
+            "submitted_velocity_rad_s": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "pd_p_pre_Nm": [
+              -3.962449789047241,
+              -73.45065307617188,
+              18.710494995117188,
+              4.819178581237793,
+              6.082427501678467,
+              0.5196571350097656
+            ],
+            "pd_d_pre_Nm": [
+              2.41351318359375,
+              42.44953536987305,
+              -32.78656768798828,
+              -3.2768633365631104,
+              -6.106581687927246,
+              1.3590550422668457
+            ],
+            "submitted_effort_Nm": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "computed_effort_approx": [
+              -1.5489366054534912,
+              -31.001117706298828,
+              -14.076072692871094,
+              1.5423152446746826,
+              -0.024154186248779297,
+              1.8787121772766113
+            ],
+            "applied_effort_approx": [
+              -1.5489366054534912,
+              -31.001117706298828,
+              -14.076072692871094,
+              1.5423152446746826,
+              -0.024154186248779297,
+              1.8787121772766113
+            ],
+            "C_position_m": 0.04460155266667005,
+            "C_rotation_rad": 0.13183148071688772
+          }
+        },
+        "0.9": {
+          "time_s": 0.9,
+          "reference_frame": 27,
+          "tracking_error_rad": [
+            0.04928034543991089,
+            -0.02310389280319214,
+            -0.05055642127990723,
+            0.4117269515991211,
+            -0.10533000528812408,
+            -0.7347304821014404
+          ],
+          "signals": {
+            "v_path": [
+              0.7815205454826355,
+              -0.30150529742240906,
+              -0.8423137068748474,
+              8.626699447631836,
+              -0.5945366024971008,
+              -8.826055526733398
+            ],
+            "velocity_actual": [
+              0.7773616313934326,
+              -0.4338991940021515,
+              -0.8274799585342407,
+              6.184111595153809,
+              -1.118848443031311,
+              -3.6935887336730957
+            ],
+            "submitted_velocity_rad_s": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "pd_p_pre_Nm": [
+              16.815296173095703,
+              -13.441965103149414,
+              -28.60629653930664,
+              139.78492736816406,
+              -22.97355842590332,
+              -38.30788040161133
+            ],
+            "pd_d_pre_Nm": [
+              -15.648168563842773,
+              9.400638580322266,
+              16.040782928466797,
+              -118.30451965332031,
+              23.328990936279297,
+              34.837459564208984
+            ],
+            "submitted_effort_Nm": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "computed_effort_approx": [
+              1.1671276092529297,
+              -4.041326522827148,
+              -12.565513610839844,
+              21.48040771484375,
+              0.35543251037597656,
+              -3.4704208374023438
+            ],
+            "applied_effort_approx": [
+              1.1671276092529297,
+              -4.041326522827148,
+              -12.565513610839844,
+              21.48040771484375,
+              0.35543251037597656,
+              -3.4704208374023438
+            ],
+            "C_position_m": 0.017730475186449757,
+            "C_rotation_rad": 0.34054835312889636
+          }
+        }
+      },
+      "projected_status": [
+        "available (projected joint reaction, not drive-only)"
+      ]
+    },
+    "absent": {
+      "metadata": {
+        "versions": {
+          "isaacsim": "6.0.1.0",
+          "isaaclab": "13.3.0",
+          "isaaclab_physx": "3.1.1",
+          "isaacsim-kernel": "6.0.1.0",
+          "lab_checkout_VERSION": "3.0.0"
+        },
+        "backend": "isaaclab_physx.assets.articulation.articulation",
+        "device": "cuda:0",
+        "actuator_class": "isaaclab.actuators.actuator_pd.ImplicitActuator",
+        "implicit": true,
+        "joint_names": [
+          "base",
+          "shoulder",
+          "elbow",
+          "wrist1",
+          "wrist2",
+          "wrist3"
+        ],
+        "user_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "backend_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "actuator_group_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "runtime": {
+          "drive_types": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "dof_types": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "stiffness": [
+            300.0,
+            500.0,
+            500.0,
+            300.0,
+            200.0,
+            50.0
+          ],
+          "damping": [
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            20.0,
+            10.0
+          ],
+          "effort_limits": [
+            10.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            10.0
+          ],
+          "velocity_limits": [
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0,
+            10.0
+          ],
+          "position_limits": [
+            [
+              -6.2831854820251465,
+              6.2831854820251465
+            ],
+            [
+              -6.2831854820251465,
+              6.2831854820251465
+            ],
+            [
+              -2.6179938316345215,
+              2.6179938316345215
+            ],
+            [
+              -6.2831854820251465,
+              6.2831854820251465
+            ],
+            [
+              -6.2831854820251465,
+              6.2831854820251465
+            ],
+            [
+              -6.2831854820251465,
+              6.2831854820251465
+            ]
+          ],
+          "drive_model": [
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "config": {
+          "stiffness": {
+            "base": 300.0,
+            "shoulder": 500.0,
+            "elbow": 500.0,
+            "wrist1": 300.0,
+            "wrist2": 200.0,
+            "wrist3": 50.0
+          },
+          "damping": {
+            "base": 20.0,
+            "shoulder": 20.0,
+            "elbow": 20.0,
+            "wrist1": 20.0,
+            "wrist2": 20.0,
+            "wrist3": 10.0
+          },
+          "effort_limit_sim": {
+            "base": 10.0,
+            "shoulder": 100.0,
+            "elbow": 100.0,
+            "wrist1": 100.0,
+            "wrist2": 100.0,
+            "wrist3": 10.0
+          },
+          "velocity_limit_sim": 10.0,
+          "effort_limit": {
+            "base": 10.0,
+            "shoulder": 100.0,
+            "elbow": 100.0,
+            "wrist1": 100.0,
+            "wrist2": 100.0,
+            "wrist3": 10.0
+          },
+          "velocity_limit": 10.0
+        },
+        "config_source": "regrind/source/regrind/regrind/robots/rb3_revo2.py",
+        "cli_scales": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "gravity_config": [
+          0.0,
+          0.0,
+          -9.81
+        ],
+        "auto_gravity_from_checkpoint": false,
+        "stage_meters_per_unit": 1.0,
+        "self_collision_config": false,
+        "link_gravity_disabled": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "body_names": [
+          "link0",
+          "link1",
+          "link2",
+          "link3",
+          "link4",
+          "link5",
+          "link6",
+          "right_hand_base_link",
+          "right_thumb_metacarpal_link",
+          "right_index_proximal_link",
+          "right_middle_proximal_link",
+          "right_ring_proximal_link",
+          "right_pinky_proximal_link",
+          "right_thumb_proximal_link",
+          "right_index_distal_link",
+          "right_middle_distal_link",
+          "right_ring_distal_link",
+          "right_pinky_distal_link",
+          "right_thumb_distal_link",
+          "right_index_touch_link",
+          "right_middle_touch_link",
+          "right_ring_touch_link",
+          "right_pinky_touch_link",
+          "right_thumb_touch_link"
+        ],
+        "source_locations": {
+          "implicit_compute": {
+            "file": "/home/wanjunkim/IsaacLab/source/isaaclab/isaaclab/actuators/actuator_pd.py",
+            "line": 117
+          },
+          "approximate_clip": {
+            "file": "/home/wanjunkim/IsaacLab/source/isaaclab/isaaclab/actuators/actuator_base.py",
+            "line": 376
+          },
+          "write_data_to_sim": {
+            "file": "/home/wanjunkim/IsaacLab/source/isaaclab_physx/isaaclab_physx/assets/articulation/articulation.py",
+            "line": 247
+          },
+          "submit_feedforward": {
+            "file": "/home/wanjunkim/IsaacLab/.venv/lib/python3.12/site-packages/isaacsim/extscache/omni.physics.tensors-110.1.13+110.1.2.lx64.r.cp312.u7f4/omni/physics/tensors/api.py",
+            "line": 1759
+          },
+          "submit_velocity": {
+            "file": "/home/wanjunkim/IsaacLab/.venv/lib/python3.12/site-packages/isaacsim/extscache/omni.physics.tensors-110.1.13+110.1.2.lx64.r.cp312.u7f4/omni/physics/tensors/api.py",
+            "line": 1823
+          },
+          "projected_joint_effort": {
+            "file": "/home/wanjunkim/IsaacLab/.venv/lib/python3.12/site-packages/isaacsim/extscache/omni.physics.tensors-110.1.13+110.1.2.lx64.r.cp312.u7f4/omni/physics/tensors/api.py",
+            "line": 1991
+          }
+        },
+        "drive_effort_status": "UNAVAILABLE: no verified drive-only measurement in inspected APIs",
+        "saturation_status": "UNKNOWN",
+        "differentiation": "Raw unwrapped-coordinate backward difference, no modulo; first predecessor is recorded previous_accepted_q at reset",
+        "previous_q_cmd_seed": [
+          0.21072298288345337,
+          -0.13618983328342438,
+          2.3828539848327637,
+          2.6627848148345947,
+          0.35140085220336914,
+          -3.0440733432769775
+        ],
+        "timing": "q_pre/PD before physics k; native setters before k; q_post/projected effort after physics k. Timestamp is end of k.",
+        "provenance": {
+          "pd_p_pre_Nm": "approximate force-PD P, not solved implicit-drive torque",
+          "pd_d_pre_Nm": "approximate force-PD D, not solved implicit-drive torque",
+          "computed_effort_approx": "ImplicitActuator.compute approximate P+D+feedforward at pre-step state",
+          "applied_effort_approx": "ActuatorBase._clip_effort clipped approximation; NOT the implicit drive effort submitted to PhysX",
+          "submitted_effort_Nm": "explicitly submitted actuation/feedforward effort, intercepted native setter; positive along positive joint coordinate",
+          "projected_joint_effort_Nm": "post-step joint-reaction projection along DOF motion; NOT verified drive-only; never compared to drive maxForce"
+        }
+      },
+      "reproduction_max_deltas": {
+        "all_joint_pos": 0.0,
+        "all_joint_vel": 0.0,
+        "actual_base_pos": 0.0,
+        "actual_base_quat_xyzw": 0.0,
+        "object_root_state": 0.0,
+        "all_position_targets": 0.0,
+        "all_velocity_targets": 0.0,
+        "all_effort_targets": 0.0
+      },
+      "joints": {
+        "base": {
+          "tracking_error_rad": {
+            "mean": 0.022231423054580337,
+            "p95": 0.04966927170753479,
+            "max": 0.05040842294692993,
+            "max_time_s": 0.8666666666666667
+          },
+          "path_speed_rad_s": {
+            "mean": 0.42661862240897286,
+            "p95": 0.932478278875351,
+            "max": 0.9430897235870361,
+            "max_time_s": 0.6583333333333333
+          },
+          "actual_speed_rad_s": {
+            "mean": 0.3342703286875298,
+            "p95": 0.768351861834526,
+            "max": 0.7871389389038086,
+            "max_time_s": 0.875
+          },
+          "submitted_velocity_rad_s": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "submitted_effort_Nm": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "approximation_Nm": {
+            "mean": 1.2674640074924186,
+            "p95": 3.5879881978034973,
+            "max": 3.9826245307922363,
+            "max_time_s": 0.6583333333333333
+          },
+          "actual_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "path_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "velocity_target_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "submitted_effort_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_near_limit_NOT_drive": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_clipped_NOT_drive": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "max_command_step_rad": 0.007859081029891968,
+          "large_step_times_s": [],
+          "drive_effort_proximity": null,
+          "confirmed_drive_clipping": "UNKNOWN"
+        },
+        "shoulder": {
+          "tracking_error_rad": {
+            "mean": 0.0393221054066628,
+            "p95": 0.12303240578621623,
+            "max": 0.13455434516072273,
+            "max_time_s": 0.5666666666666667
+          },
+          "path_speed_rad_s": {
+            "mean": 1.0890313155121274,
+            "p95": 2.4264223873615265,
+            "max": 3.3960722386837006,
+            "max_time_s": 0.5583333333333333
+          },
+          "actual_speed_rad_s": {
+            "mean": 1.0260195399600047,
+            "p95": 2.648080885410309,
+            "max": 2.8094544410705566,
+            "max_time_s": 0.6
+          },
+          "submitted_velocity_rad_s": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "submitted_effort_Nm": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "approximation_Nm": {
+            "mean": 7.803856096885823,
+            "p95": 28.296706771850573,
+            "max": 38.06578063964844,
+            "max_time_s": 0.5583333333333333
+          },
+          "actual_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "path_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "velocity_target_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "submitted_effort_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_near_limit_NOT_drive": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_clipped_NOT_drive": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "max_command_step_rad": 0.028300601989030838,
+          "large_step_times_s": [],
+          "drive_effort_proximity": null,
+          "confirmed_drive_clipping": "UNKNOWN"
+        },
+        "elbow": {
+          "tracking_error_rad": {
+            "mean": 0.029926375106528954,
+            "p95": 0.05013782978057861,
+            "max": 0.05123639106750488,
+            "max_time_s": 0.13333333333333333
+          },
+          "path_speed_rad_s": {
+            "mean": 0.6469911999172635,
+            "p95": 1.1874961853027344,
+            "max": 1.2610530853271484,
+            "max_time_s": 0.5083333333333333
+          },
+          "actual_speed_rad_s": {
+            "mean": 0.5788233076972473,
+            "p95": 1.4171403169631953,
+            "max": 1.5466381311416626,
+            "max_time_s": 0.55
+          },
+          "submitted_velocity_rad_s": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "submitted_effort_Nm": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "approximation_Nm": {
+            "mean": 8.74388223444974,
+            "p95": 13.157622003555298,
+            "max": 14.987170219421387,
+            "max_time_s": 0.5833333333333334
+          },
+          "actual_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "path_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "velocity_target_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "submitted_effort_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_near_limit_NOT_drive": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_clipped_NOT_drive": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "max_command_step_rad": 0.01050877571105957,
+          "large_step_times_s": [],
+          "drive_effort_proximity": null,
+          "confirmed_drive_clipping": "UNKNOWN"
+        },
+        "wrist1": {
+          "tracking_error_rad": {
+            "mean": 0.07180632926799634,
+            "p95": 0.2980889797210691,
+            "max": 0.4117310047149658,
+            "max_time_s": 0.9
+          },
+          "path_speed_rad_s": {
+            "mean": 1.7053381601969402,
+            "p95": 7.477827072143555,
+            "max": 8.626699447631836,
+            "max_time_s": 0.875
+          },
+          "actual_speed_rad_s": {
+            "mean": 1.056834160177796,
+            "p95": 4.4608169794082615,
+            "max": 6.184210777282715,
+            "max_time_s": 0.9
+          },
+          "submitted_velocity_rad_s": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "submitted_effort_Nm": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "approximation_Nm": {
+            "mean": 4.714638590812683,
+            "p95": 18.997139739990235,
+            "max": 21.670997619628906,
+            "max_time_s": 0.875
+          },
+          "actual_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "path_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "velocity_target_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "submitted_effort_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_near_limit_NOT_drive": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_clipped_NOT_drive": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "max_command_step_rad": 0.07188916206359863,
+          "large_step_times_s": [],
+          "drive_effort_proximity": null,
+          "confirmed_drive_clipping": "UNKNOWN"
+        },
+        "wrist2": {
+          "tracking_error_rad": {
+            "mean": 0.08382545121841961,
+            "p95": 0.15235027670860288,
+            "max": 0.16171401739120483,
+            "max_time_s": 0.5
+          },
+          "path_speed_rad_s": {
+            "mean": 1.3433481752872467,
+            "p95": 2.3460817337036133,
+            "max": 2.6152467727661133,
+            "max_time_s": 0.44166666666666665
+          },
+          "actual_speed_rad_s": {
+            "mean": 0.9065112979021959,
+            "p95": 1.7611427783966065,
+            "max": 1.9937455654144287,
+            "max_time_s": 0.4666666666666667
+          },
+          "submitted_velocity_rad_s": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "submitted_effort_Nm": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "approximation_Nm": {
+            "mean": 1.9781977628116254,
+            "p95": 4.303748035430907,
+            "max": 14.448347091674805,
+            "max_time_s": 0.3416666666666667
+          },
+          "actual_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "path_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "velocity_target_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "submitted_effort_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_near_limit_NOT_drive": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_clipped_NOT_drive": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "max_command_step_rad": 0.021793723106384277,
+          "large_step_times_s": [],
+          "drive_effort_proximity": null,
+          "confirmed_drive_clipping": "UNKNOWN"
+        },
+        "wrist3": {
+          "tracking_error_rad": {
+            "mean": 0.1495523695592527,
+            "p95": 0.48519086837768516,
+            "max": 0.7227776050567627,
+            "max_time_s": 0.9
+          },
+          "path_speed_rad_s": {
+            "mean": 1.704256534576416,
+            "p95": 7.698183059692383,
+            "max": 8.82608413696289,
+            "max_time_s": 0.8833333333333333
+          },
+          "actual_speed_rad_s": {
+            "mean": 0.7138164413923666,
+            "p95": 2.657173073291777,
+            "max": 3.6335043907165527,
+            "max_time_s": 0.9
+          },
+          "submitted_velocity_rad_s": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "submitted_effort_Nm": {
+            "mean": 0.0,
+            "p95": 0.0,
+            "max": 0.0,
+            "max_time_s": 0.008333333333333333
+          },
+          "approximation_Nm": {
+            "mean": 1.966201824032598,
+            "p95": 5.979549789428709,
+            "max": 23.299240112304688,
+            "max_time_s": 0.525
+          },
+          "actual_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "path_speed_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "velocity_target_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "submitted_effort_near_limit": {
+            "fraction": 0.0,
+            "longest_s": 0.0,
+            "start_s": null,
+            "end_s": null
+          },
+          "approximation_near_limit_NOT_drive": {
+            "fraction": 0.027777777777777776,
+            "longest_s": 0.008333333333333333,
+            "start_s": 0.3333333333333333,
+            "end_s": 0.3416666666666667
+          },
+          "approximation_clipped_NOT_drive": {
+            "fraction": 0.027777777777777776,
+            "longest_s": 0.008333333333333333,
+            "start_s": 0.3333333333333333,
+            "end_s": 0.3416666666666667
+          },
+          "max_command_step_rad": 0.07355070114135742,
+          "large_step_times_s": [],
+          "drive_effort_proximity": null,
+          "confirmed_drive_clipping": "UNKNOWN"
+        }
+      },
+      "approximate_pd_identity_max_delta": 1.9073486328125e-06,
+      "effort_model": "symmetric static configured limit; no native envelope coefficients",
+      "C": {
+        "all": {
+          "position_m": {
+            "mean": 0.016553875565895663,
+            "p95": 0.04514749344858065,
+            "max": 0.05123370662287227,
+            "max_time_s": 0.5666666666666667
+          },
+          "rotation_rad": {
+            "mean": 0.1340930987665059,
+            "p95": 0.21741147879604308,
+            "max": 0.3287756509661148,
+            "max_time_s": 0.9
+          }
+        },
+        "startup": {
+          "position_m": {
+            "mean": 0.005995874972472113,
+            "p95": 0.008516288711541888,
+            "max": 0.008750362376966072,
+            "max_time_s": 0.03333333333333333
+          },
+          "rotation_rad": {
+            "mean": 0.018693279188232784,
+            "p95": 0.026514148697214468,
+            "max": 0.027255028505064414,
+            "max_time_s": 0.03333333333333333
+          }
+        },
+        "work": {
+          "position_m": {
+            "mean": 0.016959952511796567,
+            "p95": 0.04515754439346209,
+            "max": 0.05123370662287227,
+            "max_time_s": 0.5666666666666667
+          },
+          "rotation_rad": {
+            "mean": 0.13853155336567027,
+            "p95": 0.2181169433644542,
+            "max": 0.3287756509661148,
+            "max_time_s": 0.9
+          }
+        }
+      },
+      "peaks": {
+        "0.575": {
+          "time_s": 0.575,
+          "reference_frame": 18,
+          "tracking_error_rad": [
+            -0.012905105948448181,
+            -0.1345457285642624,
+            0.016944169998168945,
+            0.016597747802734375,
+            0.04045426845550537,
+            0.07215499877929688
+          ],
+          "signals": {
+            "v_path": [
+              0.05879044160246849,
+              -2.426422357559204,
+              0.5182170867919922,
+              -0.23108480870723724,
+              -1.8589638471603394,
+              0.27176856994628906
+            ],
+            "velocity_actual": [
+              -0.11679792404174805,
+              -2.5034878253936768,
+              1.2809306383132935,
+              0.16590949892997742,
+              0.2875867187976837,
+              0.31885820627212524
+            ],
+            "submitted_velocity_rad_s": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "pd_p_pre_Nm": [
+              -4.154871463775635,
+              -77.38726806640625,
+              14.127373695373535,
+              5.449247360229492,
+              8.588051795959473,
+              3.7518739700317383
+            ],
+            "pd_d_pre_Nm": [
+              2.510270595550537,
+              45.42787551879883,
+              -28.758323669433594,
+              -4.498763084411621,
+              -9.14023208618164,
+              -3.189068078994751
+            ],
+            "submitted_effort_Nm": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "computed_effort_approx": [
+              -1.6446008682250977,
+              -31.959392547607422,
+              -14.630949974060059,
+              0.9504842758178711,
+              -0.552180290222168,
+              0.5628058910369873
+            ],
+            "applied_effort_approx": [
+              -1.6446008682250977,
+              -31.959392547607422,
+              -14.630949974060059,
+              0.9504842758178711,
+              -0.552180290222168,
+              0.5628058910369873
+            ],
+            "C_position_m": 0.050781491701425784,
+            "C_rotation_rad": 0.16553576120810928
+          }
+        },
+        "0.9": {
+          "time_s": 0.9,
+          "reference_frame": 27,
+          "tracking_error_rad": [
+            0.0492759644985199,
+            -0.023094862699508667,
+            -0.05054044723510742,
+            0.4117310047149658,
+            -0.10496015846729279,
+            -0.7227776050567627
+          ],
+          "signals": {
+            "v_path": [
+              0.7815205454826355,
+              -0.30150529742240906,
+              -0.8423137068748474,
+              8.626699447631836,
+              -0.5945366024971008,
+              -8.826055526733398
+            ],
+            "velocity_actual": [
+              0.7772511839866638,
+              -0.4348156750202179,
+              -0.8280460238456726,
+              6.184210777282715,
+              -1.1150010824203491,
+              -3.6335043907165527
+            ],
+            "submitted_velocity_rad_s": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "pd_p_pre_Nm": [
+              16.813623428344727,
+              -13.441801071166992,
+              -28.601287841796875,
+              139.78643798828125,
+              -22.89287757873535,
+              -37.6846923828125
+            ],
+            "pd_d_pre_Nm": [
+              -15.64544677734375,
+              9.424476623535156,
+              16.05680274963379,
+              -118.30696868896484,
+              23.24496841430664,
+              34.2108268737793
+            ],
+            "submitted_effort_Nm": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "computed_effort_approx": [
+              1.1681766510009766,
+              -4.017324447631836,
+              -12.544485092163086,
+              21.479469299316406,
+              0.35209083557128906,
+              -3.473865509033203
+            ],
+            "applied_effort_approx": [
+              1.1681766510009766,
+              -4.017324447631836,
+              -12.544485092163086,
+              21.479469299316406,
+              0.35209083557128906,
+              -3.473865509033203
+            ],
+            "C_position_m": 0.017743957584571708,
+            "C_rotation_rad": 0.3287756509661148
+          }
+        }
+      },
+      "projected_status": [
+        "available (projected joint reaction, not drive-only)"
+      ]
+    }
+  }
+}

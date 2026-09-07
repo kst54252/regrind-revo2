@@ -24,8 +24,8 @@ stage에서 추출해 `rb3_model.json`에 저장했다. 모듈 로딩 시 원본
 
 ```bash
 python3 tools/rb3_revo2_ik/build_reference_trajectory.py \
-  outputs/trajectories/dexycb/20200928_144714/revo2_dexycb_retargeting.h5 \
-  --out outputs/trajectories/dexycb/20200928_144714/rb3_revo2_reference.h5
+  outputs/isaac/dexycb/20200709_143747_left/world_trajectory.h5 \
+  --out outputs/isaac/dexycb/20200709_143747_left/rb3_revo2_reference.h5
 ```
 
 RB3가 REGRIND world에서 다른 pose로 놓여 있다면 `--base-position X Y Z`와
@@ -189,8 +189,8 @@ position-only IK를 비교한다.
 ```bash
 MPLBACKEND=Agg /home/wanjunkim/IsaacLab/.venv/bin/python \
   tools/rb3_revo2_ik/diagnose_ik_failures.py \
-  outputs/trajectories/dexycb/20200928_144714/dexycb_isaac_world.h5 \
-  outputs/trajectories/dexycb/20200928_144714/rb3_revo2_reference_world_strict.h5 \
+  outputs/isaac/dexycb/20200709_143747_left/world_trajectory.h5 \
+  outputs/isaac/dexycb/20200709_143747_left/rb3_revo2_reference.h5 \
   --out-dir outputs/diagnostics/rb3_ik_world \
   --workspace-samples 100000
 ```
@@ -205,8 +205,8 @@ joint-limit 근접 기준은 `0.05 rad`다.
 ```bash
 PYTHONPATH=tools/rb3_revo2_ik /home/wanjunkim/IsaacLab/.venv/bin/python \
   tools/rb3_revo2_ik/visualize_ik_diagnostic_interactive.py \
-  outputs/trajectories/dexycb/20200928_144714/dexycb_isaac_world.h5 \
-  outputs/trajectories/dexycb/20200928_144714/rb3_revo2_reference_world_strict.h5 \
+  outputs/isaac/dexycb/20200709_143747_left/world_trajectory.h5 \
+  outputs/isaac/dexycb/20200709_143747_left/rb3_revo2_reference.h5 \
   outputs/diagnostics/rb3_ik_world/rb3_ik_diagnostics.h5 \
   --out outputs/diagnostics/rb3_ik_world/rb3_ik_diagnostic_interactive.html
 ```

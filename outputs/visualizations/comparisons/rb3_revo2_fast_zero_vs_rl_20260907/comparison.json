@@ -1,0 +1,30 @@
+{
+  "initial_states_bitwise_equal": true,
+  "controller_and_physics_equal": true,
+  "playback_rate": 1,
+  "initial_hold_s": 1,
+  "final_hold_s": 2,
+  "dropped_terminal_reset_image_per_side": 1,
+  "termination": {
+    "zero_agent": {
+      "time_out": false,
+      "demo_end_reached": false,
+      "success": false,
+      "object_deviation": true,
+      "hand_far_from_object": false
+    },
+    "residual_rl": {
+      "time_out": false,
+      "demo_end_reached": true,
+      "success": true,
+      "object_deviation": false,
+      "hand_far_from_object": false
+    }
+  },
+  "sources": [
+    "outputs/visualizations/comparisons/rb3_revo2_fast_zero_vs_rl_20260907/zero_agent/video/mounted_policy_1x_recorded-episode-1.mp4",
+    "outputs/visualizations/comparisons/rb3_revo2_fast_zero_vs_rl_20260907/residual_rl/video/mounted_policy_1x_recorded-episode-1.mp4"
+  ],
+  "output": "outputs/visualizations/comparisons/rb3_revo2_fast_zero_vs_rl_20260907/isaac_rb3_retargeting_vs_residual_rl.mp4",
+  "duration_s": 4.266666666666667
+}

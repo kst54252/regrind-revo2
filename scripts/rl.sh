@@ -10,6 +10,8 @@ Usage: ./scripts/rl.sh COMMAND [options]
 
 Commands:
   train    Train floating Revo2 PPO (16-env smoke task by default; --full uses 4096 env config)
+  train-arm
+           Fine-tune the same 67-D/12-D policy through strict IK in the assembled arm task
   play     Replay a floating-hand policy in the deterministic GUI task
   play-arm Run that floating policy online on RB3+Revo2 using per-step strict IK
   zero     Replay the floating-hand reference with zero residual actions
@@ -116,12 +118,17 @@ if [[ "${random_placement}" == true && "${legacy_arm_rl}" == true ]]; then
 fi
 
 case "${command_name}" in
-    train)
+    train|train-arm)
         task="Regrind-Floating-Revo2-TunaCan-Smoke-v0"
-        if [[ "${legacy_arm_rl}" == true ]]; then
+        if [[ "${command_name}" == "train-arm" ]]; then
+            [[ "${legacy_arm_rl}" == false ]] || die "train-arm cannot be combined with --legacy-arm-rl"
+            task="Regrind-RB3-Revo2-TunaCan-Online-Smoke-v0"
+        elif [[ "${legacy_arm_rl}" == true ]]; then
             task="Regrind-RB3-Revo2-TunaCan-Smoke-v0"
         fi
-        if [[ "${full_training}" == true && "${legacy_arm_rl}" == false ]]; then
+        if [[ "${full_training}" == true && "${command_name}" == "train-arm" ]]; then
+            task="Regrind-RB3-Revo2-TunaCan-Online-v0"
+        elif [[ "${full_training}" == true && "${legacy_arm_rl}" == false ]]; then
             task="Regrind-Floating-Revo2-TunaCan-v0"
         elif [[ "${full_training}" == true ]]; then
             task="Regrind-RB3-Revo2-TunaCan-v0"

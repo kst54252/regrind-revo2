@@ -45,9 +45,9 @@ camera -Y = Isaac world +Z
 ```bash
 /home/wanjunkim/IsaacLab/.venv/bin/python \
   tools/dexycb_world_transform/transform_trajectory.py \
-  outputs/trajectories/dexycb/20200928_144714/revo2_dexycb_retargeting.h5 \
+  outputs/retargeted/dexycb/20200709_143747_left/revo2_retargeted.h5 \
   --mesh 007_tuna_fish_can/textured_simple.obj \
-  --out outputs/trajectories/dexycb/20200928_144714/dexycb_isaac_world.h5
+  --out outputs/isaac/dexycb/20200709_143747_left/world_trajectory.h5
 ```
 
 입력 quaternion은 `--input-quat-order auto|wxyz|xyzw`로 지정한다. `auto`는
@@ -76,7 +76,7 @@ calibration을 right-compose할 수 있다.
 ```bash
 /home/wanjunkim/IsaacLab/.venv/bin/python \
   tools/dexycb_world_transform/visualize_world_frame.py \
-  outputs/trajectories/dexycb/20200928_144714/dexycb_isaac_world.h5 \
+  outputs/isaac/dexycb/20200709_143747_left/world_trajectory.h5 \
   --mesh 007_tuna_fish_can/textured_simple.obj \
   --frame 0
 ```

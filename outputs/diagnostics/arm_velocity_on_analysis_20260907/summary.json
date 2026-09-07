@@ -1,0 +1,544 @@
+{
+  "only_arm_velocity_target_changed": true,
+  "baseline_reproduction_deltas": {
+    "all_joint_pos": 0.0,
+    "all_joint_vel": 0.0,
+    "actual_base_pos": 0.0,
+    "actual_base_quat_xyzw": 0.0,
+    "object_root_state": 0.0
+  },
+  "source_velocity_trace": "/home/wanjunkim/ARSL/regrind-upload/outputs/diagnostics/arm_actuator_present_20260907.jsonl",
+  "conditions": {
+    "zero": {
+      "C": {
+        "all": {
+          "position_m": {
+            "mean": 0.016055730508417895,
+            "p95": 0.040515702940207246,
+            "max": 0.04460155266667005,
+            "max_time_s": 0.575
+          },
+          "rotation_rad": {
+            "mean": 0.11824126604259606,
+            "p95": 0.2265053699002624,
+            "max": 0.34054835312889636,
+            "max_time_s": 0.9
+          }
+        },
+        "startup": {
+          "position_m": {
+            "mean": 0.005995874972472113,
+            "p95": 0.008516288711541888,
+            "max": 0.008750362376966072,
+            "max_time_s": 0.03333333333333333
+          },
+          "rotation_rad": {
+            "mean": 0.018693279188232784,
+            "p95": 0.026514148697214468,
+            "max": 0.027255028505064414,
+            "max_time_s": 0.03333333333333333
+          }
+        },
+        "work": {
+          "position_m": {
+            "mean": 0.016442648029031195,
+            "p95": 0.04052427549110966,
+            "max": 0.04460155266667005,
+            "max_time_s": 0.575
+          },
+          "rotation_rad": {
+            "mean": 0.12207003476776389,
+            "p95": 0.2301750083388067,
+            "max": 0.34054835312889636,
+            "max_time_s": 0.9
+          }
+        }
+      },
+      "joints": {
+        "base": {
+          "error_rad": {
+            "mean": 0.02052542249913569,
+            "p95": 0.04953228533267975,
+            "max": 0.050418704748153687,
+            "max_time_s": 0.8666666666666667
+          },
+          "speed_rad_s": {
+            "mean": 0.3320104015249483,
+            "p95": 0.7685087740421295,
+            "max": 0.7873155474662781,
+            "max_time_s": 0.875
+          },
+          "max_acceleration_rad_s2": 18.64206075668335,
+          "max_actual_step_rad": 0.006818681955337524,
+          "error_total_variation_rad": 0.13798724114894867,
+          "error_sign_changes_above_005rad": 2,
+          "actual_velocity_reversals_above_05rad_s": 3,
+          "position_limit_margin_rad": 5.96257409453392,
+          "speed_near_limit_fraction": 0.0
+        },
+        "shoulder": {
+          "error_rad": {
+            "mean": 0.04382289379955856,
+            "p95": 0.11805071476846929,
+            "max": 0.1280001550912857,
+            "max_time_s": 0.575
+          },
+          "speed_rad_s": {
+            "mean": 1.0062238774952237,
+            "p95": 2.543389701843261,
+            "max": 2.68064284324646,
+            "max_time_s": 0.6083333333333333
+          },
+          "max_acceleration_rad_s2": 52.404634952545166,
+          "max_actual_step_rad": 0.022507965564727783,
+          "error_total_variation_rad": 0.37565305456519127,
+          "error_sign_changes_above_005rad": 1,
+          "actual_velocity_reversals_above_05rad_s": 1,
+          "position_limit_margin_rad": 5.955784291028976,
+          "speed_near_limit_fraction": 0.0
+        },
+        "elbow": {
+          "error_rad": {
+            "mean": 0.032040668858422175,
+            "p95": 0.05366040468215941,
+            "max": 0.057593584060668945,
+            "max_time_s": 0.5083333333333333
+          },
+          "speed_rad_s": {
+            "mean": 0.6263915892362732,
+            "p95": 1.5007533013820646,
+            "max": 1.6695739030838013,
+            "max_time_s": 0.5583333333333333
+          },
+          "max_acceleration_rad_s2": 23.89090061187744,
+          "max_actual_step_rad": 0.0140380859375,
+          "error_total_variation_rad": 0.25912952423095703,
+          "error_sign_changes_above_005rad": 2,
+          "actual_velocity_reversals_above_05rad_s": 2,
+          "position_limit_margin_rad": 0.21879982948303223,
+          "speed_near_limit_fraction": 0.0
+        },
+        "wrist1": {
+          "error_rad": {
+            "mean": 0.0710758611007973,
+            "p95": 0.29807958602905255,
+            "max": 0.4117269515991211,
+            "max_time_s": 0.9
+          },
+          "speed_rad_s": {
+            "mean": 1.0535414085930421,
+            "p95": 4.460621857643124,
+            "max": 6.184111595153809,
+            "max_time_s": 0.9
+          },
+          "max_acceleration_rad_s2": 51.720314025878906,
+          "max_actual_step_rad": 0.054222822189331055,
+          "error_total_variation_rad": 0.6456239223480225,
+          "error_sign_changes_above_005rad": 2,
+          "actual_velocity_reversals_above_05rad_s": 3,
+          "position_limit_margin_rad": 2.8016579151153564,
+          "speed_near_limit_fraction": 0.0
+        },
+        "wrist2": {
+          "error_rad": {
+            "mean": 0.07995443391027274,
+            "p95": 0.14355685263872145,
+            "max": 0.14835381507873535,
+            "max_time_s": 0.5
+          },
+          "speed_rad_s": {
+            "mean": 0.9268644363964321,
+            "p95": 1.8207859039306633,
+            "max": 1.9953749179840088,
+            "max_time_s": 0.4666666666666667
+          },
+          "max_acceleration_rad_s2": 58.36401164531708,
+          "max_actual_step_rad": 0.016903460025787354,
+          "error_total_variation_rad": 0.5674556940793991,
+          "error_sign_changes_above_005rad": 2,
+          "actual_velocity_reversals_above_05rad_s": 2,
+          "position_limit_margin_rad": 5.58502858877182,
+          "speed_near_limit_fraction": 0.0
+        },
+        "wrist3": {
+          "error_rad": {
+            "mean": 0.13589004234031396,
+            "p95": 0.5001458287239071,
+            "max": 0.7347304821014404,
+            "max_time_s": 0.9
+          },
+          "speed_rad_s": {
+            "mean": 0.8118430079102162,
+            "p95": 2.5249491930007917,
+            "max": 3.6935887336730957,
+            "max_time_s": 0.9
+          },
+          "max_acceleration_rad_s2": 211.80200457572937,
+          "max_actual_step_rad": 0.03142714500427246,
+          "error_total_variation_rad": 1.1814191341400146,
+          "error_sign_changes_above_005rad": 1,
+          "actual_velocity_reversals_above_05rad_s": 5,
+          "position_limit_margin_rad": 3.1733977794647217,
+          "speed_near_limit_fraction": 0.0
+        }
+      },
+      "peaks": {
+        "0.575": {
+          "position_m": 0.04460155266667005,
+          "rotation_rad": 0.13183148071688772,
+          "joint_error_rad": [
+            -0.01237022876739502,
+            -0.1280001550912857,
+            0.024280309677124023,
+            0.014937877655029297,
+            0.029172837734222412,
+            0.01035928726196289
+          ],
+          "actual_velocity_rad_s": [
+            -0.10044575482606888,
+            -2.337153673171997,
+            1.5057380199432373,
+            0.11999688297510147,
+            0.14999361336231232,
+            -0.01883024536073208
+          ]
+        },
+        "0.9": {
+          "position_m": 0.017730475186449757,
+          "rotation_rad": 0.34054835312889636,
+          "joint_error_rad": [
+            0.04928034543991089,
+            -0.02310389280319214,
+            -0.05055642127990723,
+            0.4117269515991211,
+            -0.10533000528812408,
+            -0.7347304821014404
+          ],
+          "actual_velocity_rad_s": [
+            0.7773616313934326,
+            -0.4338991940021515,
+            -0.8274799585342407,
+            6.184111595153809,
+            -1.118848443031311,
+            -3.6935887336730957
+          ]
+        }
+      },
+      "object_initial_state": [
+        0.45724236965179443,
+        0.15630923211574554,
+        0.012636000290513039,
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "object_final_state": [
+        0.4318174421787262,
+        0.15716658532619476,
+        0.012635655701160431,
+        0.915183424949646,
+        0.4030374586582184,
+        -2.0169979961792706e-06,
+        7.339193416555645e-06,
+        -6.144531653262675e-05,
+        -7.426341471727937e-05,
+        -0.00011096432717749849,
+        0.00917072407901287,
+        -0.006581301800906658,
+        8.625115151517093e-05
+      ],
+      "object_max_rise_m": 0.023386353626847267,
+      "termination_events": [
+        {
+          "time_s": 0.9,
+          "terms": {
+            "time_out": false,
+            "demo_end_reached": false,
+            "success": false,
+            "object_deviation": true,
+            "hand_far_from_object": false
+          }
+        }
+      ]
+    },
+    "v_path": {
+      "C": {
+        "all": {
+          "position_m": {
+            "mean": 0.008257130922282556,
+            "p95": 0.02119010406058013,
+            "max": 0.026582805849326076,
+            "max_time_s": 0.5583333333333333
+          },
+          "rotation_rad": {
+            "mean": 0.023377917917163215,
+            "p95": 0.05725060683809679,
+            "max": 0.07202970585335884,
+            "max_time_s": 0.5583333333333333
+          }
+        },
+        "startup": {
+          "position_m": {
+            "mean": 0.002945929190278028,
+            "p95": 0.003322501342338847,
+            "max": 0.003354900515235118,
+            "max_time_s": 0.025
+          },
+          "rotation_rad": {
+            "mean": 0.005706805671944001,
+            "p95": 0.006643120040128744,
+            "max": 0.006661530046756658,
+            "max_time_s": 0.016666666666666666
+          }
+        },
+        "work": {
+          "position_m": {
+            "mean": 0.008461407911975038,
+            "p95": 0.021304816826164547,
+            "max": 0.026582805849326076,
+            "max_time_s": 0.5583333333333333
+          },
+          "rotation_rad": {
+            "mean": 0.024057576080440877,
+            "p95": 0.05759224151999377,
+            "max": 0.07202970585335884,
+            "max_time_s": 0.5583333333333333
+          }
+        }
+      },
+      "joints": {
+        "base": {
+          "error_rad": {
+            "mean": 0.003166532074963605,
+            "p95": 0.006758086383342743,
+            "max": 0.006970524787902832,
+            "max_time_s": 0.6416666666666666
+          },
+          "speed_rad_s": {
+            "mean": 0.4324911003414955,
+            "p95": 0.9737553864717482,
+            "max": 0.9931690692901611,
+            "max_time_s": 0.6666666666666666
+          },
+          "max_acceleration_rad_s2": 58.18032570183277,
+          "max_actual_step_rad": 0.008237287402153015,
+          "error_total_variation_rad": 0.05574221909046173,
+          "error_sign_changes_above_005rad": 0,
+          "actual_velocity_reversals_above_05rad_s": 5,
+          "position_limit_margin_rad": 5.911233752965927,
+          "speed_near_limit_fraction": 0.0
+        },
+        "shoulder": {
+          "error_rad": {
+            "mean": 0.009948766247058908,
+            "p95": 0.044393955171108224,
+            "max": 0.052511751651763916,
+            "max_time_s": 0.55
+          },
+          "speed_rad_s": {
+            "mean": 1.1077123115322105,
+            "p95": 3.040698134899139,
+            "max": 3.7874929904937744,
+            "max_time_s": 0.5666666666666667
+          },
+          "max_acceleration_rad_s2": 112.54172444343567,
+          "max_actual_step_rad": 0.030981354415416718,
+          "error_total_variation_rad": 0.18387389369308949,
+          "error_sign_changes_above_005rad": 1,
+          "actual_velocity_reversals_above_05rad_s": 1,
+          "position_limit_margin_rad": 5.93956059217453,
+          "speed_near_limit_fraction": 0.0
+        },
+        "elbow": {
+          "error_rad": {
+            "mean": 0.011497122270089609,
+            "p95": 0.023261153697967527,
+            "max": 0.02460026741027832,
+            "max_time_s": 0.85
+          },
+          "speed_rad_s": {
+            "mean": 0.675629989563108,
+            "p95": 1.4294358968734737,
+            "max": 1.632798433303833,
+            "max_time_s": 0.5166666666666666
+          },
+          "max_acceleration_rad_s2": 59.69784736633301,
+          "max_actual_step_rad": 0.013486623764038086,
+          "error_total_variation_rad": 0.09949231147766113,
+          "error_sign_changes_above_005rad": 2,
+          "actual_velocity_reversals_above_05rad_s": 2,
+          "position_limit_margin_rad": 0.21262383460998535,
+          "speed_near_limit_fraction": 0.0
+        },
+        "wrist1": {
+          "error_rad": {
+            "mean": 0.002154277430640327,
+            "p95": 0.004012596607208252,
+            "max": 0.004536867141723633,
+            "max_time_s": 0.8416666666666667
+          },
+          "speed_rad_s": {
+            "mean": 1.7061791598313936,
+            "p95": 7.501061129570007,
+            "max": 8.654317855834961,
+            "max_time_s": 0.9
+          },
+          "max_acceleration_rad_s2": 276.13420486450195,
+          "max_actual_step_rad": 0.0720970630645752,
+          "error_total_variation_rad": 0.021372318267822266,
+          "error_sign_changes_above_005rad": 0,
+          "actual_velocity_reversals_above_05rad_s": 5,
+          "position_limit_margin_rad": 2.393660545349121,
+          "speed_near_limit_fraction": 0.0
+        },
+        "wrist2": {
+          "error_rad": {
+            "mean": 0.006423867962978504,
+            "p95": 0.01700080931186676,
+            "max": 0.01820439100265503,
+            "max_time_s": 0.43333333333333335
+          },
+          "speed_rad_s": {
+            "mean": 1.3616905799782317,
+            "p95": 2.363303911685944,
+            "max": 2.5944480895996094,
+            "max_time_s": 0.4666666666666667
+          },
+          "max_acceleration_rad_s2": 253.63155484199524,
+          "max_actual_step_rad": 0.021490871906280518,
+          "error_total_variation_rad": 0.057293057441711426,
+          "error_sign_changes_above_005rad": 0,
+          "actual_velocity_reversals_above_05rad_s": 6,
+          "position_limit_margin_rad": 5.483423411846161,
+          "speed_near_limit_fraction": 0.0
+        },
+        "wrist3": {
+          "error_rad": {
+            "mean": 0.005808693391305429,
+            "p95": 0.01736471652984619,
+            "max": 0.018973827362060547,
+            "max_time_s": 0.475
+          },
+          "speed_rad_s": {
+            "mean": 1.7999646962206397,
+            "p95": 7.719100427627564,
+            "max": 8.836462020874023,
+            "max_time_s": 0.8833333333333333
+          },
+          "max_acceleration_rad_s2": 612.9909718036652,
+          "max_actual_step_rad": 0.07369089126586914,
+          "error_total_variation_rad": 0.04689598083496094,
+          "error_sign_changes_above_005rad": 0,
+          "actual_velocity_reversals_above_05rad_s": 7,
+          "position_limit_margin_rad": 2.4380431175231934,
+          "speed_near_limit_fraction": 0.0
+        }
+      },
+      "peaks": {
+        "0.575": {
+          "position_m": 0.023546796798226605,
+          "rotation_rad": 0.06373617971616176,
+          "joint_error_rad": [
+            -0.003274202346801758,
+            -0.03880433365702629,
+            -0.023212909698486328,
+            0.0023758411407470703,
+            -0.0022034049034118652,
+            -0.010713815689086914
+          ],
+          "actual_velocity_rad_s": [
+            -0.056555721908807755,
+            -3.4882571697235107,
+            0.6732248663902283,
+            -0.2839168608188629,
+            -1.9404196739196777,
+            0.19141404330730438
+          ]
+        },
+        "0.9": {
+          "position_m": 0.012967329296685324,
+          "rotation_rad": 0.032222457584126125,
+          "joint_error_rad": [
+            -0.0020599961280822754,
+            -0.0068801939487457275,
+            -0.021324872970581055,
+            0.003729581832885742,
+            0.004334747791290283,
+            0.0006241798400878906
+          ],
+          "actual_velocity_rad_s": [
+            0.7768813371658325,
+            -0.2917327582836151,
+            -0.9421992897987366,
+            8.654317855834961,
+            -0.5835177302360535,
+            -8.834728240966797
+          ]
+        }
+      },
+      "object_initial_state": [
+        0.45724236965179443,
+        0.15630923211574554,
+        0.012636000290513039,
+        0.8511201739311218,
+        0.5249708890914917,
+        0.0,
+        -3.999396047370798e-22,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "object_final_state": [
+        0.4461064338684082,
+        0.17624524235725403,
+        0.01263565942645073,
+        0.9395017623901367,
+        0.34254392981529236,
+        7.464348982466618e-06,
+        5.639402615997824e-07,
+        0.00011769214324885979,
+        -3.3336687920382246e-05,
+        -0.00010636923252604902,
+        0.005299557466059923,
+        0.009923761710524559,
+        -0.00010214037320110947
+      ],
+      "object_max_rise_m": 0.021534902974963188,
+      "termination_events": [
+        {
+          "time_s": 0.9,
+          "terms": {
+            "time_out": false,
+            "demo_end_reached": false,
+            "success": false,
+            "object_deviation": true,
+            "hand_far_from_object": false
+          }
+        }
+      ]
+    }
+  },
+  "changes": {
+    "position_m": {
+      "mean": -48.572063301925716,
+      "p95": -47.69903389840646,
+      "max": -40.399371187831015
+    },
+    "rotation_rad": {
+      "mean": -80.22863024086584,
+      "p95": -74.72439312882247,
+      "max": -78.84890495239134
+    }
+  },
+  "diagnostic_note": "Reversal/zero-crossing counts on a moving 0.9s trajectory are not alone evidence of instability."
+}

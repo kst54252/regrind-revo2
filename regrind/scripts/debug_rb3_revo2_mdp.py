@@ -14,6 +14,9 @@ parser.add_argument("--reference", required=True)
 parser.add_argument("--object-keypoints", required=True)
 parser.add_argument("--max_steps", type=int, default=0, help="0 runs until the viewer closes")
 parser.add_argument("--print_every", type=int, default=30)
+parser.add_argument("--num_envs", type=int, default=1)
+parser.add_argument("--check_online_reset", action="store_true",
+                    help="Assert post-RSI online arm FK and command-buffer agreement")
 AppLauncher.add_app_launcher_args(parser)
 args_cli = parser.parse_args()
 
@@ -31,6 +34,29 @@ import regrind.tasks  # noqa: F401
 
 def _all_finite(observations: dict[str, torch.Tensor]) -> bool:
     return all(bool(torch.isfinite(value).all()) for value in observations.values())
+
+
+def _check_online_reset(base_env, command, env_ids):
+    """Check the selected reset frame, not the next advanced command frame."""
+    action = base_env.action_manager.get_term("root_pose")
+    measured = command.robot.data.joint_pos.torch[:, action._joint_ids]
+    for index in env_ids.detach().cpu().tolist():
+        frame = int(command.last_rsi_frame[index])
+        position = command.reference.wrist_pos[frame] + command.placement_offset[index].cpu().numpy()
+        quaternion = command.reference.wrist_quat_xyzw[frame]
+        pos_error, rot_error, _, _ = action._kinematics.pose_error(
+            measured[index].cpu().numpy(), position, quaternion
+        )
+        if not (pos_error <= action.cfg.position_tolerance_m
+                and rot_error <= action.cfg.orientation_tolerance_rad):
+            raise AssertionError(f"reset FK mismatch env={index} frame={frame}: "
+                                 f"position={pos_error} rotation={rot_error}")
+        for target in (action.last_joint_target, action.applied_joint_target,
+                       action._interpolation_start_target):
+            torch.testing.assert_close(target[index], measured[index])
+        if not bool(action.ik_success[index]):
+            raise AssertionError(f"reset IK failed for env={index}")
+    print(f"[reset check] passed envs={env_ids.tolist()} RSI={command.last_rsi_frame[env_ids].tolist()}")
 
 
 def _print_step(base_env, command, reward, step, reset):
@@ -64,16 +90,18 @@ def main():
     env_cfg = parse_env_cfg(
         args_cli.task,
         device=args_cli.device,
-        num_envs=1,
+        num_envs=args_cli.num_envs,
         use_fabric=True,
     )
-    env_cfg.scene.num_envs = 1
+    env_cfg.scene.num_envs = args_cli.num_envs
     env_cfg.commands.reference.trajectory_path = args_cli.reference
     env_cfg.commands.reference.object_keypoints_path = args_cli.object_keypoints
     env_cfg.commands.reference.rsi_enabled = True
     env_cfg.commands.reference.loop = False
     env_cfg.commands.reference.enable_reset_perturbation = False
     env_cfg.commands.reference.debug_output = True
+    if args_cli.check_online_reset and not env_cfg.commands.reference.reset_wrist_ik_action:
+        raise ValueError("--check_online_reset requires the Online task")
 
     env = gym.make(args_cli.task, cfg=env_cfg)
     base_env = env.unwrapped
@@ -90,16 +118,21 @@ def main():
     print(f"  fingertip tensor shape:   {tuple(command.current_fingertips_pos.shape)}")
     print(f"  object keypoint shape:    {tuple(command.current_object_keypoints_pos.shape)}")
     print(f"  initial RSI frame:        {int(command.last_rsi_frame[0])}")
-    if action_shape != (1, 12):
-        raise RuntimeError(f"expected action shape (1,12), got {action_shape}")
-    if policy_shape != (1, 76) or critic_shape != (1, 109):
+    n = args_cli.num_envs
+    expected_dims = (67, 94) if env_cfg.commands.reference.expose_revo2_as_hand else (76, 109)
+    if action_shape != (n, 12):
+        raise RuntimeError(f"expected action shape ({n},12), got {action_shape}")
+    if policy_shape != (n, expected_dims[0]) or critic_shape != (n, expected_dims[1]):
         raise RuntimeError(
             f"unexpected observation shapes: actor={policy_shape}, critic={critic_shape}"
         )
-    if command.current_fingertips_pos.shape != (1, 5, 3):
+    if command.current_fingertips_pos.shape != (n, 5, 3):
         raise RuntimeError("critic must use exactly five real Revo2 fingertip links")
-    if command.current_object_keypoints_pos.shape != (1, 50, 3):
+    if command.current_object_keypoints_pos.shape != (n, 50, 3):
         raise RuntimeError("object tracking must use 50 local surface keypoints")
+
+    if args_cli.check_online_reset:
+        _check_online_reset(base_env, command, torch.arange(n, device=base_env.device))
 
     actions = torch.zeros(action_shape, dtype=torch.float32, device=base_env.device)
     step = 0
@@ -116,6 +149,9 @@ def main():
         )
         finite = finite and state_finite
         reset = bool((terminated | truncated)[0])
+        reset_ids = torch.nonzero(terminated | truncated, as_tuple=False).flatten()
+        if args_cli.check_online_reset and reset_ids.numel():
+            _check_online_reset(base_env, command, reset_ids)
         if step == 1 or step % args_cli.print_every == 0 or reset:
             _print_step(base_env, command, reward, step, reset)
             print(f"  reset this step:        {reset}")
