@@ -7,6 +7,7 @@ one deeper document if needed:
 - [Data pipeline and coordinate frames](DATA_PIPELINE.md)
 - [Floating Revo2 RL task](RL_TASK.md)
 - [Isaac replay](ISAAC_SIM_REPLAY.md)
+- [Execution/diagnostic command index](../scripts/README.md), for arm comparisons
 - [Cleanup audit record](cleanup-plan.md), for cleanup work only
 
 ## System shape
@@ -57,6 +58,16 @@ or nested repository.
 
 Other root `train_*`, `play_*`, and `run_rl_*` scripts are compatibility
 wrappers around `scripts/rl.sh`.
+
+Opt-in experiments are **not** replacements for `rl.sh play-arm`:
+`evaluate_mounted_interface.sh` dispatches floating/legacy/simple modes;
+`arm_transfer_recovery.sh` adds recovery capture to that evaluator;
+`play_arm_fast.sh` explicitly selects the candidate in
+`config/experiments/rb3_transfer_recovery_candidate.json` and fast IK. Start from
+the [diagnostic index](../scripts/README.md#experiments-and-failure-reproduction-opt-in),
+not every historical report. The minimal adapter is
+`mdp/simple_mounted_interface.py` with `tools/rb3_revo2_ik/frozen_policy_adapter.py`;
+it reuses the policy contract and FK/IK, but preserves a separate execution path.
 
 ## Data flow
 

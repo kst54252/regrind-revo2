@@ -5,6 +5,8 @@
 
 For wrist/root/link6/mount definitions, conversion equations, and same-sample
 PhysX versus USD logs, see [wrist frame diagnosis](WRIST_FRAME_DIAGNOSIS.md).
+For baseline/candidate policy evaluation and deterministic command replay, start
+with the [diagnostic command index](../scripts/README.md#experiments-and-failure-reproduction-opt-in).
 
 ## Start
 
@@ -64,7 +66,7 @@ only the stage geometry without regenerating or transforming the reference.
 ## Replay a converted policy rollout
 
 ```bash
-./tools/rb3_revo2_ik/run_replay_gui.sh \
+./scripts/run_isaac_replay.sh \
   --trajectory outputs/floating/20200709_143747_left/reference_12dof.h5 \
   --demo-skeleton --no-loop
 ```

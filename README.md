@@ -45,6 +45,23 @@ RL/deployment branch
 기본 Python 경로는 `/home/wanjunkim/IsaacLab/.venv/bin/python`입니다. 다른 환경은
 `ISAAC_SIM_PYTHON=/path/to/python`으로 지정할 수 있습니다.
 
+### 어떤 경로를 실행할 것인가
+
+| 용도 | 대표 경로 / 필수 입력 → 출력 |
+|---|---|
+| 전처리 → retargeting → RB3 reference | `scripts/run_pipeline.sh`: `dataset/` → `outputs/{preprocessed,retargeted,isaac}/dexycb/`; 세부 단계는 [데이터 문서](docs/DATA_PIPELINE.md) |
+| 독립 Revo2 FK / RB3 IK | [Revo2 FK](tools/revo2_kinematics/README.md), [RB3 IK](tools/rb3_revo2_ik/README.md): 모델·keypoints·world trajectory → FK / 12-DoF reference |
+| Floating 학습 / 평가 | `scripts/rl.sh train` / `play`: reference / checkpoint → `logs/rsl_rl/floating_revo2_tuna/` / 선택한 rollout HDF5 |
+| 기존 arm baseline 정책 | `scripts/rl.sh play-arm`: floating checkpoint + reference → 실제 mounted 상태 기반 정책·IK 실행 |
+| 궤적만 시각화 | `scripts/run_isaac_replay.sh --trajectory FILE.h5`: reference → Isaac viewer; policy 평가와 구분 |
+| 고정 초기 상태 비교 | `bash scripts/evaluate_mounted_interface.sh --mode legacy --checkpoint FILE.pt --states BANK.jsonl --output NEW_DIR --episodes 20 --headless`: mode는 floating/legacy/simple 중 선택; [실행 계약/비교](docs/MINIMAL_MOUNTED_INTERFACE.md) |
+| 검증 중인 arm 후보 GUI | `bash scripts/play_arm_fast.sh NEW_OUTPUT_DIR`: [고정 candidate 및 속도 한계](docs/ARM_REALTIME_EXECUTION.md); 기존 baseline을 대체하지 않음 |
+
+전체 pipeline은 생성물을 다시 작성하므로 단순 실행 확인에 사용하지 마세요.
+`--sequence` 필터가 전처리 전체를 제한하지 않는 점은
+[현재 상태](docs/current-status.md)에 설명되어 있습니다. 비교 실행에는 매번 새 출력
+디렉터리를 사용하세요. 핵심 진단은 [실행/진단 색인](scripts/README.md)에서 선택합니다.
+
 ## 디렉터리
 
 | 경로 | 역할 | Git 관리 |
@@ -70,7 +87,8 @@ RL/deployment branch
 
 - Revo2 FK: 입력 `(6,)`, 출력 semantic keypoints `(21, 3)`
 - RB3 strict IK: joint limits와 이전 프레임 warm start 적용
-- 준비된 5개 sequence: strict IK 332/332 frames 성공
+- 과거 전처리 검증: 당시 준비된 5개 sequence의 strict IK 332/332 frames 성공
+  (이후 trim/reference 수정본의 현재 프레임 수를 의미하지 않음)
 - Isaac replay: RB3/Revo2 관절, 원본 MANO21, tuna can mesh 표시
 - `--physics-object`: 캔 pose를 매 프레임 덮어쓰지 않고 중력/contact 사용
 
@@ -110,7 +128,7 @@ SE(3) residual 6차원과 Revo2 leader joint residual 6차원을 합친 12차원
   --out outputs/floating/20200709_143747_left/reference_12dof.h5
 
 # Combined RB3+Revo2 GUI
-./tools/rb3_revo2_ik/run_replay_gui.sh \
+./scripts/run_isaac_replay.sh \
   --trajectory outputs/floating/20200709_143747_left/reference_12dof.h5
 ```
 

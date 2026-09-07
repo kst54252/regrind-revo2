@@ -17,6 +17,11 @@ reference -> floating wrist/Revo2 residual PPO -> rollout
 The older combined RB3+Revo2 residual task remains available through
 `--legacy-arm-rl`, but it is not the primary training path.
 
+`scripts/rl.sh play-arm` remains the original mounted baseline. For opt-in
+minimal/response/fast-IK experiments and paired-state reproduction, use the
+[diagnostic command index](../scripts/README.md#experiments-and-failure-reproduction-opt-in).
+These candidates do not alter training or default play settings.
+
 ## Registered tasks
 
 | Task | Environments | Randomization | Purpose |

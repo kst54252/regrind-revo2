@@ -114,5 +114,62 @@ comparisons remain under `tests/`. No `.gitignore` changes in this round.
 Artifacts: `outputs/diagnostics/cleanup_20260907/`. Baseline status and tracked
 diff are saved there, separately from prior experiment evidence. Pre-cleanup:
 98 tests passed; full floating and legacy-arm 20-placement evaluations completed
-using the same saved original state bank, checkpoint and reference. Post-cleanup
-checks and exact trace comparisons are recorded below after execution.
+using the same saved original state bank, checkpoint and reference.
+
+| Check | Before → after / result |
+|---|---|
+| `./scripts/run_tests.sh` including shell syntax | 98/98 → 98/98; also 98/98 immediately after removals. No assertions/tests changed. |
+| Frozen floating policy, original20 | 20/20 → 20/20; all 2,964 physics samples and policy records byte-identical. |
+| Legacy mounted policy, original20 | 19/20 → 19/20; all 2,924 physics samples and policy records byte-identical. Episode 15 still fails by `object_deviation`; no new success claim. |
+| Actual initial states / episode endings | All 21 states including final autoreset, all 20 endings, phase and timing identical within each before/after pair. |
+| Policy/config identity | Checkpoint/input SHA-256, frozen normalizer verification, gains/limits, gravity, native settings and observation layout unchanged. |
+| Source/config/test inventory | 251 text source/config paths hashed before: only the 3 authorized launcher deletions; remaining 248 byte-identical. |
+| Mounted/floating USD dependencies | Same layers, asset paths and unresolved list before/after; standalone `OmniPBR.mdl` warning already existed. Tuna USD/texture chain resolves with no unresolved entries. |
+| Reference / FK | Stable reference loads `(38,12)`, dt=1/30; Revo2 FK `(21,3)` finite. Runtime Play task registration/config/reference loading also exercised by both Isaac runs. |
+| CLI/import checks | 8/9 bare help/list checks passed; evaluator help requires its three mandatory arguments with installed AppLauncher. That invocation also passed without creating a simulation/output directory. Actual evaluator runs all completed. |
+
+Detailed evidence: `tests_before.log`, `tests_after_removal.log`, `tests_after.log`,
+`cli_checks.log`, `evaluator_help_with_required_args.log`, `assets_{before,after}.json`,
+`reference_asset_checks.json`, `protected_source_checks.json` and `comparison.json`.
+Each `{before,after}_{floating,legacy}20/` contains `metadata.json`, `policy.json`
+and `physics.jsonl`; sibling `.log` files contain executed simulator output.
+No previous logs were overwritten. These new evidence files were not Git-staged.
+
+Reproduce with a **fresh** `audit_out` (same fixed inputs; do not run over this
+audit's output directory):
+
+```bash
+audit_out=outputs/diagnostics/cleanup_recheck_NEW
+checkpoint=logs/rsl_rl/floating_revo2_tuna/2026-09-05_16-46-54_floating_stable_ground_5000/model_4999.pt
+for mode in floating legacy; do
+  bash scripts/evaluate_mounted_interface.sh --mode "$mode" --episodes 20 --headless \
+    --checkpoint "$checkpoint" \
+    --states outputs/diagnostics/arm_policy_velocity_zero20_20260907.jsonl \
+    --output "$audit_out/${mode}20"
+done
+./scripts/run_tests.sh
+```
+
+The bank selects `outputs/isaac/dexycb/20200709_143747_left/rb3_revo2_reference_stable.h5`;
+checkpoint/reference hashes are recorded in `comparison.json`. Success criteria
+are the existing task criteria, not a new grasp proxy. Frozen candidate/held-out
+comparisons, all historical contact/gain sweeps, PPO updates, GUI/video rendering
+and raw dataset regeneration were **not** rerun in this cleanup. Source bytes and
+baseline physics equality do not establish new performance for those paths.
+
+### Deferred issues / structure
+
+- The installed `AppLauncher.add_app_launcher_args()` removes help before
+  `parse_known_args()`, so `bash scripts/evaluate_mounted_interface.sh --help`
+  exits 2 requesting `--mode --checkpoint --output`. Existing implementation
+  unchanged; passing those arguments plus `--help` exits 0. CLI ergonomics is a
+  separate fix, not grounds to delete the evaluator.
+- SDK shader resolution outside Kit remains distinct from missing project
+  assets; do not delete/remake the mount for the existing MDL warning.
+- Many unrelated implementation files and experiment artifacts remain
+  uncommitted/untracked as found. This cleanup branch is not a full portable
+  project snapshot; selective checkpointing/retention requires separate review.
+- Keep root/package tests, legacy CLI aliases, asset/keypoint copies and mixed
+  outputs layout until ownership, external users and retention are established.
+  No blanket archive directory, asset move, algorithm consolidation or default
+  controller change was performed.

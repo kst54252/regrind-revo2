@@ -1,7 +1,8 @@
 # Current project status
 
-Last documentation audit: 2026-09-06. This records implemented paths and known
-limits; it is not evidence of a fresh simulator or training run.
+Last structure review: 2026-09-07. This records implemented paths and known
+limits. The [cleanup validation record](cleanup-plan.md#validation-record)
+distinguishes fresh baseline regression runs from historical experiments.
 
 ## Active pipeline
 
@@ -62,6 +63,13 @@ opt-in configuration improved existing20 from19/20 to20/20 and distinct held-out
 from17/20 to20/20, with increased peak acceleration. Normal deployment defaults
 remain unchanged; see that report for limitations and exact reproduction inputs.
 
+The subsequent [fast execution experiment](ARM_REALTIME_EXECUTION.md) is also
+opt-in: `scripts/play_arm_fast.sh` chooses that candidate and warm-first IK.
+Measured headless/GUI throughput was about .63x/.48x, not guaranteed real time.
+Use [the command index](../scripts/README.md) to distinguish current evaluators
+from completed diagnostic recipes. Retired one-shot sweep launchers are recorded
+in the cleanup history; all experiment implementations and contract tests remain.
+
 ## Incomplete or out of scope
 
 - Real RB3/Revo2 communication, safety control, calibration, object tracking,
@@ -72,6 +80,9 @@ remain unchanged; see that report for limitations and exact reproduction inputs.
 - Revo2 scissors retargeting; Revo2 currently declares the tuna-can object path.
 - A trained full-arm policy; online deployment uses the floating policy plus IK.
 - Transfer of simulator gain experiments to real hardware.
+- Arm transfer fine-tuning is implemented as `rl.sh train-arm` (see RL task
+  document), but is not the verified floating-checkpoint baseline; its earlier
+  short trials were inconclusive. It was not retrained during cleanup.
 
 ## Preserved or uncertain paths
 
@@ -89,6 +100,9 @@ remain unchanged; see that report for limitations and exact reproduction inputs.
 - Runtime Hydra overrides of materialized actuator dictionaries may not update
   all derived values; arm evaluation has explicit `play.py --rb3-*-scale`
   options pending config-lifecycle cleanup.
+- Bare evaluator `--help` hits the installed AppLauncher required-argument
+  preparse; supplying mode/checkpoint/output with help works. Actual evaluation
+  is unaffected; see the cleanup record for the failed command and validation.
 
 Cleanup-specific evidence and decisions live only in
 [cleanup-plan.md](cleanup-plan.md).
