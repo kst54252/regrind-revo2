@@ -1,8 +1,13 @@
 # Floating-hand Isaac comparison
 
-Final: `isaac_floating_retargeting_vs_residual_rl.mp4`, 1920x540, 30 fps,
+Original edit: `isaac_floating_retargeting_vs_residual_rl.mp4`, 1920x540, 30 fps,
 300 frames / 10.000 s. Actual Isaac-rendered floating Revo2 and dynamic tuna,
 no arm, no kinematic object trajectory, no controller or policy changes.
+
+The later `isaac_floating_retargeting_vs_residual_rl_0p5x.mp4` doubles playback
+to 0.5× (1920x540, 30 fps, 150 frames / 5 s), including the presentation holds.
+Its speed label is updated; simulation data and the original edit are preserved.
+The reproduction composer below still produces the original 0.25× edit.
 
 Left: reference targets with zero residual action. Right: live model_4999 policy.
 Checkpoint: `logs/rsl_rl/floating_revo2_tuna/2026-09-05_16-46-54_floating_stable_ground_5000/model_4999.pt`.
