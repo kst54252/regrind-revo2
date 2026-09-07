@@ -36,18 +36,20 @@ contact success.
 `--physics-object` spawns the can once and then lets gravity, the table, and
 robot contact move it. Robot modes are:
 
-- `kinematic`: write arm and hand states directly.
+- `kinematic` (default): write arm and hand states directly, even with `--physics-object`.
 - `arm-kinematic`: write RB3 state while driving the hand.
 - `position`: drive both RB3 and Revo2; tracking error is expected.
 
 ```bash
 ./scripts/run_isaac_replay.sh \
-  --sequence 20200709_143747_left --physics-object
+  --sequence 20200709_143747_left --physics-object --robot-control position
 ```
 
 Open-loop dynamic replay is a contact comparison, not a trained closed-loop
 grasp. For policy feedback plus online IK, use `./scripts/rl.sh play-arm` as
 documented in [RL_TASK.md](RL_TASK.md).
+`--physics-object` alone makes only the can dynamic; it does not enable physical
+arm/hand tracking. The explicit `position` option above enables both joint drives.
 
 ## Workcell coordinates
 

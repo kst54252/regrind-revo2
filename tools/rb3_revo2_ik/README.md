@@ -5,8 +5,11 @@ REGRIND가 만든 Revo2 wrist trajectory를 RB3-730의 bounded numerical IK로 �
 
 ## 좌표계와 모델
 
-- 입력 pose: `wrist_pos`와 `wrist_quat` (`xyzw`), REGRIND world 기준
-- RB3 root: 기본값은 REGRIND world의 원점/identity
+- 입력 pose: `wrist_pos_world`/`wrist_quat_world`, `wrist_pos`/`wrist_quat`,
+  `robot_pos`/`robot_quat` 순으로 읽는다. Quaternion은 파일 metadata 또는
+  `--input-quat-convention` 기준이며, metadata 없는 경우에만 `xyzw`로 간주한다.
+- Reference 생성 CLI의 RB3 root: 공유 workcell 설정의 `[0, 0, -0.02] m`,
+  identity. 독립 `RB3730Kinematics()` 생성자만 원점/identity가 기본값이다.
 - IK target: 조립 USD의
   `/World/revo2_right/Geometry/world/right_hand_base_link`
 - 실제 mount transform: RB3 `link6` 기준 translation `[0, 0, 0.141304972] m`,
@@ -36,20 +39,13 @@ RB3가 REGRIND world에서 다른 pose로 놓여 있다면 `--base-position X Y 
 `--base-quat-xyzw X Y Z W`를 함께 지정한다. 첫 프레임 initial guess는
 `--initial-q`로 바꿀 수 있다.
 
-REGRIND wrist frame과 실제 장착 Revo2 palm frame 사이에 고정 회전 보정이
-필요하면 모든 프레임에 right-compose되는 옵션을 사용한다. 예를 들어 손바닥을
-local Z 기준으로 180도 뒤집을 때:
-
-```bash
-python3 tools/rb3_revo2_ik/build_reference_trajectory.py WORLD_TRAJECTORY.h5 \
-  --out REFERENCE.h5 \
-  --input-quat-convention wxyz \
-  --target-wrist-local-rpy-deg 0 0 180
-```
-
-이 보정은 첫 프레임 initial guess가 아니라 실제 IK target pose 전체에
-적용되며, 출력의 `target_wrist_local_rpy_correction_deg`와
-`target_wrist_local_quat_xyzw_correction`에 기록된다.
+현재 floating wrist와 mounted Revo2 base는 이미 같은 frame이고 IK 모델에
+연결부 offset이 포함되어 있다. **추가 180도 회전이나 mount translation을
+넣지 않는다.** [검증된 변환식](../../docs/WRIST_FRAME_DIAGNOSIS.md)을 참고한다.
+다른 입력 frame을 보정할 때만 `--target-wrist-local-rpy-deg R P Y`를 사용한다.
+모든 wrist orientation에 right-compose되며 correction metadata에 기록된다.
+이는 좌표계 변환/물체 정렬을 대신하지 않으며, local Z 회전은 local Z축 자체를
+뒤집지 않는다.
 
 ### Floating policy rollout을 실제 캔 위치에 배치
 
@@ -119,8 +115,8 @@ best-fit 해를 저장하므로 전체 sequence를 replay할 수 있다. 실패 
 Script Editor에 코드를 붙여 넣지 않고 프로젝트 루트의 터미널에서 실행한다.
 
 ```bash
-./tools/rb3_revo2_ik/run_replay_gui.sh --list-sequences
-./tools/rb3_revo2_ik/run_replay_gui.sh --sequence 20200709_143747_left
+./scripts/run_isaac_replay.sh --list-sequences
+./scripts/run_isaac_replay.sh --sequence 20200709_143747_left
 ```
 
 Isaac Sim GUI와 작은 control window가 열리며 Play/Pause/Reset, 한 프레임 전후 이동,
@@ -159,12 +155,14 @@ RL은 어느 모드에서도 실행하지 않는다.
 접촉 및 중력으로만 움직이려면 다음 모드를 사용한다.
 
 ```bash
-./tools/rb3_revo2_ik/run_replay_gui.sh \
+./scripts/run_isaac_replay.sh \
   --sequence 20200709_143747_left \
-  --physics-object
+  --physics-object --robot-control position
 ```
 
-이 모드에서는 RB3+Revo2 관절을 USD position drive로 제어하고 캔에 기본 0.15 kg
+위처럼 `--robot-control position`을 지정하면 RB3+Revo2 관절을 position drive로
+제어한다. `--physics-object`만 지정하면 로봇 제어 기본값은 `kinematic`이며
+관절 상태를 직접 적용한다. 캔에는 기본 0.15 kg
 질량, cylinder collider, 마찰 0.8, 중력 9.81 m/s²를 적용한다. world Z=0의 실제
 0.80 x 1.60 m 책상 상판 collider를 사용한다. 캔 reference line/marker는 기본으로 숨기며, 물체 mesh pose는
 초기화/reset을 제외하고 절대 덮어쓰지 않는다. `Reset`은 로봇과 캔을 첫 자세로 되돌린다.
@@ -226,6 +224,8 @@ HTML은 Plotly JavaScript를 내장한 단일 파일이라 다른 폴더 없이 
 /home/wanjunkim/IsaacLab/.venv/bin/python \
   tools/rb3_revo2_ik/search_world_yaw.py RETARGETING.h5 \
   --mesh 007_tuna_fish_can/textured_simple.obj \
-  --desired-x 0.4 --desired-y 0.0 \
-  --target-wrist-local-rpy-deg 0 0 180
+  --desired-x 0.4 --desired-y 0.0
 ```
+
+이 도구는 별도의 upright-object yaw 탐색이다. 현재 batch의 camera-gravity
+변환을 대체하지 않으며, 기존 결과를 재현하려면 원래 변환 모드도 맞춰야 한다.

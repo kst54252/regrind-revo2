@@ -9,7 +9,7 @@ sequential MANO21 순서를 검증된 Revo2 semantic `kp_00..kp_20` 순서로 �
 재정렬하여 리타게팅 correspondence와 시각화 topology가 섞이지 않게 합니다.
 
 ```bash
-cd /home/wanjunkim/ARSL/regrind-upload
+# Run from the repository root.
 ./scripts/run_pipeline.sh
 ```
 
@@ -17,6 +17,11 @@ cd /home/wanjunkim/ARSL/regrind-upload
 앞 12프레임을 제거한 뒤 모든 후속 단계를 수행합니다. 원본 `dataset/`은 변경하지
 않습니다. 필요할 때만 `REGRIND_TRIM_LEADING_FRAMES` 환경 변수로 개수를 바꿀 수
 있습니다.
+
+`--sequence`는 retargeting/reference 단계만 제한합니다. 전처리와 첫 HTML
+gallery 생성은 여전히 전체 dataset을 순회하며, trim 대상은 별도
+`REGRIND_TRIM_SEQUENCE`로 정합니다. 원본은 유지하지만 생성 파일은 다시
+작성될 수 있으므로 실행 확인용 smoke test로 사용하지 마세요.
 
 결과:
 

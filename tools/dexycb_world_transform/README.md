@@ -4,7 +4,10 @@
 object, wrist, MANO trajectory에 적용한다. 원본 파일은 읽기만 하며 출력은 새
 HDF5 또는 NPZ로 저장한다.
 
-기본 배치는 다음과 같다.
+단독 CLI의 기본값은 `--camera-frame-convention object_upright`이며 아래와
+같다. **배치 파이프라인의 기본값과 다르다.** Batch는 `dexycb_y_down`,
+XY=(0.40, 0.00) 및 sequence별 yaw를 명시한다
+([파이프라인 좌표계](../../docs/DATA_PIPELINE.md)).
 
 ```text
 first object origin = [0.50, 0.00, -mesh_z_min]
@@ -47,8 +50,14 @@ camera -Y = Isaac world +Z
   tools/dexycb_world_transform/transform_trajectory.py \
   outputs/retargeted/dexycb/20200709_143747_left/revo2_retargeted.h5 \
   --mesh 007_tuna_fish_can/textured_simple.obj \
-  --out outputs/isaac/dexycb/20200709_143747_left/world_trajectory.h5
+  --camera-frame-convention dexycb_y_down \
+  --desired-x 0.4 --desired-y 0.0 --world-yaw-deg 150 \
+  --out outputs/isaac/dexycb/20200709_143747_left/world_preview_NEW.h5
 ```
+
+위 예시는 현재 `20200709_143747_left`의 배치 설정이다. 다른 sequence는
+`prepare_isaac_references.py::ISAAC_ALIGNMENT`를 확인한다. 입력 원본은 읽기만
+하지만 출력 경로는 덮어쓸 수 있으므로 기존 reference 대신 새 이름을 사용한다.
 
 입력 quaternion은 `--input-quat-order auto|wxyz|xyzw`로 지정한다. `auto`는
 파일의 `quat_convention` 또는 `quaternion_order`를 사용하며, 메타데이터가 없으면
@@ -69,14 +78,15 @@ calibration을 right-compose할 수 있다.
 ```
 
 이 옵션을 손/물체 궤적의 상하 방향을 바꾸는 용도로 사용하면 안 된다. 중력 방향은
-항상 camera-frame convention으로 결정한다.
+`dexycb_y_down` 모드의 고정 camera 축으로 결정한다. `object_upright`는
+별도 모드로, 첫 물체 자세를 강제로 정렬한다.
 
 ## 한 프레임 시각화
 
 ```bash
 /home/wanjunkim/IsaacLab/.venv/bin/python \
   tools/dexycb_world_transform/visualize_world_frame.py \
-  outputs/isaac/dexycb/20200709_143747_left/world_trajectory.h5 \
+  outputs/isaac/dexycb/20200709_143747_left/world_preview_NEW.h5 \
   --mesh 007_tuna_fish_can/textured_simple.obj \
   --frame 0
 ```
