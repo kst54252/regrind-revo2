@@ -1,365 +1,218 @@
-# Floating Revo2 + tuna can REGRIND PPO
+# Floating Revo2 + tuna can RL
 
-학습과 로봇팔 배치를 분리합니다. PPO는 RB3 없이 떠 있는 Revo2 손만 제어하고,
-학습은 RB3 없이 수행합니다. 배치는 두 방식이 있습니다. 기록 검증은 policy rollout을
-저장한 뒤 offline strict IK로 변환하고, 실제 물리 파지는 floating checkpoint를
-통합 환경에서 계속 추론하면서 매 step wrist target을 strict IK로 풉니다.
+[Repository map](architecture.md) · [Current status](current-status.md) ·
+[Isaac replay](ISAAC_SIM_REPLAY.md)
 
-```text
-reference wrist/object/Revo2 trajectory
-  -> floating Revo2 physics + residual PPO
-  -> physical floating rollout HDF5
-  -> desired tuna-can start pose로 한 번의 rigid SE(3) alignment
-  -> RB3-730 strict IK (previous-frame warm start + joint limits)
-  -> RB3 6 + Revo2 6 = 12-DoF replay
-```
+## Design
 
-### 온라인 RB3 배치 (실제 물리 파지)
+PPO controls a floating Revo2 hand, not RB3 joints. Deployment keeps the
+floating policy contract and solves its wrist target with bounded RB3 IK:
 
 ```text
-current tuna/hand state
-  -> trained floating actor (67-D observation -> 12-D action)
-  -> wrist 6-D residual -> bounded RB3 IK (previous solution warm start)
-  -> Revo2 six leader residual + five deterministic mimic targets
-  -> RB3/Revo2 actuator + contact physics
-  -> next state feedback
+reference -> floating wrist/Revo2 residual PPO -> rollout
+                                               -> online RB3 IK deployment
+                                               -> offline RB3 reference conversion
 ```
 
-체크포인트의 관측/action 순서를 바꾸지 않으므로 floating model을 그대로 로드합니다.
-각 episode가 끝나면 캔 시작 XY를 strict-IK 사전 검증 영역
-`X=[0.40, 0.50] m`, `Y=[-0.20, 0.20] m`에서 다시 샘플링합니다. 캔과 전체
-wrist/object reference에 동일한 평행이동을 적용하고, 새 첫 wrist pose의 IK 해로
-RB3도 reset 전에 맞춥니다. 따라서 이전 위치에서 새 위치로 팔이 급하게 횡단하지
-않습니다.
-GUI 실행:
+The older combined RB3+Revo2 residual task remains available through
+`--legacy-arm-rl`, but it is not the primary training path.
 
-```bash
-./scripts/rl.sh play-arm \
-  --sequence 20200709_143747_left \
-  --checkpoint logs/rsl_rl/floating_revo2_tuna/RUN/model_4999.pt \
-  --num_envs 1 --real_time
-```
+## Registered tasks
 
-Headless 1회 검증은 `--headless --max_steps 37`을 추가합니다. 종료 시 실제 캔의
-start/final/max Z, online IK 실패 step, wrist 및 arm tracking error가 출력됩니다.
-2026-09-05 `model_4999.pt` 검증에서는 online IK `37/37`, 캔 Z
-`0.012636 -> max 0.251227 m`였으며 NaN/Inf 없이 캔이 실제 접촉으로 상승했습니다.
-
-### RB3 응답 측정과 system identification
-
-Floating policy와 strict IK는 그대로 둔 채, 첫 episode의 RB3 목표/실제 관절과
-목표/실제 wrist pose를 NPZ로 기록할 수 있습니다. 분석기는 관절 속도 응답을 기준으로
-0 이상 정수 control-step 지연을 추정하고, 관절별 RMSE와 wrist 위치/회전 오차를
-출력합니다. Episode reset sample은 측정에서 제외됩니다.
-
-```bash
-./scripts/rl.sh play-arm \
-  --sequence 20200709_143747_left \
-  --checkpoint logs/rsl_rl/floating_revo2_tuna/RUN/model_4999.pt \
-  --headless --eval_episodes 1 \
-  --arm-tracking-path outputs/diagnostics/rb3_arm_tracking.npz
-
-python3 tools/rb3_revo2_ik/analyze_arm_tracking.py \
-  outputs/diagnostics/rb3_arm_tracking.npz
-```
-
-시뮬레이션 gain 후보는 학습 checkpoint를 수정하지 않고 실행 시 비교합니다.
-
-```bash
-./scripts/rl.sh play-arm \
-  --sequence 20200709_143747_left \
-  --checkpoint logs/rsl_rl/floating_revo2_tuna/RUN/model_4999.pt \
-  --headless --eval_episodes 5 \
-  --rb3-stiffness-scale 2.0 \
-  --rb3-damping-scale 1.5 \
-  --rb3-effort-scale 2.0
-```
-
-Gain 선택은 wrist 오차만으로 하지 않고 random placement 파지 성공률도 함께
-비교해야 합니다. 현재 측정에서는 위 후보가 지연과 wrist 오차는 줄였지만 5회 중
-4회 성공이어서 기본값으로 고정하지 않았습니다. Floating 학습 환경에는 이미 공개
-REGRIND 방식의 0~2 control-step observation delay randomization이 활성화되어 있습니다.
-
-현재 `20200709_143747_left`의 학습 기본 입력은
-`outputs/isaac/dexycb/20200709_143747_left/rb3_revo2_reference_stable.h5`입니다.
-성공한 floating rollout의 초기 PhysX 안정화 2 frame을 제거한 뒤, 첫 캔을 upright로
-정렬하고 실제 tuna mesh의 최저점이 table-frame `Z=0`에 정확히 닿도록 전체
-object/wrist/MANO trajectory에 하나의 rigid transform을 적용했습니다. 기존
-`rb3_revo2_reference.h5`는 비교와 복구를 위해 그대로 보존됩니다.
-
-동일 파일을 다시 생성하려면 다음 명령을 사용합니다.
-
-```bash
-./scripts/floating_to_rb3.sh \
-  --rollout outputs/floating/random_can_replay/20200709_143747_left_random_rollout.h5 \
-  --out outputs/isaac/dexycb/20200709_143747_left/rb3_revo2_reference_stable.h5 \
-  --drop-leading-frames 2 \
-  --level-object-on-table \
-  --object-start 0.4 0.0 0.0
-```
-
-학습 reset의 joint noise는 유지하지만 object Z/rotation reset noise는 0입니다.
-따라서 XY random placement는 mesh-table 접촉과 upright 자세를 바꾸지 않습니다.
-RSI가 활성화된 학습에서는 중간 reference phase로 reset될 수 있으며, 이는 해당
-phase의 object pose를 사용하는 기존 REGRIND 동작입니다. 첫 phase로만 확인하는
-deterministic Play에서는 RSI와 모든 reset perturbation이 꺼집니다.
-
-## Floating task
-
-| Task | 환경 수 | randomization/curriculum | 용도 |
+| Task | Environments | Randomization | Purpose |
 |---|---:|---|---|
-| `Regrind-Floating-Revo2-TunaCan-Play-v0` | 1 | OFF | policy/GUI/rollout export |
-| `Regrind-Floating-Revo2-TunaCan-Smoke-v0` | 16 | ON | 짧은 PPO 통합 검사 |
-| `Regrind-Floating-Revo2-TunaCan-v0` | 4096 | ON | full training |
+| `Regrind-Floating-Revo2-TunaCan-Play-v0` | 1 | Off | deterministic play/export |
+| `Regrind-Floating-Revo2-TunaCan-Smoke-v0` | 16 | On | short integration test |
+| `Regrind-Floating-Revo2-TunaCan-v0` | 4096 | On | full training |
 
-Action은 총 12차원입니다.
+Configuration lives under
+`regrind/source/regrind/regrind/tasks/manager_based/dexterous/config/revo2_floating/`.
+Shared MDP terms are in the sibling `mdp/` package.
 
-- `root_pose[0:6]`: floating wrist position/orientation residual
-- `joint_pos[0:6]`: Revo2 leader joint residual
-- Revo2 distal 5축: 독립 action이 아니며 기존 mimic 관계를 사용
-- RB3 joint: 학습 환경과 policy observation/action에 존재하지 않음
+## Policy and environment contract
 
-Root action은 공개 LeapHand/WujiHand task의 `SE3ImpedanceActionTerm`을 재사용합니다.
-위치/회전 scale은 각각 `1.0 * control_dt`, `3.2 * control_dt`, impedance gain은
-position `300/30`, rotation `3/0.3`입니다. Finger action도 reference target에 대한
-relative residual 방식을 유지합니다.
+- Action `(N,12)`: wrist position/orientation residual `(6)` followed by six
+  Revo2 leader residuals. Five distal joints remain deterministic mimics.
+- Actor observation `(N,67)`: object and wrist state/history, Revo2 joint
+  history, previous action, phase, and reference/action-base targets.
+- Privileged critic observation `(N,94)`: actor data plus object velocity, five
+  physical fingertips, and Revo2 joint velocity.
+- Reward: 50 tuna surface-keypoint tracking, object velocity, wrist pose,
+  residual magnitude/rate/bounds, and early termination.
+- RSI: selects a reference phase and initializes wrist, leaders/followers, and
+  rigid tuna pose/velocity near that state.
 
-### IK 가능 영역 내 캔 위치 randomization
+The task reuses REGRIND observation delay/noise, mass/friction/actuator
+randomization, pushes, and gravity curriculum. It does not add tactile input,
+tuna rotational symmetry, a new network, or a new RL algorithm.
 
-학습 환경은 episode reset마다 캔의 첫 XY를 `X=[0.40, 0.50] m`,
-`Y=[-0.20, 0.20] m`에서 균등 샘플링합니다. 캔만 이동하는 것이 아니라
-object/wrist reference 전체를 동일하게 평행 이동하므로 grasp 상대 자세가
-보존됩니다. 이 보수적 책상 영역은 수직 Revo2 어댑터와 RB3 설치 높이
-`Z=-0.02 m`에서 5x5 grid로 전체 trajectory를 검사해 strict full-pose IK
-`25/25` 성공을 확인했습니다. 캔 yaw와 Z는 변경하지 않습니다.
+The PPO config is `config/revo2_floating/agents/rsl_rl_ppo_cfg.py` relative to
+the task package. Baseline settings include 24 steps per environment, the
+`[1024,512,256,128]` ELU actor/critic, five epochs, four mini-batches,
+`learning_rate=1e-3`, `gamma=0.998`, `lambda=0.95`, clip `0.2`, and entropy
+coefficient `0.002`.
 
-학습 config에서는 기본 활성화되고 deterministic Play config에서는 꺼집니다.
-평가에서 활성화하려면 `--random-placement`를 사용합니다.
+## Reference and placement
 
-Floating task의 위치 observation은 sampled placement offset을 제거한 canonical
-object-trajectory frame으로 들어갑니다.
+The default sequence/reference is selected by `scripts/_common.sh`; when
+present, its stable reference is preferred. The current primary sequence is
+`20200709_143747_left`.
 
-```text
-p_obs = p_world - placement_offset
-```
+Training can translate the can and the complete object/wrist reference together
+within the configured strict-IK XY region. Observations subtract that placement
+offset, preserving the policy's canonical coordinate contract while simulation
+and rollout files retain world coordinates. Can yaw and Z are not randomized by
+this placement term. Deterministic play disables RSI and reset perturbations;
+use `--random-placement` to test placement generalization explicitly.
 
-이 변환은 actor의 object/wrist/action-base position과 critic의 fingertip position에
-동일하게 적용됩니다. 따라서 캔과 손 reference를 함께 평행 이동하면 기존 고정 위치와
-policy 입력이 같아집니다. 물체가 실제로 reference에서 미끄러지거나 손목이 target에서
-벗어난 상대 오차는 제거되지 않습니다. Observation shape `(67,)/(94,)`도 유지되므로
-기존 floating-hand checkpoint를 그대로 사용할 수 있습니다. Simulator 상태와 rollout
-HDF5는 canonical 좌표가 아니라 실제 table/world 좌표로 저장됩니다.
+## Train and evaluate
 
-```bash
-./scripts/rl.sh play --random-placement --checkpoint CHECKPOINT --num_envs 1
-./scripts/rl.sh zero --random-placement --gui
-```
-
-기존 checkpoint의 위치 일반화 확인:
-
-```bash
-./scripts/rl.sh play \
-  --sequence 20200709_143747_left \
-  --random-placement \
-  --checkpoint logs/rsl_rl/floating_revo2_tuna/RUN/model_2999.pt \
-  --rollout-path outputs/floating/random_can_rollout.h5
-```
-
-실제 RB3 관절 궤적은 sampled floating rollout마다 strict IK로 다시 생성합니다.
-
-```bash
-./scripts/rl.sh play \
-  --random-placement \
-  --checkpoint CHECKPOINT \
-  --rollout-path outputs/floating/random_can_rollout.h5
-
-./scripts/floating_to_rb3.sh \
-  --rollout outputs/floating/random_can_rollout.h5 \
-  --out outputs/floating/random_can_reference_12dof.h5
-```
-
-## Observation, reward, RSI
-
-Actor observation은 `(num_envs, 67)`, critic privileged observation은
-`(num_envs, 94)`, action은 `(num_envs, 12)`입니다.
-
-- Actor: object pose, wrist pose history, Revo2 joint history, previous action,
-  trajectory phase, action-base wrist/joint target
-- Critic 추가 정보: object linear/angular velocity, 실제 Revo2 fingertip 5개 위치,
-  Revo2 joint velocity
-- Reward: tuna local surface point 50개의 world tracking, object linear/angular
-  velocity, wrist position/orientation, residual magnitude/rate/out-of-bounds,
-  early termination
-
-RSI reset은 임의 reference frame을 고른 후 floating root wrist pose/velocity,
-Revo2 leader와 mimic follower, tuna pose/velocity를 그 reference state 근처에
-초기화합니다. Tuna can은 rigid object이며 articulated-object joint 항목은 없습니다.
-
-공개 REGRIND의 observation delay/noise, mass/friction/actuator randomization,
-gravity curriculum과 robot/object random push curriculum을 재사용합니다. RB3 전용
-randomization 항목은 floating task에서 제거됩니다. Tuna rotational symmetry reward,
-tactile sensor, 새 network나 새 RL 알고리즘은 추가하지 않았습니다.
-
-## PPO
-
-`config/revo2_floating/agents/rsl_rl_ppo_cfg.py`는 공개 LeapHand/WujiHand baseline과
-동일한 RSL-RL PPO 값을 사용합니다.
-
-- 24 rollout steps/env, 최대 20,000 iterations
-- actor/critic `[1024, 512, 256, 128]`, ELU, observation normalization
-- zero-initialized actor output, Gaussian initial std `0.5`
-- PPO 5 epochs, 4 mini-batches, learning rate `1e-3`, adaptive schedule
-- `gamma=0.998`, `lambda=0.95`, clip `0.2`, entropy `0.002`
-
-## 실행
-
-16-env smoke test:
+Smoke test:
 
 ```bash
 ./scripts/rl.sh train \
   --sequence 20200709_143747_left \
-  --num_envs 16 \
-  --max_iterations 2 \
-  --headless \
-  --logger tensorboard \
-  --run_name floating_smoke
+  --num_envs 16 --max_iterations 2 --headless \
+  --logger tensorboard --run_name floating_smoke
 ```
 
-Full training:
+Full training example:
 
 ```bash
 ./scripts/rl.sh train \
   --sequence 20200709_143747_left \
-  --full \
-  --num_envs 4096 \
-  --max_iterations 1000 \
-  --headless \
-  --logger tensorboard \
-  --run_name floating_full_1000
+  --full --num_envs 4096 --max_iterations 1000 --headless \
+  --logger tensorboard --run_name floating_full_1000
 ```
 
-Zero residual로 floating reference 확인:
+Reference-only validation:
 
 ```bash
-./scripts/rl.sh zero \
-  --sequence 20200709_143747_left \
-  --gui --real_time
+./scripts/rl.sh zero --sequence 20200709_143747_left --gui --real_time
 ```
 
-Policy를 GUI로 보고, 동시에 environment 0의 실제 wrist/object/Revo2 상태를 저장합니다.
-Episode가 중간에 실패하면 자동 reset 뒤의 상태를 이어 붙이지 않고 그 지점에서 저장을
-중단합니다.
+Evaluate and export environment 0:
 
 ```bash
 ./scripts/rl.sh play \
   --sequence 20200709_143747_left \
-  --checkpoint logs/rsl_rl/floating_revo2_tuna/RUN/model_999.pt \
+  --checkpoint logs/rsl_rl/floating_revo2_tuna/RUN/model_ITERATION.pt \
   --rollout-path outputs/floating/20200709_143747_left/rollout.h5 \
   --real_time
 ```
 
-Headless export는 위 명령에 `--headless`를 추가합니다. Rollout에는
-`wrist_pos/quaternion`, `revo2_joints`, `object_pos/quaternion`, policy action,
-reference targets, phase와 MANO21이 기록됩니다. Quaternion order는 `xyzw`입니다.
+Add `--headless` for export without a viewer or `--random-placement` for the
+configured XY sampling. An episode failure ends the exported rollout rather
+than joining states across an automatic reset. Rollout quaternions are `xyzw`
+and the file includes wrist, Revo2, object, action/reference, phase, and MANO21
+data.
 
-### Random can → floating policy → RB3 IK → workcell GUI
+Training logs are written below `logs/rsl_rl/floating_revo2_tuna/`. A valid
+smoke run has finite observations/rewards, RSI resets, a PPO learning iteration,
+loss output, and a generated checkpoint.
 
-다음 wrapper는 strict-IK 검증 영역에서 캔 XY를 새로 샘플링하고, 기존
-floating-hand checkpoint를 headless로 실행한 뒤 RB3 IK를 풀고, 로봇 베이스와
-책상이 포함된 Isaac Sim GUI를 엽니다. 기본은 캔을 trajectory로 순간 이동시키지
-않고 중력과 로봇 접촉으로만 움직이는 physics-object mode입니다.
+## Convert a rollout to RB3
 
-Floating rollout의 처음 2프레임은 측정된 약 11도 기울어진 캔이 중력으로 수직
-안정화되는 reset settling 구간입니다. Physics replay는 이 2프레임을 제거하고 이미
-안정된 frame 2를 새 시작점으로 사용합니다. 그 자세의 작은 수치 오차만 제거한 뒤
-회전된 실제 mesh 최저점을 책상 상판 `Z=0`에 정확히 둡니다. 이 보정은 캔만 바꾸지 않고
-object/wrist/MANO 전체에 하나의 rigid transform으로 적용한 다음 RB3 IK를 다시
-풀기 때문에 손과 캔의 상대 자세는 유지됩니다.
-
-```bash
-./scripts/random_can_full_replay.sh
-```
-
-Physics replay는 floating-hand 학습과 같은 기본 120 Hz에서 trajectory의 저장
-`dt`에 해당하는 고정 개수의
-physics update만 진행합니다. Timeline 시간이 증가하지 않는 Isaac 구성에서도 Play가
-frame 0에서 멈추지 않습니다. 마지막 target은 기본 0.5초 유지해 관절이 감속한 뒤
-pause합니다. 유지 시간은 `--terminal-hold 1.0`, physics 주기는
-`--physics-hz 120`처럼 변경할 수 있습니다. Revo2 drive gain과 tuna-can/table
-contact offset도 floating 학습 환경과 동일한 값으로 transient replay Stage에 적용합니다.
-
-기본 `--robot-control kinematic`에서는 RB3+Revo2 관절을 저장된 reference에 정확히
-적용하면서 tuna can만 dynamic rigid body로 둡니다. 따라서 캔은 trajectory로
-teleport되지 않고 로봇 collision, 중력, 마찰로만 움직이지만, articulation drive
-추종 실패가 마지막에 한 번에 표시되는 현상은 없습니다. 30 Hz reference 관절은
-120 Hz physics substep 네 개로 선형 보간되며, 매 state write마다 같은 drive target도
-설정해 손가락이 stale target 쪽으로 되튕기는 현상을 막습니다. 실험용 완전 동역학
-arm position control은 `--robot-control position`으로 선택할 수 있습니다.
-
-다른 checkpoint나 느린 재생 속도를 지정할 수도 있습니다.
-
-```bash
-./scripts/random_can_full_replay.sh \
-  --checkpoint logs/rsl_rl/floating_revo2_tuna/RUN/model_2999.pt \
-  --speed 0.5
-```
-
-캔도 reference pose를 그대로 따라가는 순수 기구학 검증은
-`--kinematic-object`를 추가합니다. 두 모드 모두 원본 MANO21 skeleton을 함께
-표시합니다.
-
-현재 `20200709_143747_left`는 원래 학습 phase 60을 보존하면서 마지막 20개
-불필요 프레임을 제거해 40프레임으로 종료됩니다. 따라서 기존 checkpoint의
-처음 40프레임 phase 입력은 변경되지 않습니다.
-
-마지막으로 검증한 random sample의 잘린 40-frame 결과는 다음 파일에도 저장되어
-있습니다.
-
-```text
-outputs/floating/20200709_143747_left/model_2999_random_rollout.h5
-outputs/floating/20200709_143747_left/model_2999_random_reference_12dof.h5
-```
-
-## 실제 물체 pose로 정렬하고 RB3 결합
-
-`--object-start`는 tuna mesh origin의 RB3-world 좌표입니다. Orientation을 생략하면
-floating rollout의 첫 orientation을 유지하며, 바꾸려면 `--object-quat X Y Z W`를
-지정합니다. 이때 object만 옮기지 않고 wrist, object, MANO 전체에 동일한 rigid
-transform을 적용합니다.
+Offline conversion rigidly aligns object, wrist, and MANO together, then solves
+strict IK with previous-frame warm starts and joint limits:
 
 ```bash
 ./scripts/floating_to_rb3.sh \
   --rollout outputs/floating/20200709_143747_left/rollout.h5 \
-  --object-start 0.40 0.00 0.020469 \
   --out outputs/floating/20200709_143747_left/reference_12dof.h5
 ```
 
-Strict IK 출력에서 다음 조건을 확인합니다.
+For a settled/upright trajectory, the existing options include
+`--drop-leading-frames`, `--level-object-on-table`, and `--object-start X Y Z`.
+If an orientation is specified, use `--object-quat X Y Z W`; the transform is
+still applied to object, wrist, and MANO together.
 
-- `IK success rate: 100%`
-- `failed frame indices: []`
-- `joint_limit_violation=False`, `finite_solution=True`
-- position/orientation error가 설정 tolerance 이하
+Accept the conversion only when all frames report finite, in-limit solutions,
+no failed indices, and pose errors within the configured tolerances. View the
+result through [ISAAC_SIM_REPLAY.md](ISAAC_SIM_REPLAY.md).
 
-통합 GUI:
+## Online RB3 deployment
 
-```bash
-./tools/rb3_revo2_ik/run_replay_gui.sh \
-  --trajectory outputs/floating/20200709_143747_left/reference_12dof.h5
-```
-
-## 로그
-
-Floating log는 `logs/rsl_rl/floating_revo2_tuna/<timestamp>_<run_name>/`에 생성됩니다.
+This path observes the current simulation state, evaluates the same floating
+actor, solves the wrist command with warm-started bounded IK, and applies Revo2
+leader/mimic targets:
 
 ```bash
-/home/wanjunkim/IsaacLab/.venv/bin/tensorboard \
-  --logdir logs/rsl_rl/floating_revo2_tuna --port 6006
+./scripts/rl.sh play-arm \
+  --sequence 20200709_143747_left \
+  --checkpoint logs/rsl_rl/floating_revo2_tuna/RUN/model_ITERATION.pt \
+  --num_envs 1 --real_time
 ```
 
-Smoke test 정상 기준은 16개 environment, actor 67/critic 94/action 12, finite reward,
-RSI reset, `Learning iteration`과 PPO loss 출력, `model_*.pt` 생성입니다. 실제 확인한
-1-iteration smoke test는 16 env, 384 total steps로 PPO update까지 완료했습니다.
+Use `--headless --eval_episodes N` for repeated evaluation. To record arm target
+and measured telemetry, add
+`--arm-tracking-path outputs/diagnostics/rb3_arm_tracking.npz`, then run:
 
-기존 combined RB3+Revo2 RL task는 회귀 호환을 위해 유지합니다. 예전 동작이 필요하면
-`scripts/rl.sh` 명령에 `--legacy-arm-rl`을 추가합니다.
+```bash
+python3 tools/rb3_revo2_ik/analyze_arm_tracking.py \
+  outputs/diagnostics/rb3_arm_tracking.npz
+```
+
+Runtime gain comparisons use the existing `--rb3-stiffness-scale`,
+`--rb3-damping-scale`, and `--rb3-effort-scale` options. Treat them as simulator
+experiments, not real-hardware settings.
+
+Online reset order matters: Isaac Lab resets actions **before** commands.
+`RB3WristIKAction.reset` therefore only invalidates action state;
+`RB3Revo2ReferenceCommand` calls `reset_from_reference` after selecting and
+writing the new RSI frame/object placement. That synchronizes measured arm
+joints, the IK warm start, and interpolation targets before observations.
+Solving IK in the earlier action reset uses the previous episode's pose.
+The online task interpolates each 30 Hz IK target over four 120 Hz substeps.
+
+Run the simulator regression for asynchronous RSI and random placement:
+
+```bash
+./scripts/rl.sh debug --sequence 20200709_143747_left \
+  --task Regrind-RB3-Revo2-TunaCan-Online-Play-v0 \
+  --num_envs 2 --check_online_reset --max_steps 60
+```
+
+Each `[reset check]` must pass. For policy evaluation, `[arm episode env=0]`
+reports lift from that episode's start to its last observed pre-reset sample;
+it is not the terminal sample because Isaac autoresets before returning.
+The REGRIND `success` term means reference completion without deviation, not
+a separate measured grasp/contact classifier.
+
+Measured on 2026-09-06 with the unchanged floating checkpoint
+`2026-09-05_16-46-54_floating_stable_ground_5000/model_4999.pt`:
+fixed placement X=0.40/Y=0 passed 10/10 episodes after the reset fix (3/5
+before, with the same interpolation); randomized X=[0.40,0.50],
+Y=[-0.20,0.20] passed 19/20, with no reported nonterminal IK failures.
+This finite evaluation does not guarantee all placements. Arm tracking lag
+and contact dynamics still differ from floating-hand impedance control.
+
+The floating checkpoint can be transfer-fine-tuned against the assembled arm
+dynamics without changing its 67-D observation or 12-D wrist/finger action
+contract. The transfer task keeps the public PPO architecture and loss, lowers
+only the optimizer step to `1e-4`, and writes separate logs below
+`logs/rsl_rl/rb3_revo2_tuna_transfer/`. Start with the deterministic
+16-environment, full-gravity task:
+
+```bash
+./scripts/rl.sh train-arm \
+  --sequence 20200709_143747_left \
+  --resume \
+  --checkpoint logs/rsl_rl/floating_revo2_tuna/RUN/model_ITERATION.pt \
+  --num_envs 16 --max_iterations 100 \
+  --run_name rb3_transfer --headless
+```
+
+An explicit existing checkpoint path is accepted for cross-experiment resume.
+Transfer training is experimental: the short 25-update trials before the reset
+fix did not improve repeated evaluation. Use the original floating checkpoint
+for the verified deployment above; do not select those trials merely because
+their iteration number is larger. Additional training is not needed for the
+reset correction.
+Use `--full` only after the smoke transfer is stable; strict IK is CPU-bound, so
+increase `--num_envs` from 16 deliberately instead of assuming the floating
+hand's 4096-environment throughput.
+
+`scripts/random_can_full_replay.sh` chains random placement, floating play,
+offline IK, and workcell replay. Its built-in checkpoint is dated, so pass
+`--checkpoint` explicitly when model identity matters.

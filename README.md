@@ -50,17 +50,17 @@ RL/deployment branch
 | 경로 | 역할 | Git 관리 |
 |---|---|---|
 | `dataset/` | 원본 DexYCB 데이터, 읽기 전용 | 제외 |
-| `regrind/` | 기반 REGRIND 코드 | 별도 nested repository |
+| `regrind/` | 기반 REGRIND 패키지·스크립트 | 현재 root repository에 포함 |
 | `tools/dexycb_batch/` | 전체 파이프라인 orchestration | 포함 |
 | `tools/dexycb_world_transform/` | camera-to-world 변환 | 포함 |
 | `tools/revo2_kinematics/` | Revo2 FK와 semantic keypoint | 포함 |
 | `tools/rb3_revo2_ik/` | RB3 IK, 진단, Isaac replay | 포함 |
 | `scripts/` | 사람이 사용하는 대표 실행 명령 | 포함 |
-| `tests/` | 모든 회귀 테스트 | 포함 |
+| `tests/` | 주 simulator-independent 회귀 테스트 | 포함 |
 | `docs/` | 구조, 데이터, 실행 설명 | 포함 |
 | `USD/` | RB3/Revo2 USD와 Stage | 포함 |
 | `007_tuna_fish_can/` | YCB tuna can asset | 필요한 경량 asset만 포함 |
-| `outputs/` | 전처리·리타게팅·IK·시각화 결과 | 제외 |
+| `outputs/` | 전처리·리타게팅·IK 결과는 일부 추적, 대형 HTML은 제외 | 혼합 |
 
 자세한 파일 관계는 [프로젝트 구조](docs/PROJECT_STRUCTURE.md), 좌표계와 데이터
 형식은 [데이터 파이프라인](docs/DATA_PIPELINE.md), Isaac 실행은
