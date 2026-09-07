@@ -130,7 +130,9 @@ Executed output: `outputs/diagnostics/floating_actual_replay_20260907/replay20/`
   `wrist_quat_xyzw`, `revo2_joints`, dt/quaternion metadata. **Split by episode**;
   timestamps restart at reset. Initial t=0 states are in metadata/source logs.
 - `termination_checks.json`, `analysis.json`, `comparison.png`.
-- `policy.json`: empty (zero policy calls).
+- `policy.json`: originally an empty array (zero policy calls in this replay).
+  The empty placeholder was removed in the later JSON retention cleanup;
+  the evaluator still emits it on new runs. Metadata and physics traces remain.
 
 Console: `/tmp/floating_actual_replay20_20260907.log`. First smoke encountered
 `TypeError: 'bool' object is not callable` from installed `has_gui` property;

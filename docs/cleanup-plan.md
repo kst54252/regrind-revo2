@@ -3,6 +3,35 @@
 > On-demand document: read this only for cleanup, retention, or repository
 > archaeology. Start normal work from [architecture.md](architecture.md).
 
+## JSON retention cleanup after merge (2026-09-07)
+
+Separately authorized after the earlier cleanup and selective push. Starting
+point: clean tracked tree on `main`, commit `ca860177e51e026103cd00322424077d4a5aabfe`,
+plus 100 untracked diagnostic/capture files. No source, tests, configuration,
+asset, checkpoint, reference, or dataset contents changed.
+
+| Target | Action and evidence |
+|---|---|
+| 26 `policy.json` placeholders under `outputs/diagnostics/{arm_transfer_recovery,floating_actual_replay_20260907}/` | **Removed locally**: every file was exactly `[]\n` (3 bytes), matched Git HEAD, and contained no observations/actions. Traced `evaluate_mounted_interface.py` producer and searched tracked code, scripts, tests and docs; no file reader depends on these empty placeholders. They are recoverable from the commit above. Empty records alone do not prove that a run made no policy calls (lightweight capture can omit them). |
+| Remaining 126 tracked diagnostic JSON files | **Untracked, not deleted**; SHA-256 checked unchanged. These include required inputs to historical analyzers, so local copies remain. |
+| Generated diagnostic JSON/JSONL, comparison-capture JSONL, and three cleanup worktree snapshot files | **Ignored**. The 100 previously untracked files are preserved, now ignored. No raw trace or nonempty policy record was deleted. |
+| `arm_transfer_recovery/heldout_initial_states_v2.jsonl` | **Keep tracked**: explicit default in `scripts/play_arm_fast.sh`; ignore exception verified. |
+| All JSON outside `outputs/diagnostics/`, and all NPZ/H5/CSV/PNG artifacts | **Keep**: configuration, model/keypoints, pipeline/gallery manifests, or other artifacts outside this bounded cleanup. No global `*.json` or blanket `outputs/` ignore. |
+
+Deleted placeholders can be recovered at their exact bytes with
+`git show ca86017:<original-path>`; new evaluator runs still generate them.
+Diagnostic records now require a separate local backup when moving machines;
+historical report paths describe local evidence, not files guaranteed in a new
+clone. This supersedes the earlier diagnostic retention policy, not its results.
+Existing Git history is retained, so this does not shrink historical Git blobs.
+
+Validation: 98/98 lightweight tests before and after, including shell syntax;
+ignore rules and launcher-input exception checked; retained diagnostic JSON
+hashes checked; staged deletions restricted to the 152 diagnostic JSON paths;
+`git diff --check` and cached diff check passed. Tests still emit pre-existing
+unclosed-file ResourceWarnings. Isaac runs were not repeated: no runtime code,
+state, reference, or nonempty log contents changed. Commits/push are separate.
+
 Audited 2026-09-05 and reviewed 2026-09-06. References were checked through
 imports, calls, registrations, configs, shell entry points, docs, tests, Git
 state/history, string paths, and targeted USD/URDF attributes. Dataset,

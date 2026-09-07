@@ -42,6 +42,12 @@ or nested repository.
 | `USD/`, `007_tuna_fish_can/` | Robot/workcell and tuna-can assets |
 | `outputs/`, `logs/` | Mixed generated artifacts and experiment runs |
 
+Diagnostic JSON/JSONL under `outputs/diagnostics/` stay local (the small
+`arm_transfer_recovery/heldout_initial_states_v2.jsonl` launcher input is tracked).
+Historical diagnostic commands may require separately copied local records;
+a fresh clone does not contain those traces. Config/model/keypoint JSON and
+pipeline manifests are not covered by this ignore rule.
+
 ## Maintained entry points
 
 | Command | Purpose |

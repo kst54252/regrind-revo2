@@ -93,6 +93,16 @@ Thumbs.db
 /dataset/
 /outputs/*.html
 /outputs/**/*.html
+# Diagnostic JSON/JSONL are local run records, not source configuration.
+# Keep the small state bank required by scripts/play_arm_fast.sh versioned.
+/outputs/diagnostics/**/*.json
+/outputs/diagnostics/**/*.jsonl
+/outputs/visualizations/comparisons/**/*.jsonl
+!/outputs/diagnostics/arm_transfer_recovery/heldout_initial_states_v2.jsonl
+# Local worktree snapshots from the completed cleanup audit.
+/outputs/diagnostics/cleanup_20260907/status_before.txt
+/outputs/diagnostics/cleanup_20260907/status_after.txt
+/outputs/diagnostics/cleanup_20260907/tracked_before.patch
 /revo2_dexycb_interactive_57frames.html
 /revo2_dexycb_*.html
 
