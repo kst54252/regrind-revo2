@@ -254,7 +254,8 @@ From repository root; choose a **new** output directory (existing logs protected
 
 ```bash
 # Supported 120 Hz GUI baseline — NOT the rejected wrist3 candidate.
-bash scripts/play_arm_candidate.sh outputs/diagnostics/ik120_repeat_gui
+bash scripts/play_arm_candidate.sh outputs/diagnostics/ik120_repeat_gui \
+  --checkpoint logs/rsl_rl/floating_revo2_tuna/2026-09-05_16-46-54_floating_stable_ground_5000/model_4999.pt
 
 CKPT=logs/rsl_rl/floating_revo2_tuna/2026-09-05_16-46-54_floating_stable_ground_5000/model_4999.pt
 DIAG_OUT=outputs/diagnostics/ik120_repeat

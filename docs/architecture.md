@@ -58,20 +58,26 @@ pipeline manifests are not covered by this ignore rule.
 | `./scripts/run_isaac_replay.sh` | Open the RB3+Revo2 Isaac replay |
 | `./scripts/rl.sh train` | Train floating Revo2 PPO by default |
 | `./scripts/rl.sh play` | Evaluate/export a floating policy rollout |
-| `./scripts/rl.sh play-arm` | Deploy the floating policy through online RB3 IK |
+| `./scripts/rl.sh play-arm` / `train-arm` | Approved video/rubber mounted controller; play / optional policy transfer |
 | `./scripts/rl.sh zero` / `debug` | Reference-only or observation/reward validation |
 | `./scripts/floating_to_rb3.sh` | Convert a floating rollout through offline strict IK |
 | `./scripts/random_can_full_replay.sh` | Random placement, policy, IK, and workcell replay |
 | `./scripts/run_tests.sh` | Shell checks and root `tests/` discovery |
 
+Current floating-policy checkpoint selection is centralized in `scripts/_common.sh`;
+see [scope and overrides](RL_TASK.md#current-evaluation-checkpoint). It does not
+change controller presets or rewrite existing output artifacts.
+
 Old duplicate train/play/zero/debug aliases were removed. Use `scripts/rl.sh`;
 the [migration table](cleanup-plan.md#readable-layout-cleanup) records replacements.
 
-Opt-in experiments are **not** replacements for `rl.sh play-arm`:
+The user-approved `rl.sh play-arm` / `train-arm` configuration is shared in
+`regrind/utils/arm_execution_config.py` (one environment); the previous strict-IK
+path is retained with `--arm-controller baseline`. Other experiments remain opt-in:
 `evaluate_mounted_interface.sh` dispatches floating/legacy/simple modes;
 `arm_transfer_recovery.sh` adds recovery capture to that evaluator;
-`play_arm_candidate.sh` explicitly selects the candidate in
-`config/experiments/rb3_transfer_recovery_candidate.json` and fast IK. Start from
+`play_arm_candidate.sh` supports explicit `--transfer-config` or `--match-recording`
+overrides; without them it also selects the approved video/rubber profile. Start from
 the [diagnostic index](../scripts/README.md#experiments-and-failure-reproduction-opt-in),
 not every historical report. The minimal adapter is
 `mdp/simple_mounted_interface.py` with `tools/rb3_revo2_ik/frozen_policy_adapter.py`;
@@ -108,14 +114,19 @@ See [DATA_PIPELINE.md](DATA_PIPELINE.md) for arrays and coordinate conventions.
 | Isaac replay | `tools/rb3_revo2_ik/replay_reference_isaac_sim.py` | Isaac Sim, USD assets, workcell config |
 | Floating RL | `.../config/revo2_floating/` and `.../mdp/` | Isaac Lab, RSL-RL, reference loader |
 | Online arm deployment | `.../config/rb3_revo2/` and `mdp/rb3_revo2_actions.py` | floating policy contract and bounded RB3 IK |
+| Opt-in arm fine-tuning | same Online task; `regrind/utils/arm_transfer.py` | existing RSL-RL runner, explicit floating checkpoint, shared train/eval controller contract |
+| Opt-in distal compliant contacts | `regrind/utils/revo2_contact_material.py`; `config/experiments/revo2_rubber_contact.json` | original USD spawn/clone, scoped material binding; [limits and commands](RL_TASK.md#opt-in-last-phalanx-rubber-approximation) |
 
-In the last two rows, `...` means
+In this table, `...` means
 `regrind/source/regrind/regrind/tasks/manager_based/dexterous/`.
 
 The primary floating task controls a six-dimensional wrist residual and six
 Revo2 leaders. Online deployment preserves that policy contract and converts
 the wrist command to RB3 joints. LeapHand/WujiHand and combined-arm task
 registrations remain secondary compatibility paths.
+For transfer initialization versus resume and paired evaluation, use
+[arm fine-tuning](RL_TASK.md#opt-in-arm-fine-tuning); transfer checkpoints never
+replace the primary floating checkpoint automatically.
 
 ## Boundary contracts
 

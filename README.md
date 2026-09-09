@@ -56,10 +56,11 @@ RL/deployment branch
 | 전처리 → retargeting → RB3 reference | `scripts/run_pipeline.sh`: `dataset/` → `outputs/{preprocessed,retargeted,isaac}/dexycb/`; 세부 단계는 [데이터 문서](docs/DATA_PIPELINE.md) |
 | 독립 Revo2 FK / RB3 IK | [Revo2 FK](tools/revo2_kinematics/README.md), [RB3 IK](tools/rb3_revo2_ik/README.md): 모델·keypoints·world trajectory → FK / 12-DoF reference |
 | Floating 학습 / 평가 | `scripts/rl.sh train` / `play`: reference / checkpoint → `logs/rsl_rl/floating_revo2_tuna/` / 선택한 rollout HDF5 |
-| 기존 arm baseline 정책 | `scripts/rl.sh play-arm`: floating checkpoint + reference → 실제 mounted 상태 기반 정책·IK 실행 |
+| 기본 arm 정책 / 추가 학습 | `scripts/rl.sh play-arm` / `train-arm`: 검증한 video 제어기 + 고무 근사 접촉; [공유 설정·명령](docs/RL_TASK.md#approved-video-controller-and-timed-transfer) |
+| 이전 arm baseline | `scripts/rl.sh play-arm --arm-controller baseline`: 기존 strict-IK 경로 보존 |
 | 궤적만 시각화 | `scripts/run_isaac_replay.sh --trajectory FILE.h5`: reference → Isaac viewer; policy 평가와 구분 |
 | 고정 초기 상태 비교 | `bash scripts/evaluate_mounted_interface.sh --mode legacy --checkpoint FILE.pt --states BANK.jsonl --output NEW_DIR --episodes 20 --headless`: mode는 floating/legacy/simple 중 선택; [실행 계약/비교](docs/MINIMAL_MOUNTED_INTERFACE.md) |
-| 검증 중인 arm 후보 GUI | `bash scripts/play_arm_candidate.sh NEW_OUTPUT_DIR`: [고정 candidate 및 속도 한계](docs/ARM_REALTIME_EXECUTION.md); 기존 baseline을 대체하지 않음 |
+| 과거 영상 재현 / 선택형 후보 GUI | `bash scripts/play_arm_candidate.sh NEW_OUTPUT_DIR --match-recording VIDEO_RUN_DIR`: [입력 복원 및 속도 한계](docs/ARM_REALTIME_EXECUTION.md); 별도 `--transfer-config` 후보는 기본값이 아님 |
 
 전체 pipeline은 생성물을 다시 작성하므로 단순 실행 확인에 사용하지 마세요.
 `--sequence` 필터가 전처리 전체를 제한하지 않는 점은
@@ -105,7 +106,7 @@ reward와 실제 로봇 deployment는 현재 범위 밖입니다.
 
 ## Floating Revo2 REGRIND RL
 
-학습 환경에는 RB3를 넣지 않습니다. 공개 REGRIND와 같은 방식으로 floating wrist의
+기본 floating 학습 환경에는 RB3를 넣지 않습니다. 선택형 `train-arm`은 RB3 물리환경에서 같은 정책을 추가 학습합니다. 공개 REGRIND와 같은 방식으로 floating wrist의
 SE(3) residual 6차원과 Revo2 leader joint residual 6차원을 합친 12차원 action을
 사용합니다. 학습된 floating trajectory는 실행 위치의 tuna can pose에 rigid alignment한
 후 RB3 strict IK로 12-DoF robot reference로 변환합니다.
@@ -119,29 +120,31 @@ SE(3) residual 6차원과 Revo2 leader joint residual 6차원을 합친 12차원
 
 # PPO smoke/full training
 ./scripts/rl.sh train --sequence 20200709_143747_left --num_envs 16 --max_iterations 2 --headless
-./scripts/rl.sh train --sequence 20200709_143747_left --full --num_envs 4096 --headless
+./scripts/rl.sh train --sequence 20200709_143747_left --full --num_envs 4096 --max_iterations 10000 --headless
 
-# Floating policy GUI + physical rollout HDF5 export
+# 현재 10,000회 floating policy GUI + 새로운 physical rollout HDF5 export
 ./scripts/rl.sh play --sequence 20200709_143747_left \
-  --checkpoint logs/rsl_rl/floating_revo2_tuna/RUN/model_999.pt \
-  --rollout-path outputs/floating/20200709_143747_left/rollout.h5
+  --rollout-path outputs/floating/20200709_143747_left/policy_10000/rollout.h5
 
 # 같은 floating checkpoint를 RB3+Revo2+책상에서 온라인 폐루프 실행
-# 매 episode마다 캔 XY는 IK 안전 영역에서 다시 샘플링됨
+# 검증된 초기 배치 20개를 순차 사용; policy 30 Hz, IK/physics 120 Hz
 ./scripts/rl.sh play-arm --sequence 20200709_143747_left \
-  --checkpoint logs/rsl_rl/floating_revo2_tuna/RUN/model_4999.pt \
-  --num_envs 1 --real_time
+  --episodes 20
 
 # Actual can start pose alignment + RB3 strict IK
 ./scripts/floating_to_rb3.sh \
-  --rollout outputs/floating/20200709_143747_left/rollout.h5 \
+  --rollout outputs/floating/20200709_143747_left/policy_10000/rollout.h5 \
   --object-start 0.40 0.00 0.020469 \
-  --out outputs/floating/20200709_143747_left/reference_12dof.h5
+  --out outputs/floating/20200709_143747_left/policy_10000/reference_12dof.h5
 
 # Combined RB3+Revo2 GUI
 ./scripts/run_isaac_replay.sh \
-  --trajectory outputs/floating/20200709_143747_left/reference_12dof.h5
+  --trajectory outputs/floating/20200709_143747_left/policy_10000/reference_12dof.h5
 ```
+
+기본 모델은 [현재 체크포인트 선택 규칙](docs/RL_TASK.md#current-evaluation-checkpoint)을
+따릅니다. 이전 로그·영상·rollout은 10,000회 결과로 덮어쓰지 않았습니다.
+전처리/reference와 제로 에이전트는 학습 횟수와 무관하며 기존 데이터를 유지합니다.
 
 이전 RB3+Revo2 동시 residual task는 삭제하지 않았으며 필요한 경우 RL 명령에
 `--legacy-arm-rl`을 붙여 사용할 수 있습니다.

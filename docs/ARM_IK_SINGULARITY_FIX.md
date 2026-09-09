@@ -118,8 +118,12 @@ IK·native command/정책 행동이 이전 baseline과 bit-for-bit 동일**했�
 
 ```bash
 bash scripts/play_arm_candidate.sh outputs/diagnostics/ik120_smooth_view \
-  --transfer-config config/experiments/rb3_smooth_bounded_ik.json
+  --transfer-config config/experiments/rb3_smooth_bounded_ik.json \
+  --checkpoint logs/rsl_rl/floating_revo2_tuna/2026-09-05_16-46-54_floating_stable_ground_5000/model_4999.pt
 ```
+
+위 명령은 이 보고서의 5,000회 모델을 명시한다. `--checkpoint`를 생략하면
+현재 공통 10,000회 모델을 사용하지만, 이 보고서의 수치는 그 모델의 검증 결과가 아니다.
 
 기존 transfer candidate 동작은 위 추가 `--transfer-config`만 빼면 된다.
 원래 arm baseline은 `scripts/rl.sh play-arm`이다.

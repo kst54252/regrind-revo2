@@ -61,16 +61,34 @@ current commands and validation boundaries.
 The isolated [arm transfer recovery experiment](ARM_TRANSFER_RECOVERY.md)
 (2026-09-07) executed fixed-command replay and frozen-policy comparisons. Its
 opt-in configuration improved existing20 from19/20 to20/20 and distinct held-out20
-from17/20 to20/20, with increased peak acceleration. Normal deployment defaults
-remain unchanged; see that report for limitations and exact reproduction inputs.
+from17/20 to20/20, with increased peak acceleration. Defaults were unchanged at
+that experiment; see below for the subsequent user-approved promotion.
 
-The subsequent [fast execution experiment](ARM_REALTIME_EXECUTION.md) is also
-opt-in: `scripts/play_arm_candidate.sh` chooses that candidate and warm-first IK.
+The subsequent [fast execution experiment](ARM_REALTIME_EXECUTION.md) introduced
+the candidate and warm-first IK now used by the approved video profile.
 Measured headless/GUI throughput was about .63x/.48x, not guaranteed real time.
 Use [the command index](../scripts/README.md) to distinguish current evaluators
 from completed diagnostic recipes. Retired launchers and rejected candidate
 configs are recorded in the cleanup history; reusable experiment implementations
 and contract tests remain. Offline analysis now lives in `tools/arm_diagnostics/`.
+
+Current user-facing evaluation/capture defaults use the completed **10,000-update**
+floating model; see [selection and override rules](RL_TASK.md#current-evaluation-checkpoint).
+Previous benchmark counts below belong to the 5,000-update checkpoint, not the
+new model. Historical artifacts remain unchanged. A later matched 40-placement
+comparison with the 10k policy is recorded below; it is not a population success rate.
+
+On 2026-09-09 the user approved the video controller plus compliant distal
+contacts as the `play-arm` default after 40/40 task and lift/contact-proxy outcomes
+with the original 10k policy. The previous strict-IK controller is retained by
+`--arm-controller baseline`; floating defaults and original assets are unchanged.
+`train-arm` and evaluation share `regrind/utils/arm_execution_config.py` and use
+one environment. See [current commands and limits](RL_TASK.md#approved-video-controller-and-timed-transfer).
+The separate [one-hour transfer](RL_TASK.md#one-hour-execution--2026-09-09) completed
+2,679 updates / 64,296 transitions in 3,601 s. Paired old20 + heldout20 maintained
+40/40 task and lift/hold outcomes, but mean object error increased 3.94→11.16 mm
+and finger error .02235→.02880 rad. The final transfer model is therefore opt-in;
+the default policy remains the original 10k model. Root regressions: 142 passed.
 
 The [120 Hz smooth bounded-IK candidate](ARM_IK_SINGULARITY_FIX.md) subsequently
 preserved 40/40 observed task/contact-proxy outcomes and reduced the worst sampled
@@ -87,9 +105,18 @@ and remains opt-in, not a general grasp-success guarantee or a new default.
 - Revo2 scissors retargeting; Revo2 currently declares the tuna-can object path.
 - A trained full-arm policy; online deployment uses the floating policy plus IK.
 - Transfer of simulator gain experiments to real hardware.
-- Arm transfer fine-tuning is implemented as `rl.sh train-arm` (see RL task
-  document), but is not the verified floating-checkpoint baseline; its earlier
-  short trials were inconclusive. It was not retrained during cleanup.
+- Opt-in arm fine-tuning distinguishes floating initialization from transfer
+  resume and shares the selected mounted controller with paired evaluation.
+  The [2026-09-09 100-update trial](RL_TASK.md#executed-transfer-validation--2026-09-09)
+  improved the measured lift/contact proxy33/40→39/40; one new held-out drop and
+  larger finger tracking error remain. This is not a convergence claim or a
+  replacement for floating/arm defaults. Earlier 25-update trials are historical.
+- An [opt-in last-phalanx compliant-contact trial](RL_TASK.md#executed-rubber-contact-comparison--2026-09-09)
+  preserves friction and rigid assets. Floating retained hold40/40; mounted
+  original-policy hold changed33→34/40, but a separate 100-update compliant
+  transfer regressed34→25/40. That checkpoint is **not** a replacement baseline;
+  material parameters remain uncalibrated. These results concern the previous
+  strict-IK controller, not the subsequently approved video/rubber default.
 
 ## Preserved or uncertain paths
 
@@ -102,8 +129,8 @@ and remains opt-in, not a general grasp-success guarantee or a new default.
 - Two Revo2 keypoint JSON copies currently require manual synchronization.
 - Output retention is mixed: some compact artifacts are tracked while HTML,
   checkpoints, and logs are generally ignored.
-- `scripts/random_can_full_replay.sh` has a dated default checkpoint; pass an
-  explicit `--checkpoint` when model selection matters.
+- `scripts/random_can_full_replay.sh` uses the shared current checkpoint but
+  retains the older offline trimming/leveling workflow, separate from online play.
 - Runtime Hydra overrides of materialized actuator dictionaries may not update
   all derived values; arm evaluation has explicit `play.py --rb3-*-scale`
   options pending config-lifecycle cleanup.

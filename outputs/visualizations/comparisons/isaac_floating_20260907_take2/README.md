@@ -1,5 +1,17 @@
 # Floating-hand Isaac comparison
 
+For the newer keypoint-free Full HD render of the same physical trajectories,
+see [the 4K recapture](../isaac_floating_hq_20260908_take2/README.md).
+
+Latest correction to `isaac_floating_retargeting_vs_residual_rl_16x9_4s.mp4`:
+removed its 17 leading black scene frames (0.566667 s), including the initial
+hold of an unrendered frame. It is now 103 frames / 3.433333 s at 30 fps;
+the filename is retained. Motion speed and final hold are unchanged. First-frame
+preview and scene-only black detection passed. A matching `_poster.png` is saved
+for explicit slide/video posters. Pre-trim copy:
+`outputs/visualizations/.black_intro_backup_0vX5As/` relative to repository root.
+The 4-second duration below records the earlier layout edit, before this trim.
+
 Original edit: `isaac_floating_retargeting_vs_residual_rl.mp4`, 1920x540, 30 fps,
 300 frames / 10.000 s. Actual Isaac-rendered floating Revo2 and dynamic tuna,
 no arm, no kinematic object trajectory, no controller or policy changes.
@@ -8,6 +20,14 @@ The later `isaac_floating_retargeting_vs_residual_rl_0p5x.mp4` doubles playback
 to 0.5× (1920x540, 30 fps, 150 frames / 5 s), including the presentation holds.
 Its speed label is updated; simulation data and the original edit are preserved.
 The reproduction composer below still produces the original 0.25× edit.
+
+Presentation edit: `isaac_floating_retargeting_vs_residual_rl_16x9_4s.mp4`,
+1280×720 (16:9), 30 fps, 120 frames / 4 s. It retains the first 120 frames of
+the .5× edit and removes only its final one second of frozen footage; initial
+hold and motion speed are unchanged. Each original panel is cropped to 480×432
+at local (240,64), uniformly scaled to 640×576, and placed beneath new titles
+on a 1280×720 canvas (104 px header, 40 px footer). Side-by-side order and .5×
+label are preserved. ffprobe and visual previews checked; original clips remain.
 
 Left: reference targets with zero residual action. Right: live model_4999 policy.
 Checkpoint: `logs/rsl_rl/floating_revo2_tuna/2026-09-05_16-46-54_floating_stable_ground_5000/model_4999.pt`.

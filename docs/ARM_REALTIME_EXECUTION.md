@@ -95,6 +95,102 @@ already disabled, so disabling them is not a further performance fix.
 
 ## Reproduce
 
+**Current selection (2026-09-09, after the comparisons below):** the user approved
+the video controller plus compliant distal contacts as `rl.sh play-arm` default.
+`train-arm` shares this one-environment configuration. Use
+`--arm-controller baseline` for the former strict-IK path. Historical statements
+below about unchanged defaults describe the experiments at their execution time;
+`--match-recording` still restores the saved video's exact inputs. Current commands
+and timed transfer are in [RL task](RL_TASK.md#approved-video-controller-and-timed-transfer).
+
+### Video versus current-path diagnosis — 2026-09-09
+
+The preserved presentation comparison under
+`outputs/visualizations/presentation/robot_media_20260908/arm_comparison/`
+is **not** the recent `--mode legacy --transfer-evaluation` experiment:
+
+| Setting | Preserved right-panel recording | Recent transfer/rubber evaluation |
+|---|---|---|
+| Policy | original 5k `model_4999.pt` | original 10k, or separate transfer `model_99.pt` |
+| Arm action | `SimpleMountedWrist`, existing recovery candidate | `RB3WristIKAction`, original baseline |
+| Kp | `[700,20000,12000,900,2400,250]` | `[300,500,500,300,200,50]` |
+| Kd | `[35,260,140,45,70,20]` | `[20,20,20,20,20,10]` |
+| Wrist response / IK | tau=.1 s at 120 Hz; warm-first existing IK | raw equilibrium target, 30 Hz IK |
+| Arm velocity target | final delivered joint-path difference / dt | zero |
+| State bank | heldout20, first placement | old20 or heldout20 |
+| Contact | original rigid | original rigid or opt-in compliant |
+
+Both have 30 Hz policy and 120 Hz physics. The presentation .5× playback and
+terminal still holds are editing choices, not changed simulation dt. Source
+reference and wrist/mount definitions match; no mount/FK changes were needed.
+Floating `SE3ImpedanceActionTerm` computes a Cartesian force/torque from the
+decoded equilibrium pose (`mdp/actions.py`); it does not teleport to that pose.
+The original arm baseline sends that equilibrium to joint IK, whereas the
+existing video candidate first shapes its response at physics rate
+(`mdp/simple_mounted_interface.py`). Different physical observations then cause
+the same frozen policy to emit different subsequent actions. A lower error to
+the raw equilibrium is not necessarily closer to floating physical motion.
+
+Executed evidence in `outputs/diagnostics/arm_run_parity_20260909/`:
+
+- `video5000_reproduction` and `matched_profile_smoke2` each reproduced all
+  152 recorded physics samples exactly: arm/hand q/dq, wrist, can, action,
+  delivered targets and timestamps. This is live inference, not action replay.
+- Current 10k policy with the **unchanged video controller preset**: task and
+  final lift/contact proxy both **40/40** for original contacts, and **40/40**
+  with compliant contacts. No new tuning or policy training was performed.
+  Same-checkpoint recent baselines were task35/40, hold33/40 (rigid) and
+  task37/40, hold34/40 (compliant). Presets remain opt-in, not training defaults.
+- Against actual floating states at identical physics timestamps, rigid wrist
+  mean difference old20 **12.48→5.51 mm**, heldout20 **13.35→5.63 mm**;
+  compliant **12.27→5.91 mm** and **13.33→5.82 mm**. Rigid wrist angle
+  differences **.127→.048 rad** / **.153→.047 rad**. Rigid leader differences
+  **.01996→.00881 rad** / **.01977→.00975 rad**. No time shifting; comparisons
+  stop at the common recorded horizon if baseline terminates early.
+- Common initial wrist/hand/object state and phase verified within 2e-6;
+  initial policy observation differences <=1.20e-7, actions <=5.97e-8.
+  Arm limits, hand gains, reference, material, checkpoint and initial states
+  match within each controller comparison. Only the pre-existing controller
+  preset differs; these are not isolated per-gain causal experiments.
+- `floating_motion_comparison.json`, `actual_motion_comparison.png`,
+  `summary.json` and `matched_profile_verified.json` retain the comparison.
+  138 regressions passed. The failed first smoke command used unsupported
+  `--visualizer null`; the successful rerun uses `--visualizer none`.
+
+Remaining limitations: actual motion is not identical (about 5–6 mm mean
+difference); max actual arm acceleration reached 927.88 rad/s² in these short
+simulations. The old video controller's max delivered joint step is .083334 rad;
+tiny hand limit overshoots remain <=.001896 rad. IK failure count was zero in
+the 80 candidate episodes; drive-only torque saturation remains UNKNOWN.
+These are fixed finite simulation placements, not hardware safety or general
+grasp reliability guarantees. The exact GUI command the user saw was not
+provided; the diagnosis above concerns the preserved recording and identified
+recent evaluation paths, not an inferred running window.
+
+Commands (fresh output directories required):
+
+```bash
+# Exact original recorded controller, 5k policy and first held-out placement.
+# Exits after the recorded one episode. No video slow-motion/holds are applied.
+bash scripts/play_arm_candidate.sh outputs/diagnostics/matched_video_view \
+  --match-recording outputs/visualizations/presentation/robot_media_20260908/arm_comparison/residual_rl
+
+# Current 10k original policy, same video controller, 20 saved random placements.
+bash scripts/play_arm_candidate.sh outputs/diagnostics/current_video_controller_view \
+  --checkpoint logs/rsl_rl/floating_revo2_tuna/2026-09-08_01-28-29_floating_stable_ground_10000/model_9999.pt
+# Optionally add the separately validated compliant material to this command:
+# --fingertip-contact-config config/experiments/revo2_rubber_contact.json
+```
+
+`--match-recording` restores recorded resolved values instead of mutable preset
+defaults, checks saved input hashes and runtime gains/limits/dt/native settings,
+and verifies actual reset states. Contact/transfer overrides are rejected for
+this hard-contact recording mode. GUI/capture choice remains explicit. The
+evaluator now prints `[resolved execution]` (checkpoint, controller, gains,
+contact, timing and state bank) before rollout. Do not run a transfer checkpoint
+under this different controller and call it a transfer-training comparison;
+the existing transfer controller contract and defaults remain unchanged.
+
 Optional scheduling experiment: append `--ik-policy-rate` to `play_arm_candidate.sh`.
 This samples the existing 120 Hz shaped pose on the first physics substep of
 each 30 Hz policy action, then holds the accepted IK goal for the remaining
@@ -114,7 +210,8 @@ passed, including new scheduling, unchanged-default, failure-hold and reset test
 
 ```bash
 # Actual live policy + dynamic can + Kit viewer, fresh directory required.
-bash scripts/play_arm_candidate.sh outputs/diagnostics/arm_transfer_recovery/my_fast_view
+bash scripts/play_arm_candidate.sh outputs/diagnostics/arm_transfer_recovery/my_fast_view \
+  --checkpoint logs/rsl_rl/floating_revo2_tuna/2026-09-05_16-46-54_floating_stable_ground_5000/model_4999.pt
 
 # Recorded-input IK comparison, no Isaac GUI needed.
 bash scripts/benchmark_warm_start_ik.sh \
@@ -154,7 +251,8 @@ Physics commands and termination criteria are never extended or disabled.
 policy/physics traces and console logs remain alongside it.
 
 ```bash
-bash scripts/record_arm_comparison.sh outputs/visualizations/comparisons/my_arm_pair
+bash scripts/record_arm_comparison.sh outputs/visualizations/comparisons/my_arm_pair \
+  logs/rsl_rl/floating_revo2_tuna/2026-09-05_16-46-54_floating_stable_ground_5000/model_4999.pt
 bash scripts/compose_arm_comparison.sh outputs/visualizations/comparisons/my_arm_pair
 ```
 
