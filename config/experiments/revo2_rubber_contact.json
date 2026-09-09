@@ -1,0 +1,10 @@
+{
+  "name": "uncalibrated_last_phalanx_compliance",
+  "calibrated_to_hardware": false,
+  "scope": "five_distal_links_and_fixed_touch_children",
+  "static_friction": 0.8,
+  "dynamic_friction": 0.8,
+  "contact_stiffness_n_per_m": 10000.0,
+  "contact_damping_ns_per_m": 10.0,
+  "note": "Unmeasured contact-response proxy, not a deformable rubber mesh. Preserve friction to isolate compliance. No motor gain, geometry, mass or inertia changes."
+}
