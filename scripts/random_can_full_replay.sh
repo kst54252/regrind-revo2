@@ -5,8 +5,8 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/_common.sh"
 
 sequence="${DEFAULT_SEQUENCE}"
-checkpoint="${PROJECT_ROOT}/logs/rsl_rl/floating_revo2_tuna/2026-09-03_14-56-00_floating_full_3000/model_2999.pt"
-output_dir="${PROJECT_ROOT}/outputs/floating/random_can_replay"
+checkpoint="${DEFAULT_FLOATING_CHECKPOINT}"
+output_dir="${PROJECT_ROOT}/outputs/floating/random_can_replay_10000"
 physics_object=true
 extra_replay_args=()
 
@@ -19,7 +19,7 @@ solves RB3 strict IK, then opens the complete workcell replay.
 
 Options:
   --sequence NAME       Reference sequence (default: 20200709_143747_left)
-  --checkpoint PATH     Floating-hand PPO checkpoint
+  --checkpoint PATH     Floating-hand PPO checkpoint (default: shared 10000-update model)
   --output-dir DIR      Generated rollout/reference directory
   --kinematic-object    Follow the reference can pose instead of contact physics
   --speed VALUE         Isaac replay speed multiplier

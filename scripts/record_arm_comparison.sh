@@ -2,14 +2,18 @@
 # Same initial state/controller/dynamic object; only residual action source differs.
 set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-cd "${SCRIPT_DIR}/.."
-root="${1:?Usage: bash scripts/record_arm_comparison.sh NEW_OUTPUT_DIRECTORY}"
+source "${SCRIPT_DIR}/_common.sh"
+cd "${PROJECT_ROOT}"
+[[ $# -ge 1 && $# -le 2 ]] || die "Usage: bash scripts/record_arm_comparison.sh NEW_OUTPUT_DIRECTORY [CHECKPOINT]"
+root="$1"
+checkpoint="${2:-${DEFAULT_FLOATING_CHECKPOINT}}"
+require_file "$checkpoint" "floating-hand checkpoint"
 [[ ! -e "$root" ]] || { echo "Output already exists: $root" >&2; exit 2; }
 mkdir -p "$root"
 common=(--mode simple --episodes 1 --headless --record-video --fast-ik
   --transfer-config config/experiments/rb3_transfer_recovery_candidate.json
   --states outputs/diagnostics/arm_transfer_recovery/heldout_initial_states_v2.jsonl
-  --checkpoint logs/rsl_rl/floating_revo2_tuna/2026-09-05_16-46-54_floating_stable_ground_5000/model_4999.pt)
+  --checkpoint "$checkpoint")
 for condition in zero_agent residual_rl; do
   extra=()
   [[ "$condition" == zero_agent ]] && extra+=(--zero-actions)

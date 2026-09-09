@@ -12,6 +12,8 @@ set -euo pipefail
 readonly PROJECT_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly DEFAULT_SEQUENCE="${REGRIND_SEQUENCE:-20200709_143747_left}"
 readonly ISAAC_PYTHON="${ISAAC_SIM_PYTHON:-/home/wanjunkim/IsaacLab/.venv/bin/python}"
+# Pin user-facing floating-policy evaluation; never infer a model from capture runs.
+readonly DEFAULT_FLOATING_CHECKPOINT="${REGRIND_FLOATING_CHECKPOINT:-${PROJECT_ROOT}/logs/rsl_rl/floating_revo2_tuna/2026-09-08_01-28-29_floating_stable_ground_10000/model_9999.pt}"
 
 die() {
     echo "ERROR: $*" >&2
@@ -45,4 +47,15 @@ require_file() {
     local path="$1"
     local label="$2"
     [[ -f "${path}" ]] || die "${label} not found: ${path}"
+}
+
+has_policy_selection() {
+    local argument
+    for argument in "$@"; do
+        case "$argument" in
+            --checkpoint|--checkpoint=*|--load_run|--load_run=*|--task|--task=*|--agent|--agent=*|agent.load_run=*|agent.load_checkpoint=*|agent.experiment_name=*)
+                return 0 ;;
+        esac
+    done
+    return 1
 }
