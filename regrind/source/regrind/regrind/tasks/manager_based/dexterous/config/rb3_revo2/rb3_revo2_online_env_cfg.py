@@ -103,6 +103,8 @@ class RB3Revo2TunaOnlineEnvCfg_SMOKE(RB3Revo2TunaOnlineEnvCfg):
         self.sim.gravity = (0.0, 0.0, -9.81)
         self.commands.reference.randomize_object_xy = False
         self.commands.reference.enable_reset_perturbation = False
+        self.commands.reference.rsi_enabled = False
+        self.actions.root_pose.transfer_reset_sync = True
         for term_name in (
             "object_pos",
             "object_ori",
@@ -113,6 +115,20 @@ class RB3Revo2TunaOnlineEnvCfg_SMOKE(RB3Revo2TunaOnlineEnvCfg):
             term = getattr(self.observations.policy, term_name)
             term.params["delay_key"] = None
             term.params["apply_noise"] = False
+
+
+def configure_transfer_baseline(cfg, *, rsi=False):
+    """Shared opt-in train/eval settings; retain the original online controller."""
+    cfg.events = DeterministicEventsCfg()
+    cfg.sim.gravity = (0.0, 0.0, -9.81)
+    cfg.commands.reference.randomize_object_xy = False
+    cfg.commands.reference.enable_reset_perturbation = False
+    cfg.commands.reference.rsi_enabled = rsi
+    cfg.actions.root_pose.transfer_reset_sync = True
+    for name in ('object_pos', 'object_ori', 'hand_wrist_pos', 'hand_wrist_rot6d', 'hand_joint_pos'):
+        term = getattr(cfg.observations.policy, name)
+        term.params['delay_key'] = None
+        term.params['apply_noise'] = False
 
 
 @configclass

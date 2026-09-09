@@ -30,6 +30,7 @@ class LiveVelocityTest(unittest.TestCase):
                    data=NS(joint_pos=NS(torch=torch.zeros(1, 17))))
         cmd = NS(target_hand_wrist_pos=torch.zeros(1,3), target_hand_wrist_quat=torch.tensor([[0.,0.,0.,1.]]))
         a = NS(cfg=NS(velocity_target_mode=mode, interpolation_substeps=4, command_name="reference",
+                      transfer_reset_sync=False,
                       position_tolerance_m=1e-4, orientation_tolerance_rad=1e-3, position_weight=10., max_nfev=300),
                _asset=asset, _joint_ids=list(range(6)), device="cpu", _env=NS(physics_dt=.01, command_manager=NS(get_term=lambda _:cmd)),
                _interpolation_step=0, _interpolation_start_target=torch.zeros(1,6), _last_joint_target=torch.ones(1,6)*.4,
@@ -70,6 +71,45 @@ class LiveVelocityTest(unittest.TestCase):
         a._interpolation_step=0
         self.methods["apply_actions"](a)
         torch.testing.assert_close(sent[-1][1], torch.ones(1,6)*10.)
+
+    def test_transfer_rsi_reset_clears_only_selected_env_buffers(self):
+        a, _ = self.make_action()
+        a.cfg.transfer_reset_sync = True
+        command = a._env.command_manager.get_term('reference')
+        command.cfg = NS(rsi_enabled=True)
+        command.time_steps = torch.tensor([2, 1])
+        command.reference_joint_vel = torch.arange(36.).reshape(3, 12) / 100
+        command.target_hand_joint_pos = torch.full((2, 6), .15)
+        command.target_hand_wrist_pos = torch.zeros(2, 3)
+        command.target_hand_wrist_quat = torch.tensor([[0., 0., 0., 1.]]).repeat(2, 1)
+        a._asset.data.joint_pos.torch = torch.zeros(2, 17)
+        for name in ('_interpolation_start_target', '_last_joint_target', '_applied_joint_target',
+                     'target_pos', 'target_quat', '_ik_success', '_warm_start_valid',
+                     '_ik_position_error', '_ik_orientation_error'):
+            value = getattr(a, name)
+            setattr(a, name, value.repeat((2,) + (1,) * (value.ndim - 1)))
+        a._raw_actions = torch.ones(2, 6)
+        a._processed_actions = torch.ones(2, 6)
+        hand = NS(_raw_actions=torch.ones(2, 6), _processed_actions=torch.ones(2, 6),
+                  _last_joint_target=torch.ones(2, 6))
+        a._env.action_manager = NS(get_term=lambda _: hand)
+        a._kinematics = NS(inverse=lambda *args, **kw: NS(q=np.ones(6)*.2, success=True, finite=True,
+            joint_limit_violation=False, position_error_m=0., orientation_error_rad=0.))
+        written = []
+        a._asset.write_joint_state_to_sim = lambda q, v, **kw: written.append((q.clone(), v.clone(), kw))
+        untouched = {name: getattr(a, name)[1].clone() for name in (
+            '_applied_joint_target', '_interpolation_start_target', '_last_joint_target', '_raw_actions', '_processed_actions')}
+        self.methods['reset_from_reference'](a, [0])
+        torch.testing.assert_close(written[0][1], command.reference_joint_vel[2:3, :6])
+        self.assertEqual(written[0][2]['env_ids'].tolist(), [0])
+        for name, value in untouched.items():
+            torch.testing.assert_close(getattr(a, name)[1], value)
+        for term in (a, hand):
+            torch.testing.assert_close(term._raw_actions[0], torch.zeros(6))
+            torch.testing.assert_close(term._processed_actions[0], torch.zeros(6))
+            torch.testing.assert_close(term._processed_actions[1], torch.ones(6))
+        torch.testing.assert_close(hand._last_joint_target[0], command.target_hand_joint_pos[0])
+        torch.testing.assert_close(hand._last_joint_target[1], torch.ones(6))
 
 
 class PairedStateTest(unittest.TestCase):

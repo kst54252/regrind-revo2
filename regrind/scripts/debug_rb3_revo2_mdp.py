@@ -56,6 +56,32 @@ def _check_online_reset(base_env, command, env_ids):
             torch.testing.assert_close(target[index], measured[index])
         if not bool(action.ik_success[index]):
             raise AssertionError(f"reset IK failed for env={index}")
+        if action.cfg.transfer_reset_sync:
+            robot = command.robot
+            expected_v = command.reference_joint_vel[frame, :6] if command.cfg.rsi_enabled else torch.zeros(6, device=base_env.device)
+            torch.testing.assert_close(robot.data.joint_vel.torch[index, action._joint_ids], expected_v)
+            hand = base_env.action_manager.get_term('joint_pos')
+            expected_q = command.reference_joint_pos[frame:frame+1]
+            expected_v_all = command.reference_joint_vel[frame:frame+1]
+            torch.testing.assert_close(command.current_hand_joint_pos[index], expected_q[0, 6:])
+            torch.testing.assert_close(command.current_hand_joint_vel[index], expected_v_all[0, 6:])
+            torch.testing.assert_close(robot.data.joint_pos.torch[index, command.follower_ids], command._follower_target(expected_q)[0])
+            torch.testing.assert_close(robot.data.joint_vel.torch[index, command.follower_ids], command._follower_velocity(expected_v_all)[0])
+            for term in (action, hand):
+                torch.testing.assert_close(term.raw_actions[index], torch.zeros_like(term.raw_actions[index]))
+                torch.testing.assert_close(term.processed_actions[index], torch.zeros_like(term.processed_actions[index]))
+            torch.testing.assert_close(hand.last_joint_target[index], expected_q[0, 6:])
+            torch.testing.assert_close(command.object.data.root_pos_w.torch[index],
+                command.reference_object_pos[frame] + command.placement_offset[index] + base_env.scene.env_origins[index])
+            # Reset writes link-origin velocity; deprecated root_lin_vel_w is
+            # COM velocity and differs by omega cross the local COM offset.
+            torch.testing.assert_close(command.object.data.root_link_lin_vel_w.torch[index], command.reference_object_lin_vel[frame])
+            torch.testing.assert_close(command.object.data.root_link_ang_vel_w.torch[index], command.reference_object_ang_vel[frame])
+            torch.testing.assert_close(command.object.data.root_quat_w.torch[index], command.reference_object_quat[frame])
+            for buffers in base_env.observation_manager._group_obs_term_history_buffer.values():
+                for history in buffers.values():
+                    values = history.buffer[index]
+                    torch.testing.assert_close(values, values[-1:].expand_as(values))
     print(f"[reset check] passed envs={env_ids.tolist()} RSI={command.last_rsi_frame[env_ids].tolist()}")
 
 

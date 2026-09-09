@@ -288,9 +288,22 @@ class RB3WristIKAction(ClippedRelativeJointPositionAction):
             )
         self.target_pos[env_ids_tensor] = base_pos[env_ids_tensor]
         self.target_quat[env_ids_tensor] = base_quat[env_ids_tensor]
+        reset_velocity = torch.zeros_like(reset_target)
+        if self.cfg.transfer_reset_sync:
+            # Fixed-placement RSI: use the selected reference arm velocity, not
+            # a previous episode's state. Frame-zero evaluation retains the
+            # saved baseline bank's zero arm velocity.
+            if command.cfg.rsi_enabled:
+                reset_velocity = command.reference_joint_vel[command.time_steps[env_ids_tensor]][:, :6]
+            self._raw_actions[env_ids_tensor] = 0
+            self._processed_actions[env_ids_tensor] = 0
+            hand = self._env.action_manager.get_term('joint_pos')
+            hand._raw_actions[env_ids_tensor] = 0
+            hand._processed_actions[env_ids_tensor] = 0
+            hand._last_joint_target[env_ids_tensor] = command.target_hand_joint_pos[env_ids_tensor]
         self._asset.write_joint_state_to_sim(
             reset_target,
-            torch.zeros_like(reset_target),
+            reset_velocity,
             joint_ids=self._joint_ids,
             env_ids=env_ids_tensor,
         )
@@ -449,5 +462,6 @@ class RB3WristIKActionCfg(ClippedRelativeJointPositionActionCfg):
     interpolation_substeps: int = 1
     # Opt-in online evaluation; zero preserves the original command path.
     velocity_target_mode: str = "zero"
+    transfer_reset_sync: bool = False
     debug_output: bool = False
     debug_interval: int = 10
