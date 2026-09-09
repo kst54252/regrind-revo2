@@ -17,6 +17,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--sequence', default='20200709_143747_left')
     parser.add_argument('--output', required=True, type=Path)
+    parser.add_argument('--hide-model-keypoints', action='store_true',
+                        help='Hide only the real hand model kp_* meshes; preserve comparison skeletons.')
     args = parser.parse_args()
     if args.output.exists():
         raise FileExistsError(args.output)
@@ -79,6 +81,13 @@ def main():
 
     hand = UsdGeom.Xform.Define(stage, '/Presentation/Hand')
     hand.GetPrim().GetReferences().AddReference(str(ROOT / 'USD/revo2_right/revo2_right.usda'))
+    hidden_keypoints = []
+    if args.hide_model_keypoints:
+        from regrind.utils.presentation_visibility import hide_revo2_keypoints
+        hidden_keypoints = hide_revo2_keypoints(stage, '/Presentation/Hand')
+        if len(hidden_keypoints) != 21:
+            raise ValueError(f'Expected 21 model keypoint roots, found {len(hidden_keypoints)}')
+        print(f'[presentation] hidden 21 model keypoints; skeletons unchanged: {hidden_keypoints}', flush=True)
     # Neutral presentation material: make the white hand readable on a white
     # slide. This overrides only this unsaved stage, not the robot USD asset.
     material = UsdShade.Material.Define(stage, '/Presentation/HandMaterial')
@@ -204,6 +213,7 @@ def main():
                         retarget_file=str(retarget), fk_saved_error_max_m=float(np.linalg.norm(robot-expected, axis=-1).max()),
                         mode='kinematic USD pose replay using existing FK; no RL, IK, physics or grasp-success claim',
                         camera_eye=eye.tolist(), camera_target=center.tolist(),
+                        hidden_model_keypoint_paths=hidden_keypoints,
                         frame_indices=data['source_frame_indices'].tolist())
         (args.output / 'metadata.json').write_text(json.dumps(metadata, indent=2)+'\n')
     except Exception:

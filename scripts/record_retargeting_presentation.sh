@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/_common.sh"
 setup_regrind_python
-[[ $# -ge 1 ]] || die "Usage: bash scripts/record_retargeting_presentation.sh NEW_OUTPUT_DIRECTORY [--sequence NAME]"
+[[ $# -ge 1 ]] || die "Usage: bash scripts/record_retargeting_presentation.sh NEW_OUTPUT_DIRECTORY [--sequence NAME] [--hide-model-keypoints]"
 output="$1"
 shift
 [[ ! -e "$output" ]] || die "Output already exists: $output"

@@ -22,6 +22,8 @@ parser.add_argument("--video", action="store_true", default=False, help="Record 
 parser.add_argument("--video_length", type=int, default=270, help="Length of the recorded video (in steps).")
 parser.add_argument("--video-output-dir", default=None,
                     help="Optional fresh recording directory; existing directories are rejected to preserve videos.")
+parser.add_argument("--hide-revo2-keypoints", action="store_true",
+                    help="Presentation only: hide Robot/kp_00..kp_20 visuals in the USD session layer.")
 parser.add_argument(
     "--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations."
 )
@@ -447,6 +449,14 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # create isaac environment
     env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
+
+    if args_cli.hide_revo2_keypoints:
+        import omni.usd
+        from regrind.utils.presentation_visibility import hide_revo2_keypoints
+        hidden = hide_revo2_keypoints(omni.usd.get_context().get_stage())
+        if not hidden:
+            raise RuntimeError("Requested Revo2 keypoint hiding, but no Robot/kp_* marker roots were found")
+        print(f"[presentation] hidden {len(hidden)} keypoint roots (session visibility only): {hidden}")
 
     # convert to single-agent instance if required by the RL algorithm
     if isinstance(env.unwrapped, DirectMARLEnv):

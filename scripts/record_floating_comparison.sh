@@ -3,9 +3,17 @@
 set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/_common.sh"
-[[ $# -eq 2 ]] || die "Usage: bash scripts/record_floating_comparison.sh CHECKPOINT NEW_OUTPUT_DIRECTORY"
-checkpoint="$1"
-record_dir="$2"
+presentation_args=()
+if [[ "${1:-}" == "--presentation-hq" ]]; then
+    shift
+    presentation_args=(--hide-revo2-keypoints
+        env.video_recorder.window_width=3840 env.video_recorder.window_height=2160)
+fi
+case $# in
+    1) checkpoint="${DEFAULT_FLOATING_CHECKPOINT}"; record_dir="$1" ;;
+    2) checkpoint="$1"; record_dir="$2" ;;
+    *) die "Usage: bash scripts/record_floating_comparison.sh [--presentation-hq] [CHECKPOINT] NEW_OUTPUT_DIRECTORY" ;;
+esac
 require_file "$checkpoint" checkpoint
 [[ ! -e "$record_dir" ]] || die "Output already exists: $record_dir"
 mkdir -p "$record_dir"
@@ -20,7 +28,7 @@ common=(--sequence 20200709_143747_left --checkpoint "$checkpoint" --headless
 for condition in retargeting_only residual_rl; do
   action_args=()
   [[ "$condition" == retargeting_only ]] && action_args+=(--zero_actions)
-  bash "$SCRIPT_DIR/rl.sh" play "${common[@]}" "${action_args[@]}" \
+  bash "$SCRIPT_DIR/rl.sh" play "${common[@]}" "${presentation_args[@]}" "${action_args[@]}" \
     --video-output-dir "$record_dir/$condition" \
     --rollout-path "$record_dir/${condition}_states.h5" \
     > "$record_dir/${condition}.log" 2>&1
