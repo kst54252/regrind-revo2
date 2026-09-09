@@ -17,6 +17,9 @@ import cli_args  # isort: skip
 
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
+parser.add_argument('--fingertip-contact-config', help='Opt-in uncalibrated last-phalanx contact JSON (arm transfer only)')
+parser.add_argument('--arm-controller',choices=('video','baseline'),default='video',help='Arm transfer controller; floating training unaffected')
+parser.add_argument('--training-seconds',type=float,help='Arm transfer wall-time budget; finish current PPO update and save')
 parser.add_argument("--video", action="store_true", default=False, help="Record videos during training.")
 parser.add_argument("--video_length", type=int, default=200, help="Length of the recorded video (in steps).")
 parser.add_argument("--video_interval", type=int, default=2000, help="Interval between video recordings (in steps).")
@@ -30,6 +33,8 @@ parser.add_argument(
 )
 parser.add_argument("--seed", type=int, default=None, help="Seed used for the environment")
 parser.add_argument("--max_iterations", type=int, default=None, help="RL Policy training iterations.")
+parser.add_argument('--transfer-init', default=None,
+                    help='Initialize online-arm actor/critic/normalizers from a floating checkpoint; fresh optimizer/iteration.')
 parser.add_argument(
     "--distributed", action="store_true", default=False, help="Run training with multiple GPUs or nodes."
 )
@@ -119,6 +124,29 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # override configurations with non-hydra CLI arguments
     agent_cfg = cli_args.update_rsl_rl_cfg(agent_cfg, args_cli)
     agent_cfg = handle_deprecated_rsl_rl_cfg(agent_cfg, installed_version)
+    arm_transfer = agent_cfg.experiment_name == 'rb3_revo2_tuna_transfer'
+    if args_cli.transfer_init and not arm_transfer:
+        raise ValueError('--transfer-init requires the existing train-arm transfer task')
+    if arm_transfer:
+        from regrind.tasks.manager_based.dexterous.config.rb3_revo2.rb3_revo2_online_env_cfg import configure_transfer_baseline
+        if bool(args_cli.transfer_init) == bool(agent_cfg.resume):
+            raise ValueError('train-arm requires exactly one: --transfer-init FLOATING.pt or --resume --checkpoint TRANSFER.pt')
+        configure_transfer_baseline(env_cfg, rsi=env_cfg.commands.reference.rsi_enabled)
+        if args_cli.arm_controller == 'video':
+            from regrind.utils.arm_execution_config import configure_video_execution, CONTACT_FILE
+            if env_cfg.commands.reference.rsi_enabled:
+                raise ValueError('Video-controller transfer currently uses RSI OFF; do not silently change reset semantics')
+            env_cfg.scene.num_envs = args_cli.num_envs if args_cli.num_envs is not None else 1
+            configure_video_execution(env_cfg)
+            agent_cfg.experiment_name = 'rb3_revo2_tuna_transfer_video'
+            if not args_cli.fingertip_contact_config: args_cli.fingertip_contact_config=str(CONTACT_FILE)
+    if args_cli.training_seconds is not None and not arm_transfer:
+        raise ValueError('--training-seconds currently supports audited arm transfer only')
+    if args_cli.fingertip_contact_config:
+        if not arm_transfer:
+            raise ValueError('Experimental contact training currently requires train-arm; floating defaults remain unchanged')
+        from regrind.utils.revo2_contact_material import configure_contact
+        configure_contact(env_cfg, args_cli.fingertip_contact_config)
     env_cfg.scene.num_envs = args_cli.num_envs if args_cli.num_envs is not None else env_cfg.scene.num_envs
     agent_cfg.max_iterations = (
         args_cli.max_iterations if args_cli.max_iterations is not None else agent_cfg.max_iterations
@@ -202,6 +230,12 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # wrap around environment for rsl-rl
     env = RslRlVecEnvWrapper(env, clip_actions=agent_cfg.clip_actions)
+    if args_cli.fingertip_contact_config:
+        import json
+        from pathlib import Path
+        from regrind.utils.revo2_contact_material import verify_contact
+        Path(log_dir).mkdir(parents=True, exist_ok=True)
+        Path(log_dir, 'contact_verification.json').write_text(json.dumps(verify_contact(env.unwrapped), indent=2)+'\n')
 
     # create runner from rsl-rl
     if agent_cfg.class_name == "OnPolicyRunner":
@@ -213,17 +247,35 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # write git state to logs
     runner.add_git_repo_to_log(__file__)
     # load the checkpoint
-    if agent_cfg.resume or agent_cfg.algorithm.class_name == "Distillation":
+    if (agent_cfg.resume and not arm_transfer) or agent_cfg.algorithm.class_name == "Distillation":
         print(f"[INFO]: Loading model checkpoint from: {resume_path}")
         # load previously trained model
         runner.load(resume_path)
+
+    if arm_transfer:
+        from regrind.utils.arm_transfer import prepare_transfer, TransferAudit
+        source = args_cli.transfer_init or resume_path
+        transfer_info = prepare_transfer(runner, source, resume=agent_cfg.resume)
+        transfer_audit = TransferAudit(runner, env, source, log_dir, transfer_info)
 
     # dump the configuration into log-directory
     dump_yaml(os.path.join(log_dir, "params", "env.yaml"), env_cfg)
     dump_yaml(os.path.join(log_dir, "params", "agent.yaml"), agent_cfg)
 
     # run training
-    runner.learn(num_learning_iterations=agent_cfg.max_iterations, init_at_random_ep_len=True)
+    if args_cli.training_seconds is not None:
+        from regrind.utils.arm_transfer import install_transfer_time_limit, TransferTimeLimitReached
+        install_transfer_time_limit(runner,args_cli.training_seconds)
+        try:
+            runner.learn(num_learning_iterations=agent_cfg.max_iterations,init_at_random_ep_len=False)
+        except TransferTimeLimitReached:
+            print('[arm transfer] Wall-time budget reached after complete update; saving final checkpoint.',flush=True)
+            runner.save(os.path.join(log_dir,f'model_{runner.current_learning_iteration}.pt'))
+            runner.logger.stop_logging_writer()
+    else:
+        runner.learn(num_learning_iterations=agent_cfg.max_iterations, init_at_random_ep_len=not arm_transfer)
+    if arm_transfer:
+        transfer_audit.finish()
 
     # close the simulator
     env.close()

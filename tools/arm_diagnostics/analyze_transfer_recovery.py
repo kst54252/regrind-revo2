@@ -177,5 +177,99 @@ def main(root):
         fig.tight_layout();fig.savefig(root/'comparison.png',dpi=150);plt.close(fig)
 
 
+def verify_pair_conditions(metas, *, material_only=False):
+    """Reject confounded pairs; optional contact experiment keeps policy fixed."""
+    from copy import deepcopy
+    left, right = metas
+    for meta in metas:
+        modes = ('floating', 'legacy', 'simple') if material_only else ('legacy', 'simple')
+        if meta['mode'] not in modes or meta['stage'] != 'grasp' or len(meta['ends']) != 20:
+            raise ValueError('Requires two completed 20-placement live evaluations')
+        if not meta['frozen_policy_verified'] or (meta['mode']!='floating' and not meta.get('transfer_controller_contract')):
+            raise ValueError('Missing frozen-policy/controller verification')
+    if left['mode'] != right['mode']: raise ValueError('Compare materials within the same embodiment')
+    normalized = deepcopy(metas)
+    if material_only:
+        if left['checkpoint_sha256'] != right['checkpoint_sha256']:
+            raise ValueError('Material comparison must keep the checkpoint unchanged')
+        if left.get('fingertip_contact') or not right.get('fingertip_contact'):
+            raise ValueError('Material comparison requires original -> verified compliant contacts')
+        if (left['robot_spawn']['func'] != 'isaaclab.sim.spawners.from_files.from_files:spawn_from_usd'
+                or right['robot_spawn']['func'] != 'regrind.utils.revo2_contact_material:spawn_with_last_phalanx_contact'):
+            raise ValueError('Unverified material spawn implementation')
+        for meta in normalized:
+            meta.get('transfer_controller_contract',{}).pop('fingertip_contact',None)
+            meta['robot_spawn'].pop('revo2_contact_spec',None)
+            meta['robot_spawn'].pop('func',None)  # Only the opt-in material-spawn wrapper differs.
+    for key in ('mode', 'transfer_controller_contract', 'reference', 'physics_dt', 'control_dt',
+                'limits', 'gains', 'gravity', 'robot_spawn', 'joint_names', 'state_bank'):
+        if normalized[0].get(key) != normalized[1].get(key):
+            raise ValueError(f'Changed paired evaluation condition: {key}')
+    for ep in range(20):
+        for key in ('all_q', 'all_v', 'robot_root', 'object_state', 'wrist_pos', 'wrist_quat',
+                    'wrist_velocity', 'hand_q', 'hand_v', 'follower_q', 'follower_v', 'phase'):
+            np.testing.assert_allclose(left['initial_states'][ep][key], right['initial_states'][ep][key],
+                                       rtol=0, atol=2e-6, err_msg=f'initial state {ep}: {key}')
+
+
+def compare_transfer(before, after, destination, *, material_only=False):
+    """Paired policy transfer, or explicit same-policy material-only experiment."""
+    metas = [json.loads((path/'metadata.json').read_text()) for path in (before, after)]
+    verify_pair_conditions(metas, material_only=material_only)
+    result = dict(initial_states_verified=True, controller_verified=True,
+        comparison='same policy, contact material only' if material_only else 'same physics, policy transfer',
+        contact_settings=[m.get('fingertip_contact') for m in metas],
+        note='Task success unchanged. Lift/hold proxy: final 0.2 s at least 0.1 m rise and 80% can-robot contact >0.01 N. Not a new task criterion; effort saturation UNKNOWN.',
+        sources={'before':str(before), 'after':str(after)}, policies={})
+    for label, path in (('before', before), ('after', after)):
+        summary = summarize(path)
+        with (path/'physics.jsonl').open() as stream:
+            rows = [json.loads(line) for line in stream]
+        for entry in summary['episodes']:
+            ep = entry['episode']; samples = [row for row in rows if row['episode'] == ep]
+            actions = np.asarray([row['action'] for row in samples])
+            if not np.isfinite(actions).all(): raise ValueError('Nonfinite evaluated action')
+            entry['raw_residual_norm'] = stats(np.linalg.norm(actions, axis=1))
+            entry['raw_wrist_residual_norm'] = stats(np.linalg.norm(actions[:, :6], axis=1))
+            entry['raw_hand_residual_norm'] = stats(np.linalg.norm(actions[:, 6:], axis=1))
+            initial_z = metas[0]['initial_states'][ep]['object_state'][2]
+            rise = np.asarray([row['state']['object_state'][2] - initial_z for row in samples])
+            entry['max_lift_m'] = float(rise.max())
+            entry['lift_then_drop_proxy'] = bool(rise.max() >= .1 and rise[-1] < .05)
+        result['policies'][label] = summary
+    old, new = (result['policies'][label]['episodes'] for label in ('before', 'after'))
+    for metric in ('success', 'lift_proxy'):
+        result[metric+'_to_failure'] = [a['episode'] for a,b in zip(old,new) if a[metric] and not b[metric]]
+        result['failure_to_'+metric] = [a['episode'] for a,b in zip(old,new) if not a[metric] and b[metric]]
+    destination.mkdir(parents=True, exist_ok=True)
+    with (destination/'transfer_comparison.json').open('x') as stream:
+        json.dump(result, stream, indent=2); stream.write('\n')
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    fig, axes = plt.subplots(2, 2, figsize=(12, 7))
+    for label, summary in result['policies'].items():
+        es = summary['episodes']; x = [e['episode'] for e in es]
+        series = ([e['final_lift_m']*1000 for e in es],
+                  [e['metrics']['all']['wrist_position_error_m']['mean']*1000 for e in es],
+                  [e['metrics']['all']['hand_error_rad']['mean'] for e in es],
+                  [e['metrics']['all']['object_keypoint_error_m']['mean']*1000 for e in es])
+        for axis, values, title in zip(axes.flat, series,
+                ('Final can lift [mm]', 'Wrist error [mm]', 'Finger error [rad]', 'Object keypoint error [mm]')):
+            axis.plot(x, values, 'o-', label=label); axis.set_ylabel(title)
+            axis.set_xlabel('Saved placement index'); axis.grid(alpha=.3)
+    axes[0,0].legend(); fig.tight_layout(); fig.savefig(destination/'transfer_comparison.png', dpi=150); plt.close(fig)
+    print(json.dumps({label:{k:s[k] for k in ('successes','lift_proxy_count')} for label,s in result['policies'].items()}))
+    print('success -> failure', result['success_to_failure'])
+    print('failure -> success', result['failure_to_success'])
+
+
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('root',type=Path);main(p.parse_args().root)
+    p=argparse.ArgumentParser();p.add_argument('root',type=Path)
+    p.add_argument('--transfer-before',type=Path);p.add_argument('--transfer-after',type=Path)
+    p.add_argument('--material-only',action='store_true',help='Same frozen policy and embodiment; only verified distal contacts differ')
+    args=p.parse_args()
+    if bool(args.transfer_before) != bool(args.transfer_after):p.error('Specify both transfer comparison directories')
+    if args.material_only and not args.transfer_before:p.error('--material-only requires paired directories')
+    if args.transfer_before:compare_transfer(args.transfer_before,args.transfer_after,args.root,material_only=args.material_only)
+    else:main(args.root)

@@ -9,10 +9,15 @@ import time
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
 from isaaclab.app import AppLauncher
 p=argparse.ArgumentParser(description=__doc__)
+p.add_argument('--fingertip-contact-config',help='Opt-in uncalibrated last-phalanx contact JSON')
+p.add_argument('--match-recording',help='Restore checkpoint/controller/state bank from a completed simple-arm run metadata; overrides launcher defaults, not policy actions')
+p.add_argument('--arm-controller',choices=('video','baseline'),help='Approved video+rubber controller, or retained baseline; optional for historical diagnostics')
 p.add_argument('--mode',choices=('floating','legacy','simple'),required=True)
+p.add_argument('--transfer-evaluation',action='store_true',
+    help='Use the deterministic train-arm controller contract: legacy or approved video, RSI off.')
 p.add_argument('--stage',choices=('ab','grasp','actual','recovery'),default='grasp')
 p.add_argument('--recovery-capture',action='store_true')
-p.add_argument('--realtime-view',action='store_true',help='Live policy with reduced diagnostics and wall-clock pacing; does not guarantee real-time throughput')
+p.add_argument('--realtime-view','--real_time',action='store_true',help='Live policy with reduced diagnostics and wall-clock pacing; does not guarantee real-time throughput')
 p.add_argument('--record-video',action='store_true',help='Record native simulation frames at control FPS, not wall-clock speed')
 p.add_argument('--fast-ik',action='store_true',help='Opt-in warm-first existing IK with bounded-step validation and full fallback')
 p.add_argument('--ik-policy-rate',action='store_true',help='Live simple mode: solve IK on the first physics substep of each policy action, holding accepted q between solves')
@@ -33,14 +38,26 @@ p.add_argument('--save-state-bank')
 p.add_argument('--transfer-config',help='Opt-in screened live controller JSON; never applied to other modes')
 p.add_argument('--actual-source',default='outputs/diagnostics/minimal_interface_20260907/floating20',
     help='Successful measured floating rollout directory, used only by --stage actual')
-p.add_argument('--episodes',type=int,default=1)
+p.add_argument('--episodes','--eval_episodes',type=int,default=1)
+p.add_argument('--num_envs',type=int,choices=(1,),default=1,help='This paired evaluator supports one environment only')
 p.add_argument('--checkpoint',required=True)
 p.add_argument('--states',default='outputs/diagnostics/arm_policy_velocity_zero20_20260907.jsonl')
+p.add_argument('--expected-reference',help='Fail if the stored state bank uses a different reference than the launcher requested')
 p.add_argument('--output',required=True)
 p.add_argument('--response-tau',type=float,default=0.,
     help='Experimental simple-mode wrist command response time in seconds; 0 disables')
 p.add_argument('--headless',dest='legacy_headless',action='store_true')
 AppLauncher.add_app_launcher_args(p);args=p.parse_args()
+recording_profile=None
+if args.arm_controller=='baseline' and (args.mode!='legacy' or args.transfer_config):
+    raise ValueError('Explicit baseline requires legacy mode without a candidate preset')
+if args.arm_controller=='video':
+    if args.match_recording:raise ValueError('Choose current default or historical recording, not both')
+    from regrind.utils.arm_execution_config import select_video_arguments
+    select_video_arguments(args)
+if args.match_recording:
+    from tools.rb3_revo2_ik.recorded_run_profile import match_recording
+    recording_profile=match_recording(args,args.match_recording)
 if args.transfer_config:
     if args.mode!='simple' or args.stage!='grasp':raise ValueError('Transfer config requires live simple mode')
     selected=json.loads(Path(args.transfer_config).read_text())
@@ -106,6 +123,8 @@ def main():
         raise ValueError('Physics response is a live simple-mode positive-tau experiment')
     bank_records=[json.loads(line) for line in Path(args.states).open()]
     bank_meta=bank_records[0]
+    if args.expected_reference and Path(args.expected_reference).resolve()!=Path(bank_meta['reference']).resolve():
+        raise ValueError('State-bank reference differs from requested reference; use a matching bank or the baseline path')
     bank={r['episode']:r for r in bank_records if r['event']=='initialization'}
     if args.episodes<1 or args.episodes>20 or len(bank)<args.episodes+1:raise ValueError('Need complete state bank plus final autoreset state')
     floating=args.mode=='floating'
@@ -113,6 +132,18 @@ def main():
     cfg=parse_env_cfg(task,device=args.device,num_envs=1,use_fabric=True)
     cfg.seed=bank_meta['seed'] if args.new_state_seed is None else args.new_state_seed
     cfg.commands.reference.trajectory_path=bank_meta['reference']
+    if args.transfer_evaluation:
+        video_transfer=args.arm_controller=='video'
+        if video_transfer:
+            if args.stage!='grasp' or args.zero_actions or args.recovery_no_can or args.new_state_seed is not None:
+                raise ValueError('Video transfer evaluation requires actual live policy and saved initial states')
+        elif (args.mode!='legacy' or args.stage!='grasp' or args.arm_gains_key!='baseline'
+                or Path(args.arm_gains_file).resolve()!=ROOT/'config/experiments/rb3_precision_candidates.json'
+                or args.arm_velocity_path or args.zero_actions or args.recovery_no_can
+                or args.new_state_seed is not None):
+            raise ValueError('Transfer evaluation requires unchanged legacy grasp controller')
+        from regrind.tasks.manager_based.dexterous.config.rb3_revo2.rb3_revo2_online_env_cfg import configure_transfer_baseline
+        configure_transfer_baseline(cfg, rsi=False)
     if args.new_state_seed is not None:
         # PLAY disables placement sampling; enable ONLY for the explicit bank
         # capture. Existing training-defined XY ranges and all dynamics remain.
@@ -140,6 +171,12 @@ def main():
     if args.record_video:
         cfg.viewer.eye=(1.4,1.2,.85);cfg.viewer.lookat=(.2,0.,.15)
         cfg.viewer.resolution=(1280,720)
+    if args.fingertip_contact_config:
+        from regrind.utils.revo2_contact_material import configure_contact
+        configure_contact(cfg,args.fingertip_contact_config)
+    if args.arm_controller=='video':
+        from regrind.utils.arm_execution_config import configure_video_execution
+        configure_video_execution(cfg)
     env=gym.make(task,cfg=cfg,render_mode='rgb_array' if args.record_video else None).unwrapped
     if env.event_manager.active_terms:raise ValueError('Evaluation must be deterministic')
     command=env.command_manager.get_term('reference');robot=command.robot
@@ -198,6 +235,12 @@ def main():
             np.testing.assert_allclose(s['all_v'],expected['all_joint_vel'],atol=1e-6,rtol=0)
         if args.stage!='ab' and not args.recovery_no_can:np.testing.assert_allclose(s['object_state'],expected['object_root_state'],atol=1e-6,rtol=0)
         if s['phase']!=expected['reference_frame']:raise ValueError('Phase mismatch')
+        if recording_profile and counter['episode'] < len(recording_profile['record']['ends']):
+            recorded=recording_profile['record']['initial_states'][counter['episode']]
+            for key in ('all_q','all_v','wrist_pos','wrist_quat','wrist_velocity',
+                        'hand_q','hand_v','follower_q','follower_v','object_state','phase'):
+                np.testing.assert_allclose(s[key],recorded[key],atol=2e-6,rtol=0,
+                    err_msg='Recorded physical reset mismatch: '+key)
         s['episode']=counter['episode']
         if args.recovery_capture:
             # Read reset-owned buffers only; never advance observation history.
@@ -228,7 +271,34 @@ def main():
         runner=OnPolicyRunner(wrapper,agent.to_dict(),log_dir=None,device=env.device)
         runner.load(args.checkpoint);policy=runner.get_inference_policy(device=env.device)
         adapter=FrozenPolicyAdapter(policy)
+    contact_verification=None
+    if args.fingertip_contact_config:
+        from regrind.utils.revo2_contact_material import verify_contact
+        contact_verification=verify_contact(env)
+    transfer_contract=None
+    if args.transfer_evaluation:
+        from regrind.utils.arm_transfer import controller_contract
+        transfer_contract=controller_contract(env)
+        saved=torch.load(args.checkpoint,map_location='cpu',weights_only=False)
+        prior=(saved.get('infos') or {}).get('arm_transfer')
+        if prior and prior['controller_contract']!=transfer_contract:
+            raise ValueError('Evaluation controller/reference differs from transfer training')
     counter['placement']=0  # Wrapper construction resets once; evaluation starts anew.
+    runtime_profile=dict(physics_dt=env.physics_dt,control_dt=env.step_dt,
+        gains=dict(kp=array(robot.data.joint_stiffness)[0],kd=array(robot.data.joint_damping)[0]),
+        limits=dict(position=array(robot.data.soft_joint_pos_limits)[0],
+                    velocity=array(robot.data.joint_vel_limits)[0],effort=array(robot.data.joint_effort_limits)[0]),
+        joint_names=list(robot.joint_names),gravity=env.cfg.sim.gravity,initial_native_settings=native_settings)
+    runtime_profile=json.loads(json.dumps(runtime_profile,default=serial))
+    if recording_profile:
+        from tools.rb3_revo2_ik.recorded_run_profile import verify_recorded_runtime
+        verify_recorded_runtime(recording_profile['record'],runtime_profile)
+    print('[resolved execution]',json.dumps(dict(mode=args.mode,wrist_controller=type(root_action).__name__,
+        checkpoint=str(Path(args.checkpoint).resolve()),states=str(Path(args.states).resolve()),
+        contact='uncalibrated compliant' if contact_verification else 'original rigid',
+        response_tau_s=args.response_tau,arm_velocity_path=args.arm_velocity_path,
+        physics_dt=env.physics_dt,policy_dt=env.step_dt,gains=runtime_profile['gains'],
+        matched_recording=recording_profile['metadata'] if recording_profile else None)),flush=True)
     obs,_=wrapper.reset();verify_initial()
     from isaaclab_physx.physics import PhysxManager as SimulationManager
     contact_paths=robot.root_view.link_paths[0]
@@ -461,6 +531,10 @@ def main():
         def encode(x):
             if callable(x):return x.__module__+'.'+x.__qualname__
             return serial(x)
+        if transfer_contract is not None:meta['transfer_controller_contract']=transfer_contract
+        if contact_verification is not None:meta['fingertip_contact']=contact_verification
+        if recording_profile:
+            meta['matched_recording']={key:recording_profile[key] for key in ('metadata','metadata_sha256')}
         (out/'metadata.json').write_text(json.dumps(meta,default=encode,indent=2)+'\n')
         (out/'policy.json').write_text(json.dumps(policy_records,default=serial)+'\n')
         if args.realtime_view or (args.recovery_capture and args.stage=='grasp'):

@@ -11,9 +11,13 @@ Usage: ./scripts/rl.sh COMMAND [options]
 Commands:
   train    Train floating Revo2 PPO (16-env smoke task by default; --full uses 4096 env config)
   train-arm
-           Fine-tune the same 67-D/12-D policy through strict IK in the assembled arm task
+           Fine-tune the same 67-D/12-D policy through the selected mounted arm controller
+           Start: --transfer-init FLOATING.pt (fresh optimizer); resume: --resume --checkpoint TRANSFER.pt
+           Separate logs; video default 1 env, full gravity, randomization/RSI OFF.
+           --training-seconds 3600 stops after a completed PPO update. See docs/RL_TASK.md.
   play     Replay a floating-hand policy in the deterministic GUI task
-  play-arm Run that floating policy online on RB3+Revo2 using per-step strict IK
+  play-arm Approved video arm controller + compliant fingertips (1 env, stored placement bank)
+           --arm-controller baseline retains the previous strict-IK play path
   zero     Replay the floating-hand reference with zero residual actions
   debug    Inspect observation, reward, RSI, and finite-value checks
 
@@ -21,17 +25,23 @@ Common project options:
   --sequence NAME    Prefer rb3_revo2_reference_stable.h5 when present, otherwise
                      use outputs/isaac/dexycb/NAME/rb3_revo2_reference.h5
   --reference PATH   Use an explicit reference file (overrides --sequence)
+  --arm-controller video|baseline
+                     Shared arm play/transfer controller; default video (floating unchanged)
+  --output PATH      Fresh arm video-controller evaluation directory
   --legacy-arm-rl    Select the former combined RB3+Revo2 RL task
   --random-placement Enable random can/reference XY in evaluation (training default: ON)
 
 Play options:
+  Primary-sequence play/play-arm default to the pinned 10000-update floating
+  checkpoint in scripts/_common.sh (override with --checkpoint or
+  REGRIND_FLOATING_CHECKPOINT). Missing defaults fail instead of selecting another run.
   --rollout-path P   Save one floating-hand policy episode for downstream RB3 IK
   --arm-tracking-path P
-                     Save first play-arm episode target/measured telemetry as NPZ
+                     Baseline controller only: first episode target/measured telemetry NPZ
   --rb3-stiffness-scale S
   --rb3-damping-scale S
   --rb3-effort-scale S
-                     Runtime play-arm gain/limit multipliers for measured comparison
+                     Baseline controller only: runtime gain/limit comparisons
 
 Zero options handled here:
   --gui              Open the Kit viewer
@@ -51,6 +61,8 @@ shift
 
 sequence="${DEFAULT_SEQUENCE}"
 reference=""
+arm_controller="video"
+arm_output=""
 full_training=false
 gui=false
 skeleton=false
@@ -60,6 +72,17 @@ rollout_path=""
 passthrough=()
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        --arm-controller)
+            [[ $# -ge 2 ]] || die "--arm-controller requires video or baseline"
+            arm_controller="$2"
+            [[ "$arm_controller" == video || "$arm_controller" == baseline ]] || die "Unknown arm controller"
+            shift 2
+            ;;
+        --output)
+            [[ $# -ge 2 ]] || die "--output requires a directory"
+            if [[ "$command_name" == play-arm ]]; then arm_output="$2"; else passthrough+=("$1" "$2"); fi
+            shift 2
+            ;;
         --sequence)
             [[ $# -ge 2 ]] || die "--sequence requires a value"
             sequence="$2"
@@ -121,6 +144,7 @@ case "${command_name}" in
     train|train-arm)
         task="Regrind-Floating-Revo2-TunaCan-Smoke-v0"
         if [[ "${command_name}" == "train-arm" ]]; then
+            passthrough+=(--arm-controller "$arm_controller")
             [[ "${legacy_arm_rl}" == false ]] || die "train-arm cannot be combined with --legacy-arm-rl"
             task="Regrind-RB3-Revo2-TunaCan-Online-Smoke-v0"
         elif [[ "${legacy_arm_rl}" == true ]]; then
@@ -142,6 +166,11 @@ case "${command_name}" in
         ;;
     play|play-arm)
         play_args=()
+        if [[ "${legacy_arm_rl}" == false && "${sequence}" == "20200709_143747_left" ]] && \
+            ! has_policy_selection "${passthrough[@]}"; then
+            require_file "${DEFAULT_FLOATING_CHECKPOINT}" "default 10000-update floating checkpoint (use --checkpoint or REGRIND_FLOATING_CHECKPOINT)"
+            play_args+=(--checkpoint "${DEFAULT_FLOATING_CHECKPOINT}")
+        fi
         headless=false
         for argument in "${passthrough[@]}"; do
             [[ "${argument}" == "--headless" ]] && headless=true
@@ -149,8 +178,21 @@ case "${command_name}" in
         if [[ "${headless}" == false ]]; then
             play_args+=(--visualizer kit --max_visible_envs 1)
         fi
+        if [[ "${command_name}" == play-arm && "$arm_controller" == video ]]; then
+            [[ "${legacy_arm_rl}" == false ]] || die "Use --arm-controller baseline for --legacy-arm-rl"
+            [[ "$sequence" == "${DEFAULT_SEQUENCE}" ]] || die "Video default requires the validated sequence/state bank; custom sequences use baseline"
+            [[ -n "$arm_output" ]] || arm_output="outputs/diagnostics/arm_play_$(date +%Y%m%d_%H%M%S)_$$"
+            [[ "$headless" == true ]] && play_args+=(--visualizer none)
+            echo "[arm execution] Approved video controller + compliant fingertips; original floating policy unless explicitly overridden." >&2
+            exec bash "${SCRIPT_DIR}/evaluate_mounted_interface.sh" --mode simple --arm-controller video \
+                --transfer-evaluation --episodes 20 \
+                --states outputs/diagnostics/arm_transfer_recovery/heldout_initial_states_v2.jsonl \
+                --expected-reference "$reference" --output "$arm_output" \
+                "${play_args[@]}" "${passthrough[@]}"
+        fi
         task="Regrind-Floating-Revo2-TunaCan-Play-v0"
         if [[ "${command_name}" == "play-arm" ]]; then
+            echo "[arm execution] Explicit previous strict-IK baseline selected; approved video/rubber controller is not used." >&2
             task="Regrind-RB3-Revo2-TunaCan-Online-Play-v0"
         elif [[ "${legacy_arm_rl}" == true ]]; then
             task="Regrind-RB3-Revo2-TunaCan-Play-v0"
