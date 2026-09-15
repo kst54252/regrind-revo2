@@ -1,0 +1,12 @@
+{
+  "backend": "mock",
+  "world_frame": "mock_world",
+  "control_period_s": 0.008333333333333333,
+  "max_state_age_s": 0.025,
+  "arm_max_speed_rad_s": 0.25,
+  "hand_max_speed_rad_s": 0.25,
+  "arm_max_acceleration_rad_s2": 1.0,
+  "hand_max_acceleration_rad_s2": 1.0,
+  "max_tracking_error_rad": 0.05,
+  "note": "MOCK contract-test bounds only, not manufacturer limits or a commissioned hardware config. No actuator gains, effort overrides, network address, or hardware enable."
+}
