@@ -36,6 +36,9 @@ RB3-730 arm, Isaac replay, and floating-hand residual PPO for a tuna can.
   compatibility wrappers.
 - Main commands: `scripts/run_pipeline.sh`, `scripts/rl.sh train|play|play-arm`,
   `scripts/run_isaac_replay.sh`. Pipeline generation is not a smoke test.
+- Isaac Lab GUI launches must include `--viz kit` (alias `--visualizer kit`);
+  omitting `--headless` is insufficient. Verify a visible window before reporting
+  it open. See [GUI launch guidance](scripts/README.md#gui-launch) for scope.
 - Preserve observation/action normalization and order, phase/dt, command vs
   actual state, and default controller/reward/termination semantics in cleanup.
 - New experiments stay opt-in. Retire them only after reference checks and a

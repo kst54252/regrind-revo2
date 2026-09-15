@@ -3,6 +3,63 @@
 > On-demand document: read this only for cleanup, retention, or repository
 > archaeology. Start normal work from [architecture.md](architecture.md).
 
+## Feature-grouped housekeeping (2026-09-15)
+
+Started from `main` at `e452939`, matching fetched `origin/main`; worked on
+`cleanup/organize-20260915`. The tree already contained IK/workspace experiments,
+task-placement evaluation, replay output isolation, robot I/O/SDK work, and
+documentation/capture artifacts. These are preserved as separate feature groups;
+they were not implemented or promoted to defaults by this cleanup.
+
+| Decision / path | Action and evidence |
+|---|---|
+| SAFE: 30 `__pycache__` directories in `tools/`, `tests/`, `regrind/source/`, `regrind/scripts/` | Removed 181 untracked `.pyc` files (about 2.6 MiB allocated). Verified there were no other file types or tracked files. Archived current bytes and checked archive comparison before deletion. |
+| KEEP LOCAL: diagnostic NPZ and `preserved_before/` snapshots | Added scoped ignore rules, **no deletion**. 104 newly ignored arrays total 58.78 MiB. Call sites in tabletop branch/yaw/SQP tools read these arrays, and historical reports require snapshots. |
+| KEEP LOCAL: visualization JSONL / `policy.json` / `realtime.json` | Extended the existing comparison-trace ignore rule to presentation directories; nonempty records remain locally available. Capture metadata, compact plots/tables and reproduction scripts are preserved. |
+| KEEP: SDK virtual environment and real connection settings | SDK environment is required by `robot_sdk.sh`, not disposable cache. `hardware.local.json` is ignored; only mock/example config is versioned. No physical motion or connection was attempted. |
+| STILL UNCERTAIN: empty `policy.json`, original logs, old solver variants and dated capture scripts | No deletion. `analyze_ik_tracking.py` has a string-based policy-file reader; standalone scripts and old variants retain unique reproduction/tests. No internal importer alone is not sufficient evidence of obsolescence. |
+| KEEP: assets, reference/initial-state banks, datasets, checkpoints, tests, upstream code and licensing | No relocation or removal. Explicit tracked state-bank exception remains. Dataset stays read-only; no history rewriting. |
+| Navigation | Added `outputs/README.md`, clarified robot I/O ownership and raw-artifact retention, corrected retired `play_arm_fast.sh` ignore comment. Documented that `evaluate_semicircle` can launch Isaac; other offline analyzers cannot. No cosmetic module renames or new wrappers. |
+| Generated-file attributes | `outputs/**` marked generated for GitHub language statistics. CSV writer's CRLF triggered initial diff whitespace errors; scoped `cr-at-eol` accepts valid CSV endings while retaining other checks, without modifying original result bytes. |
+
+Recovery snapshot (local, not pushed):
+`/tmp/regrind-cleanup-20260915.SAeZgf/{changed-files.tar,caches.tar,tracked-before.patch,status-before.txt}`.
+The source/config snapshot covers current uncommitted bytes, not only HEAD.
+Use `tar -tf ARCHIVE` to locate a file and extract it into a separate recovery
+directory before restoring; `/tmp` is not permanent backup. No deleted source
+requires this snapshot: only regenerable bytecode was removed.
+
+Validation in this cleanup:
+
+- Before/after `PYTHONDONTWRITEBYTECODE=1 ./scripts/run_tests.sh`: 229 tests,
+  227 passed + 2 SDK-native skips in the main interpreter, including shell syntax
+  and existing mount/USD, FK/IK, mimic, observation/action and reset tests.
+- Isolated SDK interpreter: 12 SDK tests passed, including native loopback/PTY
+  protocol tests. These do not verify real hardware.
+- Seven new offline/mock launcher `--help` checks, RL help, five replay sequence
+  resolutions, SDK doctor and a 120-command mock FK/IK run passed.
+- 45 pre-existing changed source/config files matched the pre-cleanup snapshot
+  byte-for-byte. No tracked source/config/asset/dataset metadata was deleted.
+- Test logs: `/tmp/regrind_cleanup_{before,after}_20260915.log`; additional SDK,
+  mock and headless smoke records are under the recovery directory above.
+- Full 20-placement evaluation and real robot commissioning were not performed
+  as part of housekeeping. Historical evaluation counts elsewhere are not new
+  cleanup results.
+- Post-cleanup Isaac headless smoke: floating and simple/video arm each completed
+  one episode / 152 physics samples, with existing `success` and `demo_end_reached`
+  true and deviation/far-from-object false. Used the original 10k
+  `2026-09-08_01-28-29_floating_stable_ground_10000/model_9999.pt` checkpoint and
+  tracked `arm_transfer_recovery/heldout_initial_states_v2.jsonl` bank for both.
+  This is not a before/after physics identity test or a population success rate.
+- Reproduce these smoke runs with `bash scripts/evaluate_mounted_interface.sh
+  --mode floating --episodes 1 --headless --states BANK --checkpoint CHECKPOINT
+  --output NEW_DIRECTORY`; for the approved arm use `--mode simple
+  --arm-controller video` with the same inputs. Output logs are
+  `floating-smoke.log` / `arm-smoke.log` under the recovery directory.
+- Changed documentation's local file links resolve; focused diff and
+  `git diff --check` passed. Existing resource/deprecation warnings remain;
+  no assertions were weakened and no failing test was deleted.
+
 ## Readable layout cleanup
 
 2026-09-07; branch `cleanup/readable-layout-20260907`, starting from `531b9c8`.

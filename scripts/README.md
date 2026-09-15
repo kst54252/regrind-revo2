@@ -40,6 +40,31 @@ Offline `analyze_*` / `compare_*` launchers delegate to
 [`tools/arm_diagnostics/`](../tools/arm_diagnostics/README.md). They require saved
 experiment traces, not a running simulator.
 
+## GUI launch
+
+For Isaac Lab / `AppLauncher` viewer runs, explicitly pass **`--viz kit`**
+(alias `--visualizer kit`) and omit `--headless`. The installed launcher can
+default to headless even when `--headless` is absent. Check the actual visible
+window before reporting that the simulator is open; startup logs alone do not
+prove this. A wrapper may already supply the flag: check its argument forwarding.
+Standalone `SimulationApp` replay scripts have their own options; do not append
+`--viz kit` to a launcher that does not accept it. Headless jobs stay headless.
+
+## Robot I/O preparation and read-only SDK checks
+
+`bash scripts/check_robot_execution.sh --output NEW_COMMANDS.jsonl` exercises
+the existing FK/IK through a named, timestamped robot I/O boundary. It does not
+start Isaac, load a policy, connect to hardware, or alter `rl.sh` defaults.
+See [contracts, integration points and commissioning gaps](../docs/ROBOT_EXECUTION.md).
+Hardware execution is deliberately blocked until the SDK/calibration/stop path
+is implemented and verified; mock checks do not establish physical safety.
+
+Official SDK setup/read-only checks: `bash scripts/robot_sdk.sh install|doctor|probe`.
+`probe --config config/robot_execution/hardware.local.json --device revo2`
+uses the selected RS-485 connection; actual port/baudrate/slave ID must be supplied.
+RB3 uses the state channel only. See [SDK commands and limits](../docs/ROBOT_EXECUTION.md#공식-sdk-설치와-읽기-전용-연결).
+This is not a hardware motion or policy deployment command.
+
 ## Presentation media
 
 ### Retargeting presentation video (no RL or physics)
@@ -142,6 +167,12 @@ reproduction requirements. Retired presets require the documented Git revision.
 | Selected candidate + fast IK GUI; `play_arm_candidate.sh` | [Opt-in fast execution and comparison video](../docs/ARM_REALTIME_EXECUTION.md) |
 | 120 Hz wrist3-only gain comparison; existing evaluator/precision launchers (candidate rejected as replacement) | [Executed 40-placement comparison](../docs/ARM_IK120_IMPROVEMENT.md) |
 | 120 Hz singularity-aware velocity/acceleration-bounded IK; `play_arm_candidate.sh ... --transfer-config config/experiments/rb3_smooth_bounded_ik.json` (opt-in, approximate pose) | [Verified 40-placement IK fix](../docs/ARM_IK_SINGULARITY_FIX.md) |
+| Offline tabletop orange-region branch selection; `bash scripts/compare_tabletop_branches.sh` (strict pose, no live controller change) | [Tabletop screening and comparison](../docs/TABLETOP_OPERATING_REGION.md) |
+| Position-specific approach yaw; `bash scripts/search_tabletop_yaw.sh` (offline reference planning, not RL evaluation) | [Yaw search and limits](../docs/TABLETOP_OPERATING_REGION.md#캔-위치별-접근-방향-yaw-선택) |
+| Recorded singularity: end margins / branch / bounded IK / task yaw; `bash scripts/compare_singularity_methods.sh` (offline, defaults unchanged) | [Same-input comparison](../docs/ARM_IK_SINGULARITY_FIX.md#2026-09-11-같은-특이점-입력으로-여러-회피-방법-재비교) |
+| Closed-form all-branch IK vs constrained SLSQP; `bash scripts/compare_analytic_sqp.sh` (recorded targets, no default/physics change) | [Executed comparison and limitations](../docs/ARM_IK_SINGULARITY_FIX.md#2026-09-15-analytic-all-branch-ik와-sqp-비교) |
+| Whole-table fixed-yaw SQP scan; `bash scripts/scan_tabletop_sqp.sh` (recorded IK targets, strict/relaxed, no policy rollout) | [SQP table map](../docs/TABLETOP_OPERATING_REGION.md#2026-09-15-책상-전체-sqp-조사) |
+| Semicircle closed-loop grasps; `bash scripts/evaluate_semicircle.sh prepare\|run\|analyze` (opt-in task yaw, reset branch, workcell clearance; not the default play path) | [Actual 35-grid + 20-held-out comparison](../docs/TABLETOP_OPERATING_REGION.md#2026-09-15-반원-영역-실제-파지-평가) |
 
 Completed sweep-only launchers were retired; individual evaluators, analyzers,
 tests and evidence remain. See the [cleanup record](../docs/cleanup-plan.md#supported-path-cleanup-2026-09-07)

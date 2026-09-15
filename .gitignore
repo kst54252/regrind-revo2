@@ -29,6 +29,7 @@ Thumbs.db
 **/htmlcov/
 **/.venv/
 **/venv/
+/config/robot_execution/hardware.local.json
 **/env/
 .python-version
 
@@ -94,10 +95,17 @@ Thumbs.db
 /outputs/*.html
 /outputs/**/*.html
 # Diagnostic JSON/JSONL are local run records, not source configuration.
-# Keep the small state bank required by scripts/play_arm_fast.sh versioned.
+# Keep the small state bank required by scripts/play_arm_candidate.sh versioned.
 /outputs/diagnostics/**/*.json
 /outputs/diagnostics/**/*.jsonl
-/outputs/visualizations/comparisons/**/*.jsonl
+# Raw solver arrays and pre-experiment worktree snapshots stay local, too.
+# Some are analyzer inputs: ignore does NOT mean safe to delete.
+/outputs/diagnostics/**/*.npz
+/outputs/diagnostics/**/preserved_before/
+# Apply the same raw replay-trace policy to all presentation subdirectories.
+/outputs/visualizations/**/*.jsonl
+/outputs/visualizations/**/policy.json
+/outputs/visualizations/**/realtime.json
 !/outputs/diagnostics/arm_transfer_recovery/heldout_initial_states_v2.jsonl
 # Local worktree snapshots from the completed cleanup audit.
 /outputs/diagnostics/cleanup_20260907/status_before.txt

@@ -4,8 +4,10 @@ This is the repository index. Read the section matching the task, then follow
 one deeper document if needed:
 
 - [Current implementation status](current-status.md)
+- [한국어 전체 공부 자료: 구조·수식·원본 비교](PROJECT_WORKFLOW_KO.md), for an end-to-end explanation rather than routine task navigation
 - [Data pipeline and coordinate frames](DATA_PIPELINE.md)
 - [Floating Revo2 RL task](RL_TASK.md)
+- [팔 제어 구조·오차 개선 과정 해설 (한국어)](ARM_CONTROL_HISTORY_KO.md), when the control history or differences between RL/IK paths matter
 - [Isaac replay](ISAAC_SIM_REPLAY.md)
 - [Execution/diagnostic command index](../scripts/README.md), for arm comparisons
 - [Presentation media commands](../scripts/README.md#presentation-media), for captures
@@ -34,7 +36,8 @@ or nested repository.
 | `tools/dexycb_world_transform/` | Camera-to-world transforms and viewers |
 | `tools/revo2_kinematics/` | Isaac-independent Revo2 FK and 21 keypoints |
 | `tools/rb3_revo2_ik/` | RB3 FK/IK, trajectory tools, diagnostics, replay |
-| `tools/arm_diagnostics/` | Offline trace analysis and paired-result comparisons; no simulator launch |
+| `tools/robot_execution/` | Opt-in named/timestamped robot I/O seam and mock checks; [hardware not commissioned](ROBOT_EXECUTION.md) |
+| `tools/arm_diagnostics/` | Trace analysis and offline IK screening; `evaluate_semicircle` also orchestrates actual Isaac evaluations |
 | `regrind/scripts/` | Retargeting and Isaac Lab/RSL-RL Python entry points |
 | `regrind/source/regrind/regrind/` | Installable package, tasks, assets, and MDP terms |
 | `config/workcell/` | Shared table, pedestal, and mount geometry |
@@ -44,11 +47,12 @@ or nested repository.
 | `USD/`, `007_tuna_fish_can/` | Robot/workcell and tuna-can assets |
 | `outputs/`, `logs/` | Mixed generated artifacts and experiment runs |
 
-Diagnostic JSON/JSONL under `outputs/diagnostics/` stay local (the small
+Diagnostic JSON/JSONL and raw NPZ under `outputs/diagnostics/` stay local (the small
 `arm_transfer_recovery/heldout_initial_states_v2.jsonl` launcher input is tracked).
 Historical diagnostic commands may require separately copied local records;
 a fresh clone does not contain those traces. Config/model/keypoint JSON and
-pipeline manifests are not covered by this ignore rule.
+pipeline manifests are not covered by this ignore rule. See
+[artifact retention](../outputs/README.md) before moving machines or deleting results.
 
 ## Maintained entry points
 

@@ -1,8 +1,9 @@
 # Current project status
 
-Documentation/code-path review: 2026-09-08 (no new physics evaluation).
+Documentation/code-path review: 2026-09-15; dated experiment claims below retain
+their original conditions. Cleanup-only validation is recorded separately.
 This records implemented paths and known limits. The latest
-[cleanup validation record](cleanup-plan.md#validation-of-this-change)
+[cleanup validation record](cleanup-plan.md#feature-grouped-housekeeping-2026-09-15)
 distinguishes fresh baseline regression runs from historical experiments.
 
 ## Active pipeline
@@ -97,8 +98,14 @@ and remains opt-in, not a general grasp-success guarantee or a new default.
 
 ## Incomplete or out of scope
 
-- Real RB3/Revo2 communication, safety control, calibration, object tracking,
-  latency measurement, and sim-to-real validation.
+- An opt-in [robot I/O boundary](ROBOT_EXECUTION.md) now provides named actual
+  state/command contracts, existing FK/IK reuse, fault handling and mock tests.
+  Official SDK read-only RB3 state / Revo2 RS-485 readers and isolated installation
+  are implemented; native SDK localhost/PTY tests passed. Actual connection is
+  unverified (missing addresses/serial device). It is not installed into train/play;
+  hardware motion remains blocked.
+- Real RB3/Revo2 motion, safety control, calibration, object tracking, latency
+  measurement, and sim-to-real validation.
 - Guaranteed dynamic grasp reliability in the assembled-arm scene.
 - Tactile sensing, tuna-symmetry rewards, new policy architectures, or new RL
   algorithms.

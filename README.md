@@ -3,6 +3,9 @@
 DexYCB의 사람 손-물체 동작을 6-DoF Revo2 손으로 리타게팅하고, RB3-730의
 strict IK를 거쳐 12-DoF 궤적을 Isaac Sim에서 재생하는 프로젝트입니다.
 
+처음 공부한다면 [전체 공부 자료: 구조·구현·수식·원본 REGRIND와의 차이](docs/PROJECT_WORKFLOW_KO.md)를 읽으세요.
+빠른 실행만 필요하면 아래 명령과 [실행 색인](scripts/README.md)을 사용하세요.
+
 현재 파이프라인은 다음 범위를 다룹니다.
 
 ```text
@@ -80,13 +83,15 @@ RL/deployment branch
 | `tools/dexycb_world_transform/` | camera-to-world 변환 | 포함 |
 | `tools/revo2_kinematics/` | Revo2 FK와 semantic keypoint | 포함 |
 | `tools/rb3_revo2_ik/` | RB3 FK/IK, reference 생성, Isaac 실행·런타임 계측 | 포함 |
-| `tools/arm_diagnostics/` | 저장된 팔 추종·접촉·정책 비교 결과 분석 (시뮬레이터 실행 아님) | 포함 |
+| `tools/arm_diagnostics/` | 추종·접촉·정책 분석 및 IK 영역 조사; `evaluate_semicircle`만 Isaac 평가도 실행 | 포함 |
+| `tools/robot_execution/` | 선택형 로봇 I/O 계약, mock 검증, 읽기 전용 SDK (실물 구동은 차단) | 포함 |
+| `config/robot_execution/` | mock 및 연결 예시; 실제 주소·포트는 `hardware.local.json` | 예시만 포함 |
 | `scripts/` | 사람이 사용하는 대표 실행 명령 | 포함 |
 | `tests/` | 주 simulator-independent 회귀 테스트 | 포함 |
 | `docs/` | 구조, 데이터, 실행 설명 | 포함 |
 | `USD/` | RB3/Revo2 USD와 Stage | 포함 |
 | `007_tuna_fish_can/` | YCB tuna can asset | 필요한 경량 asset만 포함 |
-| `outputs/` | 전처리·리타게팅·IK 결과는 일부 추적, 대형 HTML은 제외 | 혼합 |
+| `outputs/` | 결과·재현 자료; [보관 및 별도 백업 기준](outputs/README.md) | 소형 보고/그림과 일부 reference만 포함 |
 
 자세한 파일 관계는 [프로젝트 구조](docs/PROJECT_STRUCTURE.md), 좌표계와 데이터
 형식은 [데이터 파이프라인](docs/DATA_PIPELINE.md), Isaac 실행은
