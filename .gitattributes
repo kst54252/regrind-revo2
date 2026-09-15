@@ -1,0 +1,5 @@
+# Saved results are evidence, not maintained implementation/language statistics.
+outputs/** linguist-generated=true
+# Python's CSV writer emits valid CRLF records. Preserve bytes/hashes and keep
+# all other whitespace checks enabled for these generated diagnostic tables.
+outputs/diagnostics/**/*.csv whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
