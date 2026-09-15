@@ -52,11 +52,21 @@ def _remove_command_translation(
     """
 
     offset = getattr(command, "observation_translation_offset", None)
+    placement = getattr(command, "task_placement", None)
+    if placement is not None:
+        if offset is None:
+            raise ValueError('Task yaw requires canonical placement observations')
+        return placement.canonical_position(data, offset)
     if offset is None:
         return data
     while offset.ndim < data.ndim:
         offset = offset.unsqueeze(-2)
     return data - offset
+
+
+def _canonical_quat(quat, command):
+    placement = getattr(command, "task_placement", None)
+    return quat if placement is None else placement.canonical_quat(quat)
 
 
 # -- Object observations --
@@ -93,7 +103,7 @@ def object_ori(
         quat = quat_mul(delta_quat, quat)
         quat = quat / (quat.norm(dim=-1, keepdim=True) + 1e-8)
     quat = _maybe_apply_delay(env, delay_key, quat)
-    mat = matrix_from_quat(quat)
+    mat = matrix_from_quat(_canonical_quat(quat, command))
     return mat[..., :2].reshape(mat.shape[0], -1)
 
 
@@ -117,12 +127,16 @@ def object_keypoints_pos(env: ManagerBasedEnv, command_name: str) -> torch.Tenso
 
 def object_lin_vel(env: ManagerBasedEnv, command_name: str) -> torch.Tensor:
     command: MotionCommand = env.command_manager.get_term(command_name)
-    return command.current_object_lin_vel
+    placement = getattr(command, "task_placement", None)
+    velocity = command.current_object_lin_vel
+    return velocity if placement is None else placement.canonical_vector(velocity)
 
 
 def object_ang_vel(env: ManagerBasedEnv, command_name: str) -> torch.Tensor:
     command: MotionCommand = env.command_manager.get_term(command_name)
-    return command.current_object_ang_vel
+    placement = getattr(command, "task_placement", None)
+    velocity = command.current_object_ang_vel
+    return velocity if placement is None else placement.canonical_vector(velocity)
 
 
 def target_object_pos(env: ManagerBasedEnv, command_name: str) -> torch.Tensor:
@@ -173,7 +187,9 @@ def hand_wrist_pos(
         # Delta-action controllers need an actual env/world-frame base even
         # when the policy observation itself is canonicalized.
         offset = getattr(command, "observation_translation_offset", None)
-        env.delayed_hand_wrist_pos = data if offset is None else data + offset
+        placement = getattr(command, "task_placement", None)
+        env.delayed_hand_wrist_pos = (placement.world_position(data, offset) if placement is not None
+                                     else data if offset is None else data + offset)
     return data
 
 
@@ -200,7 +216,7 @@ def hand_wrist_rot6d(
         quat = _maybe_apply_delay(env, delay_key, quat)
         # Store delayed wrist quat for use by delta-action controllers.
         env.delayed_hand_wrist_quat = quat
-    mat = matrix_from_quat(quat)
+    mat = matrix_from_quat(_canonical_quat(quat, command))
     return mat[..., :2].reshape(mat.shape[0], -1)
 
 
@@ -279,6 +295,7 @@ def action_base_wrist_pos_and_rot6d(
     if command_name is not None:
         command = env.command_manager.get_term(command_name)
         base_pos = _remove_command_translation(base_pos, command)
+        base_quat = _canonical_quat(base_quat, command)
     mat = matrix_from_quat(base_quat)
     return torch.cat([base_pos, mat[..., :2].reshape(mat.shape[0], -1)], dim=-1)
 

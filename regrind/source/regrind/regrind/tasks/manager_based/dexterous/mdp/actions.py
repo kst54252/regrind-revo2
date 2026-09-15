@@ -221,6 +221,13 @@ class SE3ImpedanceActionTerm(ActionTerm):
 
         base_pos, base_quat = self._get_base_pose()
 
+        placement = getattr(self, "task_placement", None)
+        if placement is not None:
+            # Canonical residual is clipped/scaled ONCE before rotating into
+            # the physical world; rotating raw actions before clipping differs.
+            delta_pos = placement.world_vector(delta_pos)
+            delta_rot = placement.world_vector(delta_rot)
+
         self.target_pos = base_pos + delta_pos
         delta_quat = _rotvec_to_quat(delta_rot)
         self.target_quat = quat_mul(delta_quat, base_quat)

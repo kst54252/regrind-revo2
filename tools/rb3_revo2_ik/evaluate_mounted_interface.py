@@ -42,6 +42,10 @@ p.add_argument('--episodes','--eval_episodes',type=int,default=1)
 p.add_argument('--num_envs',type=int,choices=(1,),default=1,help='This paired evaluator supports one environment only')
 p.add_argument('--checkpoint',required=True)
 p.add_argument('--states',default='outputs/diagnostics/arm_policy_velocity_zero20_20260907.jsonl')
+p.add_argument('--task-placement-bank',action='store_true',
+    help='Opt-in per-episode rigid reference yaw, canonical policy frame and named reset arm branch')
+p.add_argument('--placement-loop',action='store_true',
+    help='GUI only: shuffle and repeat all --episodes saved placements until the window closes; not a finite evaluation')
 p.add_argument('--expected-reference',help='Fail if the stored state bank uses a different reference than the launcher requested')
 p.add_argument('--output',required=True)
 p.add_argument('--response-tau',type=float,default=0.,
@@ -123,10 +127,21 @@ def main():
         raise ValueError('Physics response is a live simple-mode positive-tau experiment')
     bank_records=[json.loads(line) for line in Path(args.states).open()]
     bank_meta=bank_records[0]
+    if args.task_placement_bank and (args.mode not in ('simple','floating') or args.stage!='grasp'
+                                   or bank_meta.get('bank_kind')!='semicircle_task_placements'):
+        raise ValueError('Task placement requires a semicircle bank and live simple/floating evaluation')
+    if bank_meta.get('bank_kind')=='semicircle_task_placements' and not args.task_placement_bank:
+        raise ValueError('Explicit --task-placement-bank is required for this bank')
     if args.expected_reference and Path(args.expected_reference).resolve()!=Path(bank_meta['reference']).resolve():
         raise ValueError('State-bank reference differs from requested reference; use a matching bank or the baseline path')
     bank={r['episode']:r for r in bank_records if r['event']=='initialization'}
-    if args.episodes<1 or args.episodes>20 or len(bank)<args.episodes+1:raise ValueError('Need complete state bank plus final autoreset state')
+    if args.placement_loop:
+        if not args.task_placement_bank or not args.realtime_view or args.headless or args.record_video:
+            raise ValueError('Placement loop requires a visible realtime task-placement viewer, without video recording')
+        from tools.rb3_revo2_ik.task_placement import ShuffledPlacementCycle
+        bank=ShuffledPlacementCycle(bank,args.episodes,bank_meta['seed'])
+    elif args.episodes<1 or args.episodes>20 or len(bank)<args.episodes+1:
+        raise ValueError('Need complete state bank plus final autoreset state')
     floating=args.mode=='floating'
     task='Regrind-Floating-Revo2-TunaCan-Play-v0' if floating else 'Regrind-RB3-Revo2-TunaCan-Online-Play-v0'
     cfg=parse_env_cfg(task,device=args.device,num_envs=1,use_fabric=True)
@@ -171,6 +186,9 @@ def main():
     if args.record_video:
         cfg.viewer.eye=(1.4,1.2,.85);cfg.viewer.lookat=(.2,0.,.15)
         cfg.viewer.resolution=(1280,720)
+    if args.placement_loop:
+        cfg.viewer.eye=(1.5,-1.5,1.2);cfg.viewer.lookat=(.35,0.,.15)
+        cfg.viewer.resolution=(1600,1000)
     if args.fingertip_contact_config:
         from regrind.utils.revo2_contact_material import configure_contact
         configure_contact(cfg,args.fingertip_contact_config)
@@ -194,11 +212,30 @@ def main():
         original_sample(ids)
         i=counter['placement'];counter['placement']+=1
         if args.new_state_seed is None:command.placement_offset[ids]=tensor(bank[i]['placement_offset'])
+        if args.task_placement_bank:
+            from tools.rb3_revo2_ik.task_placement import place_reference
+            place_reference(command,bank[i]['task_yaw_deg'],bank[i].get('reset_arm_q'))
+            root_action.task_placement=command.task_placement
     command._sample_placement=sample
     original_resample=command._resample_command
     def resample(ids):
         original_resample(ids)
         expected=bank[counter['placement']-1]
+        if args.task_placement_bank and not floating:
+            # Restore the explicit bank state ON RESET ONLY, after the normal
+            # reset IK validated the pose. Numerical IK can otherwise perturb
+            # an offline double-precision seed when its target becomes float32.
+            q0=np.asarray(expected['reset_arm_q'],dtype=float)
+            pos0,quat0=kin.forward(q0)
+            pe,oe=pose_errors(pos0[None],quat0[None],array(command.target_hand_wrist_pos),
+                              array(command.target_hand_wrist_quat))
+            if (not np.isfinite(q0).all() or np.any(q0<kin.joint_lower) or np.any(q0>kin.joint_upper)
+                    or float(pe[0])>1e-6 or float(oe[0])>1e-5):
+                raise ValueError('Explicit reset branch does not match current mounted wrist reference')
+            root_action.goal[0]=tensor(q0);root_action.applied.copy_(root_action.goal)
+            robot.write_joint_state_to_sim(root_action.goal,torch.zeros_like(root_action.goal),joint_ids=arm_ids,env_ids=ids)
+            robot.set_joint_position_target_index(target=root_action.goal,joint_ids=arm_ids,env_ids=ids)
+            robot.set_joint_velocity_target_index(target=torch.zeros_like(root_action.goal),joint_ids=arm_ids,env_ids=ids)
         if floating:
             # Reset only: align common physical wrist pose and zero wrist twist
             # with mounted reset (arm starts at zero joint velocity).
@@ -225,7 +262,9 @@ def main():
                      applied_arm_target=array(root_action.applied_joint_target)[0])
             initial_records.append(s);return
         np.testing.assert_allclose(s['wrist_pos'],expected['actual_base_pos'],atol=2e-6,rtol=0)
-        np.testing.assert_allclose(s['wrist_quat'],expected['actual_base_quat_xyzw'],atol=2e-6,rtol=0)
+        expected_quat=np.array(expected['actual_base_quat_xyzw'])
+        if args.task_placement_bank and np.dot(s['wrist_quat'],expected_quat)<0:expected_quat=-expected_quat
+        np.testing.assert_allclose(s['wrist_quat'],expected_quat,atol=2e-6,rtol=0)
         names=bank_meta['user_joint_names']
         for key,ids in [('hand_q',hand_ids),('follower_q',followers),('hand_v',hand_ids),('follower_v',followers)]:
             source='all_joint_vel' if key.endswith('_v') else 'all_joint_pos'
@@ -242,6 +281,12 @@ def main():
                 np.testing.assert_allclose(s[key],recorded[key],atol=2e-6,rtol=0,
                     err_msg='Recorded physical reset mismatch: '+key)
         s['episode']=counter['episode']
+        if args.task_placement_bank:
+            s.update(placement_id=expected['placement_id'],task_yaw_deg=expected['task_yaw_deg'],
+                     placement_offset=array(command.placement_offset)[0])
+            if args.placement_loop:
+                print(f'[random placement] episode={counter["episode"]} id={expected["placement_id"]} '
+                      f'can_xy={s["object_state"][:2].tolist()} yaw={expected["task_yaw_deg"]:.1f} deg',flush=True)
         if args.recovery_capture:
             # Read reset-owned buffers only; never advance observation history.
             s['reset_buffers']={key:array(getattr(root_action,key)) for key in
@@ -446,7 +491,7 @@ def main():
                     env.sim.step(render=False);env.scene.update(dt=env.physics_dt)
         else:
             wall_start=time.perf_counter()
-            while len(ends)<args.episodes and app.is_running():
+            while (args.placement_loop or len(ends)<args.episodes) and app.is_running():
                 # Existing history owner is called with update_history=False.
                 started=time.perf_counter()
                 if not args.realtime_view and not args.zero_actions:
@@ -478,6 +523,13 @@ def main():
                             print(f'[IK schedule] {root_action.tracking_ik_count} solves / {root_action.physics_apply_count} physics applies; policy={1/env.step_dt:g} Hz, physics={1/env.physics_dt:g} Hz (reset IK excluded)',flush=True)
         if adapter is not None:adapter.assert_frozen()
         meta=dict(mode=args.mode,stage=args.stage,checkpoint=str(Path(args.checkpoint).resolve()),
+            placement_loop=args.placement_loop,
+            task_placement_bank=args.task_placement_bank,
+            task_placement_reset='explicit bank q, FK-verified, reset only' if args.task_placement_bank else None,
+            runtime_wrist_controller=dict(class_name=type(root_action).__name__,
+                bounded_ik=type(root_action.bounded_kin).__name__ if getattr(root_action,'bounded_kin',None) is not None else None,
+                response_tau_s=getattr(root_action.cfg,'response_tau',None),
+                command_acceleration_bound=getattr(root_action.cfg,'ik_acceleration_limit',None)),
             realtime_view=args.realtime_view,
             zero_actions=args.zero_actions,
             fast_ik=args.fast_ik,
