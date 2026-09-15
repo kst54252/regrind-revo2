@@ -88,6 +88,7 @@ contact claims.
 - `--paused`: start paused
 - `--start-frame N`: initial frame
 - `--dt SECONDS`: override trajectory time step
+- `--validation-output FILE.npz`: save a diagnostic report separately; default report paths are unchanged
 - `--no-demo-skeleton`: hide MANO21
 - `--object-mass KG`, `--object-friction VALUE`: dynamic-can properties
 - `--loop` / `--no-loop`: repeat behavior

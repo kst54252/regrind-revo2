@@ -104,6 +104,10 @@ if PHYSICS_OBJECT:
         "diagnostics",
         "rb3_physics_object_replay_validation.npz",
     )
+# An isolated diagnostic must not overwrite the normal replay's saved report.
+VALIDATION_OUTPUT_PATH = os.environ.get(
+    "REVO2_REPLAY_VALIDATION_OUTPUT", VALIDATION_OUTPUT_PATH
+)
 SHOW_OBJECT_REFERENCE = _env_bool(
     "REVO2_SHOW_OBJECT_REFERENCE", not PHYSICS_OBJECT
 )

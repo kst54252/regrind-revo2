@@ -36,6 +36,10 @@ def _parser():
         ),
     )
     parser.add_argument("--trajectory", type=Path, help="Explicit 12-DoF reference override.")
+    parser.add_argument(
+        "--validation-output", type=Path,
+        help="Optional validation NPZ path; keeps diagnostic runs separate from existing reports.",
+    )
     parser.add_argument("--list-sequences", action="store_true")
     parser.add_argument("--object-mesh", type=Path, default=DEFAULT_OBJECT_MESH)
     parser.add_argument(
@@ -160,6 +164,11 @@ def main():
 
     os.environ["REVO2_PROJECT_ROOT"] = str(PROJECT_ROOT)
     os.environ["REVO2_TRAJECTORY_PATH"] = str(trajectory_path)
+    if args.validation_output is not None:
+        validation_path = args.validation_output.expanduser().resolve()
+        if validation_path == trajectory_path:
+            raise ValueError("Validation output must not overwrite the input trajectory")
+        os.environ["REVO2_REPLAY_VALIDATION_OUTPUT"] = str(validation_path)
     os.environ["REVO2_OBJECT_MESH_PATH"] = str(object_mesh_path)
     os.environ["REVO2_REPLAY_SPEED"] = str(args.speed)
     loop = (not args.physics_object) if args.loop is None else args.loop
