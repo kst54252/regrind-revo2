@@ -1,0 +1,6 @@
+# Isolated tools/robot_execution/.venv only; never install into Isaac's environment.
+rbpodo==0.16.14
+bc-stark-sdk==2.0.3
+numpy==2.2.6
+scipy==1.15.3
+pybind11==3.1.0

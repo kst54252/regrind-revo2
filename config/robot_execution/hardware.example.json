@@ -1,0 +1,16 @@
+{
+  "mode": "read_only",
+  "rb3": {
+    "address": null,
+    "data_port": 5001,
+    "timeout_s": 1.0
+  },
+  "revo2": {
+    "transport": "rs485",
+    "port": null,
+    "baudrate": null,
+    "slave_id": null,
+    "expected_hand": "right",
+    "timeout_s": 1.0
+  }
+}
