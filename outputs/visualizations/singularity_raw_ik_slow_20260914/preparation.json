@@ -1,0 +1,36 @@
+{
+  "mode": "KINEMATIC_ONLY; no policy, IK solve, actuator tuning or dynamic grasp",
+  "source": "outputs/diagnostics/ik120_improvement_20260907/old20_baseline",
+  "episode": 11,
+  "source_episode_steps": [
+    108,
+    132
+  ],
+  "source_command_time_s": [
+    0.8916666666666666,
+    1.0916666666666666
+  ],
+  "source_state_time_s": [
+    0.9,
+    1.1
+  ],
+  "raw_peak_step_rad": 0.7981749788234782,
+  "raw_peak_path_speed_rad_s": 95.78099745881738,
+  "motion_seconds": 12.25,
+  "hold_each_end_seconds": 1.5,
+  "display_samples": 916,
+  "fps": 60.0,
+  "max_analytic_speed_rad_s": 0.6459380598793909,
+  "max_analytic_acceleration_rad_s2": 1.993344725154287,
+  "max_sampled_speed_rad_s": 0.6459826389983192,
+  "max_sampled_acceleration_rad_s2": 1.990087625930359,
+  "all_original_25_joint_knots_preserved": true,
+  "joint_interpolation": "piecewise joint-linear path, common quintic scalar timing; no angle wrapping or branch changes",
+  "hand": "recorded leader commands, existing replay expands mimic",
+  "object": "recorded post-step visual poses, not physics; common interpolation progress",
+  "wrist_reference": "FK of dense q for geometric replay validation, not original target tracking",
+  "dense_fk_vs_interpolated_original_ik_target_max_m": 0.0001735305137722382,
+  "dense_fk_vs_interpolated_original_ik_target_max_rad": 0.0012286932629056969,
+  "input_metadata_sha256": "b9d559ca6c035b4e5d1e0b160726b0ac04a2d28fb1fbe5cf3405e3d4e40bd14e",
+  "reference_sha256": "3f3063213d0adabc39254e935e03606946da7a07078b877bf464162836c25490"
+}

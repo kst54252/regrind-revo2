@@ -1,0 +1,43 @@
+{
+  "source": "docs/PROJECT_WORKFLOW_KO.md",
+  "source_sha256": "55fed5f3409d94c055bbeeaa12f1844900f8cc88b8159560848a3aeafd3cef86",
+  "html": "outputs/visualizations/study/project_study_ko.html",
+  "html_bytes": 1096588,
+  "chapters": 21,
+  "tables": 42,
+  "local_links_and_fragments_checked": 112,
+  "display_math": 36,
+  "inline_math": 106,
+  "math_renderer": "Installed VS Code KaTeX: strict errors; HTML+MathML",
+  "embedded_fonts": 20,
+  "external_render_dependencies": 0,
+  "existing_executable_examples_unchanged": 9,
+  "bash_examples_syntax_checked": 7,
+  "python_examples_syntax_checked": 2,
+  "tests": {
+    "command": "./scripts/run_tests.sh",
+    "passed": 166,
+    "log": "/tmp/regrind-study-cEmffa/tests.log"
+  },
+  "browser_validation": {
+    "renderer": "Headless Chrome 151, isolated temporary profile",
+    "font_status": "loaded",
+    "rendered_formulas": 142,
+    "viewport_width_px": 1600,
+    "body_width_px": 1585,
+    "overflowing_display_formulas": 0,
+    "internal_anchor_links": "pass",
+    "screenshot": "/tmp/regrind-study-cEmffa/math-browser-verified.png"
+  },
+  "pdf_validation": {
+    "file": "outputs/visualizations/study/project_study_ko.pdf",
+    "pages": 55,
+    "size": "A4",
+    "text_extraction_warnings": 0,
+    "words_outside_page_bounds": 0,
+    "tagged": true,
+    "visual_samples": "cover, table, Laplacian and PPO formula pages"
+  },
+  "simulation_training_executed": false,
+  "upstream_commit": "38347a9e30184620df04e19c63c7c72378cae103"
+}
